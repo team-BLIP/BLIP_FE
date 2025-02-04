@@ -105,7 +105,7 @@ const DateTeamJoinNo = () => {
                   selectedDate &&
                   date.toDateString() === selectedDate.toDateString(); // 선택된 날짜인지 확인
                 return (
-                  <div
+                  <div style={typography.Title3}
                     key={dayIndex}
                     className={`calendar-day ${
                       date.getMonth() !== month ? "other-month" : ""
