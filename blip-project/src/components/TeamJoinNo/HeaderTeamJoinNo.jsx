@@ -1,4 +1,4 @@
-import "./HeaderTeamJoinNo.css";
+import "./CSS/HeaderTeamJoinNo.css";
 import Alarm from "/src/svg/Alarm.svg";
 import blackLogo from "/src/svg/blackLogo.svg";
 import Letter from "/src/svg/letter.svg";

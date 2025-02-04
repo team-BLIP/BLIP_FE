@@ -1,16 +1,16 @@
-import "./StartTeamJoinNo.css";
-import Popup from "./Popup";
+import "./CSS/StartTeamJoinNo.CSS";
 import { typography } from "../../fonts/fonts";
 import { color } from "../../style/color";
+import Modal from "./Modal";
+import { useState } from "react";
 
 const StartTeamJoinNo = () => {
-  const onClickPopup = () =>{
-    window.open(
-      "Popup.jsx",
-      "new",
-      "width = 70%, height=300, top = 100, left = 100"
-    );
-  }
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openModal = () => setIsModalOpen(true);
+
+  const closeModal = () => setIsModalOpen(false);
+
   return (
     <>
       <div className="StartTeamJoinNos">
@@ -31,7 +31,7 @@ const StartTeamJoinNo = () => {
           </div>
           <button
             className="STJoinNoButton"
-            onClick={onClickPopup}
+            onClick={openModal}
             style={{
               ...typography.Button0,
               "--main-400": color.Main[4],
@@ -42,6 +42,7 @@ const StartTeamJoinNo = () => {
           </button>
         </div>
       </div>
+      {isModalOpen && <Modal onClose={closeModal} />}
     </>
   );
 };

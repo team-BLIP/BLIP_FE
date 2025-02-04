@@ -35,13 +35,14 @@
 .STJoinNoInput {
   width: 45%;
   height: 20%;
+  padding-left: 10px;
   border-radius: 12px;
   border: 1px solid var(--gray-200);
   outline: none;
 }
 
 input::placeholder{
-  padding-left: 20px;
+  opacity: 1;
 }
 
 

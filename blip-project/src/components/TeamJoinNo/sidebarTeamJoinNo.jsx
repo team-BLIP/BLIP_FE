@@ -1,4 +1,4 @@
-import "./SidebarTeamJoinNo.css";
+import "./CSS/SidebarTeamJoinNo.css";
 import Add from "/src/svg/add.svg";
 
 const SidebarTeamJoinNo = () => {

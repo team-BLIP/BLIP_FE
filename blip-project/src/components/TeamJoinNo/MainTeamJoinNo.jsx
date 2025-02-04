@@ -1,4 +1,4 @@
-import "./MainTeamJoinNo.css";
+import "./CSS/MainTeamJoinNo.css";
 import DateTeamJoinNo from "../DateTeam";
 import HeaderTeamJoinNo from "./HeaderTeamJoinNo";
 import SidebarTeamJoinNo from "./sidebarTeamJoinNo";
