@@ -3,12 +3,35 @@ import { color } from "../../style/color";
 import ESC from "../../svg/ESC.svg";
 import "./CSS/Modal.css";
 import { useState } from "react";
+import ModalCreate from "./ModalCreate";
+import ModalJoin from "./ModalJoin";
 
 const Modal = ({ onClose }) => {
   const [isColor, setIsColor] = useState(false);
+  const [isColorButton, setIsColorButton] = useState(false);
+  const [isModalJoin, setIsModalJoin] = useState(false);
+  const [isModalCreate, setIsModalCreate] = useState(false);
 
-  const onClickTeam = () => {
+  const OpenModalJoin = () => setIsModalJoin(true);
+  const CloseModalJoin = () => setIsModalJoin(false);
+
+  const OpenModalCreate = () => setIsModalCreate(true);
+  const CloseModalCreate = () => setIsModalCreate(false);
+
+  const clickisColor = () => {
     setIsColor(true);
+    setIsColorButton(false);
+    if (isColor === true) {
+      setIsColor(false);
+    }
+  };
+
+  const clickisColorButton = () => {
+    setIsColor(false);
+    setIsColorButton(true);
+    if (isColorButton === true) {
+      setIsColorButton(false);
+    }
   };
 
   return (
@@ -33,29 +56,76 @@ const Modal = ({ onClose }) => {
           className="modal-team"
           style={{ "--gray-700": color.GrayScale[7] }}
         >
-          <button
-            className="modal-team-buttons"
-            style={{ ...typography.Title1 }}
-            onClick={onClickTeam}
-          >
-            팀스페이스 만들기
-          </button>
-          <button
-            className="modal-team-buttons"
-            style={{ ...typography.Title1 }}
-          >
-            팀스페이스 입장하기
-          </button>
+          {isColor ? (
+            <button
+              className="modal-team-buttons"
+              style={{
+                ...typography.Title1,
+                boxShadow: "0 0 3px 3px  #31AD5F",
+              }}
+              onClick={clickisColor}
+            >
+              팀스페이스 만들기
+            </button>
+          ) : (
+            <button
+              className="modal-team-buttons"
+              style={{ ...typography.Title1 }}
+              onClick={clickisColor}
+            >
+              팀스페이스 만들기
+            </button>
+          )}
+          {isColorButton ? (
+            <button
+              className="modal-team-buttons"
+              style={{
+                ...typography.Title1,
+                boxShadow: "0 0 3px 3px  #31AD5F",
+              }}
+              onClick={clickisColorButton}
+            >
+              팀스페이스 입장하기
+            </button>
+          ) : (
+            <button
+              className="modal-team-buttons"
+              style={{ ...typography.Title1 }}
+              onClick={clickisColorButton}
+            >
+              팀스페이스 입장하기
+            </button>
+          )}
         </div>
         <div className="modal-button-main">
-          <button
-            className="modal-button"
-            style={{ "--main-200": color.Main[2] }}
-          >
-            시작하기
-          </button>
+          {isColor ? (
+            <button
+              className="modal-button-400"
+              style={{ "--main-400": color.Main[4] }}
+              onClick={OpenModalCreate}
+            >
+              시작하기
+            </button>
+          ) : isColorButton ? (
+            <button
+              className="modal-button-400"
+              style={{ "--main-400": color.Main[4] }}
+              onClick={OpenModalJoin}
+            >
+              시작하기2
+            </button>
+          ) : (
+            <button
+              className="modal-button-200"
+              style={{ "--main-200": color.Main[2] }}
+            >
+              시작하기
+            </button>
+          )}
         </div>
       </div>
+      {isModalJoin && <ModalJoin onClose={CloseModalJoin} />}
+      {isModalCreate && <ModalCreate onClose={CloseModalCreate} />}
     </div>
   );
 };

@@ -31,36 +31,47 @@
 .modal-team {
   padding: 0px 45px;
   width: 100%;
-  height: 35%;
+  height:40%;
   color: var(--gray-700);
   display: flex;
   flex-direction: column;
+  justify-content: space-around;
 }
 
 .modal-team-buttons {
   width: 90%;
-  height: 100%;
+  height: 40%;
   background-color: transparent;
   display: flex;
   align-items: start;
   flex-direction: column;
   justify-content: center;
   border: none;
+  border-radius: 12px;
 }
 
 .modal-button-main{
   width: 100%;
-  height: 35%;
+  height: 30%;
   display: flex;
   justify-content: center;
   align-items: end;
 }
 
-.modal-button {
+.modal-button-400 {
   width: 40%;
   height: 25%;
-  background-color: var(--main-200);
+  background-color: var(--main-400 );
   color: white;
-  border: none;
   border-radius: 12px;
+  border: none;
 }
+
+.modal-button-200 {
+  width: 40%;
+  height: 25%;
+  background-color: var(--main-200 );
+  color: white;
+  border-radius: 12px;
+  border: none;
+} 
