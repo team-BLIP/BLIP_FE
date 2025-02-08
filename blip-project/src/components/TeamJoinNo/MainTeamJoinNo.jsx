@@ -3,7 +3,7 @@ import DateTeamJoinNo from "../DateTeam";
 import HeaderTeamJoinNo from "./HeaderTeamJoinNo";
 import SidebarTeamJoinNo from "./sidebarTeamJoinNo";
 import StartTeamJoinNo from "./StartTeamJoinNo";
-import MeetingTeamJoinNo from "./MeetingTeamJoinNo";
+import MeetingTeamJoinNo from "../MeetingTeam"
 
 const MTeamJoinNo = () => {
   return (

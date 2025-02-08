@@ -1,11 +1,5 @@
-
-*{
-  margin: 0;
-  padding: 0;
-}
-
 .MHTeamJoinNo{
-  width: 100%;
+  width: 1  00%;
   height: 64px;
   display: flex;
   justify-content: end;

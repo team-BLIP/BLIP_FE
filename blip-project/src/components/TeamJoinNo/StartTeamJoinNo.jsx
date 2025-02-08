@@ -3,12 +3,41 @@ import { typography } from "../../fonts/fonts";
 import { color } from "../../style/color";
 import Modal from "./Modal";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const StartTeamJoinNo = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [urlInput, setUrlInput] = useState("");
+  const [isUrl, setIsUrl] = useState(false);
+
+  const onChangeUrlInput = (e) => {
+    const urlValue = e.target.value;
+    setUrlInput(urlValue);
+    try {
+      new URL(urlValue);
+      setIsUrl(true);
+    } catch (error) {
+      setIsUrl(false);
+    }
+  };
+
+  const nav = useNavigate();
+
+  const handleClick = () => {
+    if (isUrl) {
+      nav("/TeamJoin", { state: { urlInput } });
+    } else {
+      openModal();
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleClick(); // Enter 키가 눌리면 onClickCreate 함수 호출
+    }
+  };
 
   const openModal = () => setIsModalOpen(true);
-
   const closeModal = () => setIsModalOpen(false);
 
   return (
@@ -22,16 +51,20 @@ const StartTeamJoinNo = () => {
             </div>
             <input
               className="STJoinNoInput"
+              placeholder="링크 주소를 입력하세요."
+              value={urlInput}
+              type="text"
+              onChange={onChangeUrlInput}
               style={{
                 ...typography.Header3,
-                "--gray-200": color.GrayScale[3],
+                borderColor: isUrl ? "#616064" : "red",
               }}
-              placeholder="링크 주소를 입력하세요."
             />
           </div>
           <button
             className="STJoinNoButton"
-            onClick={openModal}
+            onClick={handleClick}
+            onKeyDown={handleKeyDown}
             style={{
               ...typography.Button0,
               "--main-400": color.Main[4],
