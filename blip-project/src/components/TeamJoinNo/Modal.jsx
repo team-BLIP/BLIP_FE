@@ -112,7 +112,7 @@ const Modal = ({ onClose }) => {
               style={{ "--main-400": color.Main[4] }}
               onClick={OpenModalJoin}
             >
-              시작하기2
+              시작하기
             </button>
           ) : (
             <button
