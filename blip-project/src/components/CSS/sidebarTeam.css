@@ -1,0 +1,21 @@
+.MainSTJoinNo {
+  height: 90%;
+  width: 5%;
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-left: 20px;
+}
+
+.content-item {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 12px;
+  border: 1px solid black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20%;
+  box-shadow: 0 0 5px 5px #31AD5F;
+}
