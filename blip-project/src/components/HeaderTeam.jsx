@@ -1,10 +1,10 @@
-import "./CSS/HeaderTeamJoinNo.css";
-import Alarm from "/src/svg/Alarm.svg";
-import blackLogo from "/src/svg/blackLogo.svg";
-import Letter from "/src/svg/letter.svg";
+import "./CSS/HeaderTeam.css"
+import Alarm from "../svg/Alarm.svg";
+import blackLogo from "../svg/blackLogo.svg";
+import Letter from "../svg/letter.svg"
 import { useNavigate } from "react-router-dom";
 
-const HeaderTeamJoinNo = () => {
+const HeaderTeam = () => {
   const nav = useNavigate()
   return (
     <div className="MHTeamJoinNo">
@@ -17,4 +17,4 @@ const HeaderTeamJoinNo = () => {
   );
 };
 
-export default HeaderTeamJoinNo;
+export default HeaderTeam;

@@ -1,15 +1,15 @@
+import "./CSS/AlarmTeam.css"
 import { typography } from "../fonts/fonts";
 import { color } from "../style/color";
-import "./AlarmTeam.css";
 import DateTeamJoinNo from "./DateTeam";
-import HeaderTeamJoinNo from "./TeamJoinNo/HeaderTeamJoinNo";
-import SidebarTeamJoinNo from "./TeamJoinNo/sidebarTeamJoinNo";
+import HeaderTeam from "./HeaderTeam";
+import SidebarTeamJoinNo from "./sidebarTeam";
 import MeetingTeamJoinNo from "./MeetingTeam";
 
 const MTeamJoinNo = () => {
   return (
     <>
-      <HeaderTeamJoinNo />
+      <HeaderTeam />
       <div className="Alarm-main">
         <SidebarTeamJoinNo />
         <div className="Alarm-p">

@@ -1,16 +1,16 @@
 import "./CSS/MainTeamJoinNo.css";
-import DateTeamJoinNo from "../DateTeam";
-import HeaderTeamJoinNo from "./HeaderTeamJoinNo";
-import SidebarTeamJoinNo from "./sidebarTeamJoinNo";
+import DateTeamJoinNo from "./DateTeam";
+import HeaderTeam from "./HeaderTeam"
+import SidebarTeam from "./sidebarTeam";
 import StartTeamJoinNo from "./StartTeamJoinNo";
-import MeetingTeamJoinNo from "../MeetingTeam"
+import MeetingTeamJoinNo from "./MeetingTeam"
 
 const MTeamJoinNo = () => {
   return (
     <>
-      <HeaderTeamJoinNo />
+      <HeaderTeam />
       <div className="MTJoinNoSrc">
-        <SidebarTeamJoinNo />
+        <SidebarTeam />
         <StartTeamJoinNo />
         <div className="MTJoinNoDate">
           <DateTeamJoinNo />

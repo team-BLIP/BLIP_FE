@@ -1,6 +1,6 @@
 import "./CSS/StartTeamJoinNo.CSS";
-import { typography } from "../../fonts/fonts";
-import { color } from "../../style/color";
+import { typography } from "../fonts/fonts";
+import { color } from "../style/color";
 import Modal from "./Modal";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";

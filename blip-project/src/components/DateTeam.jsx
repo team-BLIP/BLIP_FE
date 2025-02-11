@@ -1,4 +1,4 @@
-import "./DateTeam.css";
+import "./CSS/DateTeam.css";
 import { color } from "../style/color";
 import { typography } from "../fonts/fonts";
 import { useState } from "react";

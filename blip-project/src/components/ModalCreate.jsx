@@ -1,26 +1,33 @@
-import { typography } from "../../fonts/fonts";
-import { color } from "../../style/color";
-import ESC from "../../svg/ESC.svg";
 import "./CSS/ModalCreate.css";
-import { useState } from "react";
+import { typography } from "../fonts/fonts";
+import { color } from "../style/color";
+import ESC from "../svg/ESC.svg";
+import { useState, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { SidebarContext } from "../Router";
 
 const ModalCreate = ({ onClose }) => {
-  const [isInput, setIsInput] = useState("");
-  const [form, setform] = useState("")
+  const { onCreateSidevar, dispatch } = useContext(SidebarContext);
+  const [content, setContent] = useState("");
+  const submitRef = useRef();
 
   const onChangeInput = (e) => {
-    setIsInput(e.target.value);
+    setContent(e.target.value);
     console.log(e.target.value);
   };
 
-  const nav = useNavigate()
+  const nav = useNavigate();
 
-  const onClickCreate = () =>{
-    if(isInput !== ""){
-      nav("/TeamJoin",{state:{form} });
+  const onClickCreate = () => {
+    if (content !== "") {
+      nav("/TeamJoin", { state: { content } });
+      dispatch.onCreateSidevar(content);
+      setContent("")
+    } else if (content === "") {
+      submitRef.current.focus();
+      return;
     }
-  }
+  };
 
   return (
     <div className="modal-overlay">
@@ -50,13 +57,14 @@ const ModalCreate = ({ onClose }) => {
           </p>
           <input
             placeholder="팀스페이스의 이름을 작성해주세요."
-            value={isInput}
+            value={content}
             type="text"
             onChange={onChangeInput}
+            ref={submitRef}
           ></input>
         </div>
         <div className="modal-create-button">
-          {isInput ? (
+          {content ? (
             <button
               className="modal-create-button-400"
               style={{ "--main-400": color.Main[4] }}

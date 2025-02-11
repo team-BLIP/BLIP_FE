@@ -1,7 +1,7 @@
-import { typography } from "../../fonts/fonts";
-import { color } from "../../style/color";
-import ESC from "../../svg/ESC.svg";
 import "./CSS/Modal.css";
+import { typography } from "../fonts/fonts";
+import { color } from "../style/color";
+import ESC from "../svg/ESC.svg"
 import { useState } from "react";
 import ModalCreate from "./ModalCreate";
 import ModalJoin from "./ModalJoin";

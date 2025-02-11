@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { typography } from "../../fonts/fonts";
-import { color } from "../../style/color";
-import ESC from "../../svg/ESC.svg";
 import "./CSS/ModalJoin.css";
+import { useState } from "react";
+import { typography } from "../fonts/fonts";
+import { color } from "../style/color";
+import ESC from "../svg/ESC.svg";
 import { useNavigate } from "react-router-dom";
 
 const ModalJoin = ({ onClose }) => {

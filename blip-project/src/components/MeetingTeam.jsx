@@ -1,4 +1,4 @@
-import "./MeetingTeam.css"
+import "./CSS/MeetingTeam.css"
 import { color } from "../style/color";
 import { typography } from "../fonts/fonts";
 
