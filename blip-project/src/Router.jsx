@@ -1,3 +1,4 @@
+import "./Router.css"
 import { Route, Routes } from "react-router-dom";
 import MainTeamJoinNo from "./components/MainTeamJoinNo";
 import MainTeamJoin from "./components/MainTeam";
@@ -9,7 +10,8 @@ import { useRef, useReducer, createContext, useCallback, useMemo } from "react";
 const mocDateSide = [
   {
     id: 0,
-    content: <img src={SidebarImg} alt="sidebar-img"/>,
+    content: <img className="mocDataImg" src={SidebarImg} alt="sidebar-img" />,
+    isPlus: true,
   },
 ];
 
@@ -34,6 +36,7 @@ export const AppRouter = () => {
       data: {
         id: idRef.current++,
         content: content,
+        isPlus: false,
       },
     });
   }, []);
@@ -45,7 +48,7 @@ export const AppRouter = () => {
   }, []);
 
   return (
-    <SidebarContext.Provider value={{ todos, dispatch:memoizedDispatch }}>
+    <SidebarContext.Provider value={{ todos, dispatch: memoizedDispatch }}>
       <Routes>
         <Route path="/" element={<MainTeamJoinNo />} />
         <Route path="/TeamJoin" element={<MainTeamJoin />} />
