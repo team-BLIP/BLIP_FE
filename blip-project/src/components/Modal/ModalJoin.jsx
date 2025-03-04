@@ -1,19 +1,22 @@
-import "./CSS/ModalJoin.css";
-import { useState } from "react";
-import { typography } from "../fonts/fonts";
-import { color } from "../style/color";
-import ESC from "../svg/ESC.svg";
+import "../CSS/ModalJoin.css";
+import { typography } from "../../fonts/fonts";
+import { color } from "../../style/color";
+import ESC from "../../svg/ESC.svg";
+import { useState, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { SidebarContext } from "../../Router";
 
 const ModalJoin = ({ onClose }) => {
   const [isInput, setIsInput] = useState("");
   const [isValidURL, setIsValidURL] = useState(true); // URL 유효성 상태
-  const nav = useNavigate();
-
+  const { onCreatedouble, dispatch } = useContext(SidebarContext);
+  const [content, setContent] = useState("");
+  const submitRef = useRef();
+  
   const onChangeInput = (e) => {
     const value = e.target.value;
     setIsInput(value);
-
+    
     // URL 유효성 검사
     try {
       new URL(value); // URL 객체로 변환
@@ -23,9 +26,16 @@ const ModalJoin = ({ onClose }) => {
     }
   };
 
+  const nav = useNavigate();
+
   const onClickUrl = () => {
     if (isValidURL) {
       nav("/TeamJoin", { state: { isInput } });
+      dispatch.onCreatedouble(content);
+      setContent("")
+    }else if(content === ""){
+      submitRef.current.focus();
+      return;
     }
   };
 
@@ -66,6 +76,7 @@ const ModalJoin = ({ onClose }) => {
             value={isInput}
             type="text"
             onChange={onChangeInput}
+            ref={submitRef}
             style={{
               borderColor: isValidURL ? "#F2F2F2" : "red", // 유효성에 따라 색상 변경
             }}

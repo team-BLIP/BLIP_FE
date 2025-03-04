@@ -1,31 +1,36 @@
-import "./CSS/ModalCreate.css";
-import { typography } from "../fonts/fonts";
-import { color } from "../style/color";
-import ESC from "../svg/ESC.svg";
-import { useState, useContext, useRef } from "react";
+import "../CSS/ModalCreate.css";
+import { typography } from "../../fonts/fonts";
+import { color } from "../../style/color";
+import ESC from "../../svg/ESC.svg";
+import { useState, useContext, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { SidebarContext } from "../Router";
+import { SidebarContext } from "../../Router";
 
 const ModalCreate = ({ onClose }) => {
-  const { onCreateSidevar, dispatch } = useContext(SidebarContext);
+  const { dispatch } = useContext(SidebarContext);
   const [content, setContent] = useState("");
   const submitRef = useRef();
+  const nav = useNavigate();
 
   const onChangeInput = (e) => {
     setContent(e.target.value);
     console.log(e.target.value);
   };
 
-  const nav = useNavigate();
-
   const onClickCreate = () => {
     if (content !== "") {
-      nav("/TeamJoin", { state: { content } });
-      dispatch.onCreateSidevar(content);
-      setContent("")
+      nav("/TeamOwner", { state: { content } });
+      dispatch.onCreateone(content);
+      setContent("");
     } else if (content === "") {
       submitRef.current.focus();
       return;
+    }
+  };
+
+  const onKeyDownCreate = (e) => {
+    if (e.key === "Enter") {
+      onClickCreate();
     }
   };
 
@@ -59,6 +64,7 @@ const ModalCreate = ({ onClose }) => {
             placeholder="팀스페이스의 이름을 작성해주세요."
             value={content}
             type="text"
+            onKeyDown={onKeyDownCreate}
             onChange={onChangeInput}
             ref={submitRef}
           ></input>
