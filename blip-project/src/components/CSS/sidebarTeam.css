@@ -1,17 +1,22 @@
 .MainSTJoinNo {
   height: 100%;
-  width: 5%;
+  width: 6%;
   margin-top: 0.5%;
   padding-top: 0.5%;
   padding-right: 10px;
   padding-left: 20px;
   gap: 2%;
-  overflow-y: auto;
+  overflow-y: scroll;
+}
+
+.MainSTJoinNo::-webkit-scrollbar {
+  width: 1px;
+  overflow: hidden;
 }
 
 .content-item {
-  margin-bottom: 15%;
-  min-width: 90%;
+  margin-bottom: 20%;
+  max-width: 90%;
   min-height: 2%;
   aspect-ratio: 1 / 1;
   border-radius: 12px;
@@ -22,12 +27,23 @@
 }
 
 .content-item-plus {
-  width: 100%;
+  width: 90%;
   display: flex;
   justify-content: center;
   aspect-ratio: 1/1;
   box-shadow: none;
   border: none;
   border-radius: 12px;
-  padding-bottom: 10%;
+  margin-bottom: 20%;
+}
+
+.content-item-image {
+  margin-bottom: 15%;
+  min-width: 90%;
+  min-height: 2%;
+  aspect-ratio: 1 / 1;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
