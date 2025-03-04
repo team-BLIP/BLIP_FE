@@ -1,0 +1,139 @@
+* {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.discord {
+  width: 85%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.discord-end {
+  width: 100%;
+  height: 100%;
+}
+
+.discord-end-x {
+  width: 95%;
+  height: 10%;
+  display: flex;
+  align-items: center;
+  justify-content: end;
+}
+
+.discord-end-fnot {
+  width: 100%;
+  height: 80%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2%;
+}
+
+.discord-body {
+  width: 100%;
+  height: 90%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.discord-main {
+  background-color: blueviolet;
+  width: 95%;
+  height: 95%;
+  border-radius: 24px;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+
+.discord-main video {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.discord-main-circle {
+  width: 100%;
+  height: 60%;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+}
+
+.discord-main-circle-src {
+  width: 20%;
+  height: 37%;
+  border-radius: 50%;
+  background-color: black;
+}
+
+.discord-main-foot {
+  width: 100%;
+  height: 30%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.discord-main-foot p {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #ffff;
+}
+
+.discord-main-nofoot {
+  width: 100%;
+  height: 5%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1%;
+  padding-left: 30%;
+}
+
+.discord-main-nofoot-video {
+  width: 100%;
+  height: 99%;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  gap: 1%;
+  padding-left: 30%;
+  z-index: 1000;
+}
+
+.discord-foot {
+  width: 100%;
+  height: 10%;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 50%;
+}
+
+.discord-foot-Src {
+  width: 20%;
+  height: 80%;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.discord-foot-NoSrc {
+  width: 60%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10%;
+}

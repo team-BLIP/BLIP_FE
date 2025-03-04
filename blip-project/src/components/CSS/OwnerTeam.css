@@ -1,0 +1,69 @@
+.owner-main {
+  width: 85%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.owner-body {
+  width: 100%;
+  height: 60%;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  padding: 2%;
+}
+
+.circle-main {
+  width: 20%;
+  height: 32%;
+  border-radius: 50%;
+  border:1px solid var(--gray-200) ;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.circle-main-img {
+  width: 80%;
+  height: 80%;
+  cursor: pointer;
+}
+
+.circle-main input[type="file"] {
+  display: none;
+}
+
+.TeamName-input{
+  width: 100%;
+  height: 10%;
+}
+
+.TeamName-input input{
+  width: 50%;
+  height: 100%;
+  border: 1px solid var(--gray-50);
+  border-radius: 12px;
+  padding-left: 2%;
+}
+
+.TeamName-input input::placeholder{
+  font-size: 100%;
+}
+
+.owner-button {
+  height: 20%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2%;
+}
+
+.owner-button button {
+  width: 25%;
+  height: 35%;
+  color: #ffff;
+  border-radius: 12px;
+  border: none;
+}
