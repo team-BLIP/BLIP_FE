@@ -1,29 +1,25 @@
-import "./CSS/AlarmTeam.css"
+import "./CSS/AlarmTeam.css";
 import { typography } from "../fonts/fonts";
 import { color } from "../style/color";
-import DateTeamJoinNo from "./DateTeam";
-import HeaderTeam from "./HeaderTeam";
-import SidebarTeamJoinNo from "./sidebarTeam";
-import MeetingTeamJoinNo from "./MeetingTeam";
+import { useLocation } from "react-router-dom";
 
-const MTeamJoinNo = () => {
+const Alarm = () => {
+  const location = useLocation();
   return (
     <>
-      <HeaderTeam />
-      <div className="Alarm-main">
-        <SidebarTeamJoinNo />
-        <div className="Alarm-p">
-          <p style={{ ...typography.Header3, color: color.GrayScale[4] }}>
-            아직 받은 알람이 없어요
-          </p>
-        </div>
-        <div className="Alarm-src ">
-          <DateTeamJoinNo />
-          <MeetingTeamJoinNo />
-        </div>
+      <div
+        className={`Alarm-p${
+          location.pathname == "/TeamOwner" || location.pathname == "/TeamJoin"
+            ? "-font"
+            : ""
+        }`}
+      >
+        <p style={{ ...typography.Header3, color: color.GrayScale[4] }}>
+          아직 받은 알람이 없어요
+        </p>
       </div>
     </>
   );
 };
 
-export default MTeamJoinNo;
+export default Alarm;

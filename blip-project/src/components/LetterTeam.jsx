@@ -1,29 +1,25 @@
 import "./CSS/LetterTeam.css";
 import { typography } from "../fonts/fonts";
 import { color } from "../style/color";
-import DateTeamJoinNo from "./DateTeam";
-import HeaderTeam from "./HeaderTeam";
-import SidebarTeam from "./sidebarTeam";
-import MeetingTeamJoinNo from "./MeetingTeam";
+import { useLocation } from "react-router-dom";
 
-const MTeamJoinNo = () => {
+const Letter = () => {
+  const location = useLocation()
   return (
     <>
-      <HeaderTeam />
-      <div className="Letter-main">
-        <SidebarTeam />
-        <div className="Letter-p">
-          <p style={{ ...typography.Header3, color: color.GrayScale[4] }}>
-            초대장이 없어요
-          </p>
-        </div>
-        <div className="Letter-src ">
-          <DateTeamJoinNo />
-          <MeetingTeamJoinNo />
-        </div>
+      <div
+        className={`Letter-p${
+          location.pathname == "/TeamOwner" || location.pathname == "/TeamJoin"
+            ? "-font"
+            : ""
+        }`}
+      >
+        <p style={{ ...typography.Header3, color: color.GrayScale[4] }}>
+          초대장이 없어요
+        </p>
       </div>
     </>
   );
 };
 
-export default MTeamJoinNo;
+export default Letter;
