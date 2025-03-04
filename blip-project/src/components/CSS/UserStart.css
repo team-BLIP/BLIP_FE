@@ -1,0 +1,100 @@
+.council {
+  width: 85%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.council-keyword {
+  width: 90%;
+  height: 32%;
+  border-radius: 12px;
+  background-image: url("/src/svg/council.svg");
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+}
+
+.council-keyword-main {
+  width: 50%;
+  height: 35%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.council-keyword-main button {
+  width: 22%;
+  height: 35%;
+  color: #ffff;
+  background-color: var(--main-400);
+  border: none;
+  border-radius: 60px;
+}
+
+.council-feedback {
+  width: 90%;
+  height: 20%;
+  border-radius: 12px;
+  border: 1px solid var(--gray-200);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.council-feedback-main {
+  width: auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding-left: 20px;
+}
+
+.council-feedback-main button {
+  width: 45%;
+  height: 20%;
+  color: #ffff;
+  background-color: var(--main-400);
+  border: none;
+  border-radius: 60px;
+}
+
+.council-feedback img {
+  height: 100%;
+}
+
+.council-graph {
+  width: 90%;
+  height: 38%;
+  border-radius: 12px;
+  border: 1px solid var(--gray-200);
+  display: flex;
+  justify-content: space-between;
+}
+
+.council-graph-main {
+  width: 70%;
+  height: 100%;
+}
+
+.council-graph-font {
+  padding: 15px;
+}
+
+.council-graph-graph {
+  width: 50%;
+  height: 70%;
+  display: flex;
+  align-items: center;
+  justify-self: center;
+}
+
+.council-graph img {
+  width: 29%;
+  height: 100%;
+  object-fit: cover;
+}

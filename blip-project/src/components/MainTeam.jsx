@@ -8,7 +8,7 @@ import MeetingTeamJoinNo from "./MeetingTeam";
 const MainTeam = () => {
   return (
     <>
-      <HeaderTeam />
+      <HeaderTeam/>
       <div className="Main-Team">
         <SidebarTeam />
         <StartTeam />

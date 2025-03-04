@@ -11,6 +11,25 @@
   border-bottom: 1px solid #cacaca;
 }
 
+.member-header-TeamName-owner {
+  width: 100%;
+  height: 65%;
+  color: #ffff;
+  background-color: var(--main-400);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.member-header-member-owner{
+  width: 100%;
+  height: 35%;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 20%;
+}
+
 .member-header-TeamName {
   width: 100%;
   height: 65%;
@@ -18,8 +37,7 @@
   background-color: var(--main-400);
   display: flex;
   align-items: center;
-  padding-left: 10px;   
-  
+  padding-left: 10px;
 }
 
 .member-header-member {

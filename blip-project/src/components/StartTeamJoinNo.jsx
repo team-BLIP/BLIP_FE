@@ -1,14 +1,18 @@
 import "./CSS/StartTeamJoinNo.CSS";
 import { typography } from "../fonts/fonts";
 import { color } from "../style/color";
-import Modal from "./Modal";
-import { useState } from "react";
+import Modal from "./Modal/Modal";
+import { useState, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { SidebarContext } from "../Router";
 
 const StartTeamJoinNo = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [urlInput, setUrlInput] = useState("");
   const [isUrl, setIsUrl] = useState(false);
+  const { dispatch } = useContext(SidebarContext);
+  const [content, setContent] = useState("");
+  const submitRef = useRef();
 
   const onChangeUrlInput = (e) => {
     const urlValue = e.target.value;
@@ -26,6 +30,8 @@ const StartTeamJoinNo = () => {
   const handleClick = () => {
     if (isUrl) {
       nav("/TeamJoin", { state: { urlInput } });
+      dispatch.onCreatedouble(content);
+      setContent("");
     } else {
       openModal();
     }
@@ -54,7 +60,9 @@ const StartTeamJoinNo = () => {
               placeholder="링크 주소를 입력하세요."
               value={urlInput}
               type="text"
+              onKeyDown={handleKeyDown}
               onChange={onChangeUrlInput}
+              ref={submitRef}
               style={{
                 ...typography.Header3,
                 borderColor: isUrl ? "#616064" : "red",
