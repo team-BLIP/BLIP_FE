@@ -1,6 +1,6 @@
-import "./CSS/LetterTeam.css";
-import { typography } from "../fonts/fonts";
-import { color } from "../style/color";
+import "../../../CSS/LetterTeam.css";
+import { typography } from "../../../../fonts/fonts";
+import { color } from "../../../../style/color";
 import { useLocation } from "react-router-dom";
 
 const Letter = () => {

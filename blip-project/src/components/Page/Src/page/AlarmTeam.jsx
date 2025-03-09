@@ -1,6 +1,6 @@
-import "./CSS/AlarmTeam.css";
-import { typography } from "../fonts/fonts";
-import { color } from "../style/color";
+import "../../../CSS/AlarmTeam.css";
+import { typography } from "../../../../fonts/fonts";
+import { color } from "../../../../style/color";
 import { useLocation } from "react-router-dom";
 
 const Alarm = () => {

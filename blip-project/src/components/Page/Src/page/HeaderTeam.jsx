@@ -1,10 +1,10 @@
-import "./CSS/HeaderTeam.css";
-import Alarm from "../svg/Alarm.svg";
-import blackLogo from "../svg/blackLogo.svg";
-import Letter from "../svg/letter.svg";
+import "../../../CSS/HeaderTeam.css";
+import Alarm from "../../../../svg/Alarm.svg"
+import blackLogo from "../../../../svg/blackLogo.svg";
+import Letter from "../../../../svg/letter.svg";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
-import { UseStateContext } from "../Router";
+import { UseStateContext } from "../../../../Router";
 
 const HeaderTeam = () => {
   const nav = useNavigate();

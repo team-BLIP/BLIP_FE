@@ -37,80 +37,10 @@
 .discord-body {
   width: 100%;
   height: 90%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   position: relative;
-}
-
-.discord-main {
-  background-color: blueviolet;
-  width: 95%;
-  height: 95%;
-  border-radius: 24px;
-  border: none;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  position: relative;
-}
-
-.discord-main video {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.discord-main-circle {
-  width: 100%;
-  height: 60%;
-  display: flex;
-  align-items: end;
-  justify-content: center;
-}
-
-.discord-main-circle-src {
-  width: 20%;
-  height: 37%;
-  border-radius: 50%;
-  background-color: black;
-}
-
-.discord-main-foot {
-  width: 100%;
-  height: 30%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.discord-main-foot p {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  color: #ffff;
-}
-
-.discord-main-nofoot {
-  width: 100%;
-  height: 5%;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1%;
-  padding-left: 30%;
-}
-
-.discord-main-nofoot-video {
-  width: 100%;
-  height: 99%;
-  display: flex;
-  align-items: end;
-  justify-content: center;
-  gap: 1%;
-  padding-left: 30%;
-  z-index: 1000;
 }
 
 .discord-foot {
@@ -120,6 +50,13 @@
   align-items: center;
   justify-content: space-around;
   gap: 50%;
+}
+
+.discord-foot-Metting{
+  width: 10%;
+  height: 100%;
+  display: flex;
+  gap: 30%; 
 }
 
 .discord-foot-Src {
@@ -135,5 +72,5 @@
   height: 100%;
   display: flex;
   align-items: center;
-  gap: 10%;
+  gap: 5%;
 }

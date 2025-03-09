@@ -1,12 +1,12 @@
-import "./CSS/StartTeam.css";
-import Member from "./Member";
-import UserStart from "./UserStart";
-import OwnerTeam from "./OwnerTeam";
+import "../../CSS/StartTeam.css";
+import Member from "../Src/Member";
+import UserStart from "../Src/page/UserStart";
+import OwnerTeam from "../Src/page/OwnerTeam";
 import { useContext } from "react";
-import { UseStateContext } from "../Router";
-import Alarm from "./AlarmTeam";
-import Letter from "./LetterTeam";
-import Discord from "./Discord";
+import { UseStateContext } from "../../../Router";
+import Alarm from "../Src/page/AlarmTeam";
+import Letter from "../Src/page/LetterTeam";
+import Discord from "../Src/page/Discord";
 
 const StartTeam = () => {
   const { setting, isAlarm, isLetter, discord } = useContext(UseStateContext);

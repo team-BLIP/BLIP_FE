@@ -1,6 +1,6 @@
-import "./CSS/Keyword.css";
-import { typography } from "../fonts/fonts";
-import { color } from "../style/color";
+import "../../../CSS/Keyword.css";
+import { typography } from "../../../../fonts/fonts";
+import { color } from "../../../../style/color";
 
 const Keyword = () => {
   return (

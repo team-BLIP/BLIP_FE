@@ -1,16 +1,14 @@
-import "./CSS/Member.css";
-import { color } from "../style/color";
-import { typography } from "../fonts/fonts";
-import MemberSVG from "../svg/member.svg";
-import { useEffect, useContext, useState } from "react";
-import { useLocation } from "react-router-dom";
-import { TeamDel } from "./MainTeamOwner";
-import { UseStateContext } from "../Router";
-import Setting from "../svg/setting.svg";
-import Plus from "../svg/plus.svg";
+import "../../CSS/Member.css";
+import { color } from "../../../style/color";
+import { typography } from "../../../fonts/fonts";
+import { useContext, useState } from "react";
+import { TeamDel } from "../Main/MainTeamOwner";
+import { UseStateContext } from "../../../Router";
+import MemberSVG from "../../../svg/member.svg";
+import Setting from "../../../svg/setting.svg";
+import Plus from "../../../svg/plus.svg";
 
 const Member = ({ filterId }) => {
-  const location = useLocation();
   const { itemId } = useContext(TeamDel) || {};
   const {
     setSetting,

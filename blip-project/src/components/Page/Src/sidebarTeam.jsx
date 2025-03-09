@@ -1,16 +1,17 @@
-import "./CSS/sidebarTeam.css";
-import { typography } from "../fonts/fonts";
-import { color } from "../style/color";
+import "../../CSS/sidebarTeam.css";
+import { typography } from "../../../fonts/fonts";
+import { color } from "../../../style/color";
 import { useContext, useEffect, useState } from "react";
-import { SidebarContext } from "../Router";
-import { UseStateContext } from "../Router";
-import { TeamDel } from "./MainTeamOwner";
+import { SidebarContext } from "../../../Router";
+import { UseStateContext } from "../../../Router";
+import { TeamDel } from "../Main/MainTeamOwner";
 import { useNavigate } from "react-router-dom";
 
 const SidebarTeam = () => {
   const nav = useNavigate();
   const { todos } = useContext(SidebarContext);
   const { image = "", itemId = null } = useContext(TeamDel) || {};
+  const { meetingEnd } = useContext(UseStateContext);
   // const [isFirstLoad, setIsFirstLoad] = useState(false);
 
   // const [targetId, setTargetId] = useState(null); // targetId 상태 추가
@@ -57,32 +58,36 @@ const SidebarTeam = () => {
 
   const onClickEffect = (item) => {
     // setTargetId(item.id)
-    if (item.isPlus) {
-      nav("/", { state: {} });
+    if (!meetingEnd) {
+      return;
     } else {
-      if (item.id % 2 == 0) {
-        nav("/TeamOwner", {
-          state: {
-            itemContent: item.content,
-            itemId: item.id,
-            itemImage: image,
-          },
-        });
-        console.log(item.id);
-      } else if (item.id % 2 == 1) {
-        nav("/TeamJoin", { state: {} });
+      if (item.isPlus) {
+        nav("/", { state: {} });
+      } else {
+        if (item.id % 2 == 0) {
+          nav("/TeamOwner", {
+            state: {
+              itemContent: item.content,
+              itemId: item.id,
+              itemImage: image,
+            },
+          });
+          console.log(item.id);
+        } else if (item.id % 2 == 1) {
+          nav("/TeamJoin", { state: {} });
+        }
       }
-    }
-    if (isLetter === true) {
-      setIsLetter((preState) => !preState);
-    } else if (setting === true) {
-      setSetting((preState) => !preState);
-    } else if (isAlarm === true) {
-      setIsAlarm((preState) => !preState);
-    } else if (isKeyword === true) {
-      setIsKeyword((preState) => !preState);
-    } else if (isFeedback === true) {
-      setIsFeedback((preState) => !preState);
+      if (isLetter === true) {
+        setIsLetter((preState) => !preState);
+      } else if (setting === true) {
+        setSetting((preState) => !preState);
+      } else if (isAlarm === true) {
+        setIsAlarm((preState) => !preState);
+      } else if (isKeyword === true) {
+        setIsKeyword((preState) => !preState);
+      } else if (isFeedback === true) {
+        setIsFeedback((preState) => !preState);
+      }
     }
   };
 

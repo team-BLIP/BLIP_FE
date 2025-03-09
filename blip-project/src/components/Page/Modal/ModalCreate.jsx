@@ -1,10 +1,10 @@
-import "../CSS/ModalCreate.css";
-import { typography } from "../../fonts/fonts";
-import { color } from "../../style/color";
-import ESC from "../../svg/ESC.svg";
+import "../../CSS/ModalCreate.css";
+import { typography } from "../../../fonts/fonts";
+import { color } from "../../../style/color";
+import ESC from "../../../svg/ESC.svg";
 import { useState, useContext, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { SidebarContext } from "../../Router";
+import { SidebarContext } from "../../../Router";
 
 const ModalCreate = ({ onClose }) => {
   const { dispatch } = useContext(SidebarContext);

@@ -1,4 +1,4 @@
-import "../CSS/ModalDel.css";
+import "../../CSS/ModalDel.css";
 import { typography } from "../../../fonts/fonts";
 import { color } from "../../../style/color";
 import ESC from "../../../svg/ESC.svg";

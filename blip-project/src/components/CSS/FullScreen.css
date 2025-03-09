@@ -1,58 +1,20 @@
+* {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
 .FullScreen {
-  width: 100vw;
+  width: 100%;
   height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: beige;
 }
 
 .FullScreen-main {
   width: 100%;
   height: 90%;
-  grid-template-columns: 1fr; /* 한 열에 하나씩 */
-}
-
-.screen {
-  width: 90%;
-  height: 90%;
-  background-color: rgb(134, 2, 148);
-  border-radius: 24px;
-  grid-template-columns: 1fr; /* 한 열에 하나씩 */
-}
-
-.screen video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.screen-circle {
-  width: 100%;
-  height: 60%;
-  display: flex;
-  align-items: end;
-  justify-content: center;
-}
-
-.screen-circle div {
-  width: 15%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background-color: bisque;
-}
-
-.screen-name {
-  width: 100%;
-  height: 30%;
-  display: flex;
-  justify-content: center;
-  margin-top: 2%;
-}
-
-.screen-src {
-  width: 50%;
-  height: 5%;
-  display: flex;
-  justify-content: end;
-  padding-left: 30%;
-  gap: 3%;
 }
 
 .FullScreen-foot {
@@ -60,19 +22,32 @@
   height: 10%;
   display: flex;
   align-items: center;
+  justify-content: space-around;
+  gap: 40%;
+}
+
+.FullScreen-foot-Metting {
+  width: 10%;
+  height: 40%;
+  display: flex;
+  gap: 30%;
+}
+
+.FullScreen-foot-src-main {
+  width: 30%;
+  height: 50%;
+  display: flex;
   justify-content: space-between;
 }
 
 .FullScreen-foot-src {
-  width: 80%;
-  height: 30%;
+  width: 50%;
   display: flex;
-  justify-content: end;
-  gap: 1%;
+  align-items: center;
+  gap: 10%;
 }
 
 .FullScreen-foot-exit {
-  height: 30%;
-  padding-right: 5%;
   display: flex;
+  align-items: center;
 }

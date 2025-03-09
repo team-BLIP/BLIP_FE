@@ -1,12 +1,13 @@
-import "./CSS/OwnerTeam.css";
-import { typography } from "../fonts/fonts";
-import { color } from "../style/color";
+import "../../../CSS/OwnerTeam.css";
+import { typography } from "../../../../fonts/fonts";
+import { color } from "../../../../style/color";
 import { useRef, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { TeamDel } from "./MainTeamOwner";
-import { UseStateContext } from "../Router";
-import ModalDel from "./Modal/ModalDel";
-import Camera from "../svg/camera.svg";
+import { TeamDel } from "../../Main/MainTeamOwner";
+// import { TeamDel } from "../../Main/Main";
+import { UseStateContext } from "../../../../Router";
+import ModalDel from "../../Modal/ModalDel";
+import Camera from "../../../../svg/camera.svg";
 
 const OwnerTeam = () => {
   const fileInputImg = useRef(null);

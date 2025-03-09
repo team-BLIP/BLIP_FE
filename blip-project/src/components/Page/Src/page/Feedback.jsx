@@ -1,6 +1,6 @@
-import "./CSS/Feedback.css";
-import { typography } from "../fonts/fonts";
-import { color } from "../style/color";
+import "../../../CSS/Feedback.css";
+import { typography } from "../../../../fonts/fonts";
+import { color } from "../../../../style/color";
 
 const Feedback = () => {
   return (

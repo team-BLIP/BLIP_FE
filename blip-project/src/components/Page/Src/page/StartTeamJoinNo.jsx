@@ -1,10 +1,10 @@
-import "./CSS/StartTeamJoinNo.CSS";
-import { typography } from "../fonts/fonts";
-import { color } from "../style/color";
-import Modal from "./Modal/Modal";
+import "../../../CSS/StartTeamJoinNo.CSS";
+import { typography } from "../../../../fonts/fonts";
+import { color } from "../../../../style/color";
+import Modal from "../../Modal/Modal";
 import { useState, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { SidebarContext } from "../Router";
+import { SidebarContext } from "../../../../Router";
 
 const StartTeamJoinNo = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);

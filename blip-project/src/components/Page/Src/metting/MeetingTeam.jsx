@@ -1,11 +1,11 @@
 import "./CSS/MeetingTeam.css";
-import { color } from "../style/color";
-import { typography } from "../fonts/fonts";
+import { color } from "../../../style/color";
+import { typography } from "../../../fonts/fonts";
 import { useState, useContext } from "react";
 import { useLocation } from "react-router-dom";
-import { UseStateContext } from "../Router";
-import ModalMeeting from "./Modal/ModalMeeting";
-import MettingContent from "./MeetingContent";
+import { UseStateContext } from "../../../Router";
+import ModalMeeting from "../../Modal/ModalMeeting";
+import MettingContent from "./page/MeetingContent";
 
 const MeetingTeam = () => {
   const location = useLocation();
