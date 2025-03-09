@@ -1,8 +1,8 @@
 import "./Router.css";
 import { Route, Routes } from "react-router-dom";
-import MainTeamJoinNo from "./components/MainTeamJoinNo";
-import MainTeamJoin from "./components/MainTeam";
-import MainTeamOwner from "./components/MainTeamOwner";
+import MainTeamJoinNo from "./components/Page/Main/MainTeamJoinNo";
+import MainTeamJoin from "./components/Page/Main/MainTeam";
+import MainTeamOwner from "./components/Page/Main/MainTeamOwner";
 import SidebarImg from "./svg/add.svg";
 import {
   useRef,
@@ -29,6 +29,10 @@ function reducer(state, action) {
       return state.filter((item) => item.id != action.targetId);
     case "Find":
       return state.filter((item) => item.id === action.targetId);
+    case "Update":
+      return state.map((item) =>
+        item.id === action.targetId ? { ...item, ...action.payload } : item
+      );
     default:
       return state;
   }
