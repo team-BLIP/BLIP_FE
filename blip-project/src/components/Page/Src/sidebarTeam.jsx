@@ -1,47 +1,19 @@
 import "../../CSS/sidebarTeam.css";
 import { typography } from "../../../fonts/fonts";
 import { color } from "../../../style/color";
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import { SidebarContext } from "../../../Router";
 import { UseStateContext } from "../../../Router";
-import { TeamDel } from "../Main/MainTeamOwner";
+import { TeamDel } from "../Main/Main";
+import { FindId } from "../Main/Main";
 import { useNavigate } from "react-router-dom";
 
 const SidebarTeam = () => {
   const nav = useNavigate();
   const { todos } = useContext(SidebarContext);
-  const { image = "", itemId = null } = useContext(TeamDel) || {};
-  const { meetingEnd } = useContext(UseStateContext);
-  // const [isFirstLoad, setIsFirstLoad] = useState(false);
-
-  // const [targetId, setTargetId] = useState(null); // targetId 상태 추가
-
-  // const todoIds = todos.map((todo) => todo.id).join(",");
-
-  // useEffect(() => {
-  //   if (!isFirstLoad && targetId !== null) {
-  //     const targetItem = todos.find((item) => item.id === targetId);
-  //     console.log("targetId",targetItem.id)
-  //     if (targetItem) {
-  //       if (targetItem.id % 2 === 0) {
-  //         nav("/TeamOwner", {
-  //           state: {
-  //             itemContent:
-  //               typeof targetItem.content === "string"
-  //                 ? targetItem.content
-  //                 : String(targetItem.content),
-  //             itemId: targetItem.id,
-  //             itemImage: typeof image === "string" ? image : "", // image가 문자열일 경우만 전달
-  //           },
-  //         });
-  //         console.log(targetItem.id);
-  //       } else {
-  //         nav("/TeamJoin", { state: {} });
-  //       }
-  //     }
-  //     setIsFirstLoad(true); // 네비게이션이 끝난 후 isFirstLoad를 true로 설정
-  //   }
-  // }, [targetId, todos, isFirstLoad, nav, image]); // targetId가 변경될 때만 실행
+  const { image, setImage, itemId, Owner, setOwner, join, setJoin } =
+    useContext(TeamDel);
+  const { basic, setBasic, discord } = useContext(UseStateContext);
 
   const {
     setting,
@@ -56,39 +28,63 @@ const SidebarTeam = () => {
     setIsKeyword,
   } = useContext(UseStateContext);
 
+  const { targetId, setTargetId } = useContext(FindId);
+
   const onClickEffect = (item) => {
-    // setTargetId(item.id)
-    if (!meetingEnd) {
-      return;
+    if (item.isPlus) {
+      if (basic) {
+        setBasic((prev) => !prev);
+        setTargetId(item.id);
+      }
+      if (join) {
+        setJoin((preState) => !preState);
+      }
+      nav("/", {
+        state: {
+          itemContent:
+            typeof item.content === "string" ? item.content : "기본 텍스트",
+          itemId: item.id,
+        },
+      });
     } else {
-      if (item.isPlus) {
-        nav("/", { state: {} });
+      if (item.id % 2 === 0) {
+        if (Owner) {
+          setOwner((preState) => !preState);
+          setTargetId(item.id);
+        }
+        if (!basic) {
+          setBasic((prev) => !prev);
+          setTargetId(item.id);
+        }
+        if (join) {
+          setJoin((preState) => !preState);
+        }
+        console.log(targetId)
       } else {
-        if (item.id % 2 == 0) {
-          nav("/TeamOwner", {
-            state: {
-              itemContent: item.content,
-              itemId: item.id,
-              itemImage: image,
-            },
-          });
-          console.log(item.id);
-        } else if (item.id % 2 == 1) {
-          nav("/TeamJoin", { state: {} });
+        if (!join) {
+          setJoin((preState) => !preState);
+        }
+        if (!basic) {
+          setBasic((prev) => !prev);
+        }
+        if (Owner) {
+          setOwner((preState) => !preState);
         }
       }
-      if (isLetter === true) {
-        setIsLetter((preState) => !preState);
-      } else if (setting === true) {
-        setSetting((preState) => !preState);
-      } else if (isAlarm === true) {
-        setIsAlarm((preState) => !preState);
-      } else if (isKeyword === true) {
-        setIsKeyword((preState) => !preState);
-      } else if (isFeedback === true) {
-        setIsFeedback((preState) => !preState);
-      }
+      nav("/", {
+        state: {
+          itemContent:
+            typeof item.content === "string" ? item.content : "기본 텍스트",
+          itemId: item.id,
+        },
+      });
     }
+
+    if (isLetter) setIsLetter(false);
+    if (setting) setSetting(false);
+    if (isAlarm) setIsAlarm(false);
+    if (isKeyword) setIsKeyword(false);
+    if (isFeedback) setIsFeedback(false);
   };
 
   return (
@@ -101,15 +97,15 @@ const SidebarTeam = () => {
               className={`content-item${
                 item.isPlus
                   ? "-plus"
-                  : image && item.id === itemId
+                  : item.id === targetId && image 
                   ? "-image"
                   : ""
               }`}
-              onClick={() => onClickEffect(item)}
+              onClick={discord ? undefined : () => onClickEffect(item)}
               style={{
                 ...typography.Header2,
                 backgroundColor:
-                  item.isPlus || (image && item.id === itemId)
+                  item.isPlus || item.id === targetId 
                     ? "transparent"
                     : color.GrayScale[1],
               }}
@@ -117,7 +113,7 @@ const SidebarTeam = () => {
               <span>
                 {item.isPlus ? (
                   item.content
-                ) : image && item.id === itemId ? (
+                ) : item.id === targetId && image ? ( 
                   <img
                     src={image}
                     style={{
@@ -125,6 +121,7 @@ const SidebarTeam = () => {
                       height: "100%",
                       objectFit: "contain",
                     }}
+                    alt="Team Space"
                   />
                 ) : (
                   item.content

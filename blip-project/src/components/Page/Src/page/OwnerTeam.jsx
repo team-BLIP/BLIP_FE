@@ -3,18 +3,18 @@ import { typography } from "../../../../fonts/fonts";
 import { color } from "../../../../style/color";
 import { useRef, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { TeamDel } from "../../Main/MainTeamOwner";
-// import { TeamDel } from "../../Main/Main";
+import { TeamDel } from "../../Main/Main";
 import { UseStateContext } from "../../../../Router";
+import { FindId } from "../../Main/Main";
 import ModalDel from "../../Modal/ModalDel";
 import Camera from "../../../../svg/camera.svg";
 
 const OwnerTeam = () => {
   const fileInputImg = useRef(null);
-  const [image, setImage] = useState(null);
   const [inputFont, setInputFont] = useState("");
   const [isOpenModal, setIsOpenModal] = useState(false);
-  const { itemContent, itemId, itemImage } = useContext(TeamDel);
+  const { itemContent, itemId, image, setImage } = useContext(TeamDel);
+  const { targetId, setTargetId } = useContext(FindId);
   const { setSetting } = useContext(UseStateContext);
   const nav = useNavigate();
 
@@ -26,12 +26,12 @@ const OwnerTeam = () => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = () => {
-      setImage(reader.result);
+      setImage(reader.result); // 이미지 상태 업데이트
     };
   };
 
   const handleImage = () => {
-    fileInputImg.current.click();
+    fileInputImg.current.click(); // 이미지 업로드를 위한 파일 입력 창 열기
   };
 
   const onChnageInput = (e) => {
@@ -39,8 +39,11 @@ const OwnerTeam = () => {
   };
 
   const CreateImg = () => {
-    nav("/TeamOwner", { state: { image: image, itemId } });
-    setSetting((preState) => !preState);
+    if (image || inputFont) {
+      nav("/", { state: { itemId } });
+      setSetting(false);
+      setTargetId(null);
+    }
   };
 
   return (
@@ -61,14 +64,13 @@ const OwnerTeam = () => {
           className="circle-main"
           style={{ "--gray-200": color.GrayScale[2] }}
         >
-          {image ? (
+          {image && itemId === targetId ? (
             <img
               className="circle-main-img"
               src={image}
               onClick={handleImage}
+              alt="Team Space"
             />
-          ) : itemImage ? (
-            <img src={itemImage} alt="Click to upload" onClick={handleImage} />
           ) : (
             <img src={Camera} alt="Click to upload" onClick={handleImage} />
           )}
