@@ -5,18 +5,21 @@ import ESC from "../../../svg/ESC.svg";
 import { useState, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { SidebarContext } from "../../../Router";
+import { TeamDel } from "../Main/Main";
 
 const ModalJoin = ({ onClose }) => {
   const [isInput, setIsInput] = useState("");
   const [isValidURL, setIsValidURL] = useState(true); // URL 유효성 상태
   const { onCreatedouble, dispatch } = useContext(SidebarContext);
+  const { setOwner, setJoin, Owner, TeamJoin, setTeamJoin } =
+    useContext(TeamDel);
   const [content, setContent] = useState("");
   const submitRef = useRef();
-  
+
   const onChangeInput = (e) => {
     const value = e.target.value;
     setIsInput(value);
-    
+
     // URL 유효성 검사
     try {
       new URL(value); // URL 객체로 변환
@@ -30,10 +33,14 @@ const ModalJoin = ({ onClose }) => {
 
   const onClickUrl = () => {
     if (isValidURL) {
-      nav("/TeamJoin", { state: { isInput } });
+      nav("/", { state: { isInput } });
       dispatch.onCreatedouble(content);
-      setContent("")
-    }else if(content === ""){
+      setContent("");
+      setJoin((prev) => !prev);
+      if (Owner) {
+        setOwner((prev) => !prev);
+      }
+    } else if (content === "") {
       submitRef.current.focus();
       return;
     }

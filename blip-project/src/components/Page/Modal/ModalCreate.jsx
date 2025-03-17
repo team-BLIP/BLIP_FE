@@ -5,9 +5,11 @@ import ESC from "../../../svg/ESC.svg";
 import { useState, useContext, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { SidebarContext } from "../../../Router";
+import { TeamDel } from "../Main/Main";
 
 const ModalCreate = ({ onClose }) => {
   const { dispatch } = useContext(SidebarContext);
+  const { setOwner, setJoin, join } = useContext(TeamDel);
   const [content, setContent] = useState("");
   const submitRef = useRef();
   const nav = useNavigate();
@@ -19,7 +21,11 @@ const ModalCreate = ({ onClose }) => {
 
   const onClickCreate = () => {
     if (content !== "") {
-      nav("/TeamOwner", { state: { content } });
+      setOwner((prev) => !prev);
+      if (join) {
+        setJoin((prev) => !prev);
+      }
+      nav("/", { state: { content } });
       dispatch.onCreateone(content);
       setContent("");
     } else if (content === "") {

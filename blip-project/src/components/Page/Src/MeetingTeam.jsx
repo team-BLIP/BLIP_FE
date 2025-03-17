@@ -2,27 +2,65 @@ import "../../CSS/MeetingTeam.css";
 import { color } from "../../../style/color";
 import { typography } from "../../../fonts/fonts";
 import { useState, useContext } from "react";
-import { useLocation } from "react-router-dom";
 import { UseStateContext } from "../../../Router";
-import { FindId } from "../Main/MainTeamOwner";
-// import { FindId } from "../Main/Main";
+import { TeamDel } from "../Main/Main";
+import { SidebarContext } from "../../../Router";
+import { Call } from "../../../Router";
 import ModalMeeting from "../Modal/ModalMeeting";
 import MettingContent from "./page/MeetingContent";
 
 const MeetingTeam = () => {
-  const location = useLocation();
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const { discord, meetingEnd, setMeetingEnd } = useContext(UseStateContext);
-  const { targetId, setTargetId } = useContext(FindId);
+
+  const { todos } = useContext(SidebarContext);
+
+  const { Owner, itemId, join } = useContext(TeamDel);
+
+  const { recordedChunks, setIsUploading } = useContext(Call);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const modalOpen = () => setIsModalOpen(true);
   const modalClose = () => setIsModalOpen(false);
 
-  const onClickMeetingEnd = () => {
-    setTargetId(null);
-    console.log(targetId);
+  const uploadRecording = async () => {
     if (!meetingEnd) {
       setMeetingEnd((preState) => !preState);
+      console.log("시발련련");
     }
+
+    if (!Owner) return;
+
+    if (recordedChunks.length === 0) return;
+
+    const blob = new Blob(recordedChunks, { type: "audio/webm" });
+    const formData = new FormData();
+    formData.append("file", blob, "recording.webm");
+
+    try {
+      setIsUploading(true);
+      const response = await fetch("링크", {
+        method: "post",
+        body: formData,
+      });
+
+      if (response.ok) {
+        console.log("파일 업로드 성공");
+      } else {
+        console.error("업로드 실패", response.statusText);
+      }
+    } catch (error) {
+      console.log("업로드 중 에러");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleLeveMeeting = () => {
+    if (Owner) {
+      uploadRecording();
+    }
+    setMeetingEnd(true);
+    console.log("회의 종료");
   };
 
   return (
@@ -43,7 +81,7 @@ const MeetingTeam = () => {
       {discord ? (
         <button
           className="MeetingTButton"
-          onClick={onClickMeetingEnd}
+          onClick={handleLeveMeeting}
           style={{
             ...(meetingEnd
               ? {
@@ -60,7 +98,7 @@ const MeetingTeam = () => {
         >
           {meetingEnd ? "회의 시작하기" : "회의 나가기"}
         </button>
-      ) : location.pathname === "/TeamOwner" ? (
+      ) : !Owner && todos.length > 1 && !join && itemId != 0 ? (
         <button
           className="MeetingTButton"
           onClick={modalOpen}

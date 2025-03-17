@@ -1,16 +1,16 @@
 import "../../CSS/ModalMeeting.css";
 import { typography } from "../../../fonts/fonts";
 import { color } from "../../../style/color";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import ESC from "../../../svg/ESC.svg";
 import { UseStateContext } from "../../../Router";
-import { TeamDel } from "../Main/MainTeamOwner";
-// import { TeamDel } from "../Page/Main/Main";
+import { TeamDel } from "../Main/Main";
 
 const ModalMeeting = ({ onClose }) => {
   const [isTopic, setIsTopic] = useState("");
   const [isCheckMike, setIsCheckMike] = useState(false);
   const [isCheckCamera, setIsCheckCamera] = useState(false);
+
   const {
     setIsMike,
     setIsCamera,
@@ -26,29 +26,39 @@ const ModalMeeting = ({ onClose }) => {
     setIsKeyword,
     discord,
     setDiscord,
+    basic,
+    setBasic,
   } = useContext(UseStateContext);
 
-
-  const { itemId } = useContext(TeamDel);
+  const { itemId, Owner, setOwner, join, setJoin } = useContext(TeamDel);
 
   const onClickDiscord = () => {
     console.log("key={itemId}", itemId);
-    if (!discord) {
-      setDiscord((preState) => !preState);
-      onClose();
-      if (isLetter === true) {
-        setIsLetter((preState) => !preState);
-      } else if (isAlarm) {
-        setIsAlarm((preState) => !preState);
-      } else if (setting === true) {
-        setSetting((preState) => !preState);
-      } else if (isFeedback === true) {
-        setIsFeedback((preState) => !preState);
-      } else if (isKeyword === true) {
-        setIsKeyword((preState) => !preState);
-      }
+    setDiscord((perState) => !perState);
+    console.log("시발시발", discord);
+    onClose();
+    if (isLetter) {
+      setIsLetter((preState) => !preState);
+    } else if (isAlarm) {
+      setIsAlarm((preState) => !preState);
+    } else if (setting) {
+      setSetting((preState) => !preState); 
+    } else if (isFeedback) {
+      setIsFeedback((preState) => !preState);
+    } else if (isKeyword) {
+      setIsKeyword((preState) => !preState);
+    } else if (Owner) {
+      setOwner((perState) => !perState);
+    } else if (join) {
+      setJoin((perState) => !perState);
+    } else if (basic) {
+      setBasic((perState) => !perState);
     }
   };
+
+  useEffect(() => {
+    console.log("discord 상태 변경:", discord);
+  }, [discord]);
 
   const onChageTopic = (e) => {
     setIsTopic(e.target.value);

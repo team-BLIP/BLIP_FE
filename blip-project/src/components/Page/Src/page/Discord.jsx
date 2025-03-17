@@ -14,11 +14,11 @@ import ModalStop from "../../Modal/ModalStop";
 import ModalStart from "../../Modal/ModalStart";
 import Grid from "../function/Grid";
 import { useContext, useState } from "react";
-import { TeamDel } from "../../Main/MainTeamOwner";
+import { TeamDel } from "../../Main/Main";
 import { UseStateContext } from "../../../../Router";
 import { DiscordContext } from "../../../../Router";
-import { FindId } from "../../Main/MainTeamOwner";
-import UserStart from "./UserStart";
+import { FindId } from "../../Main/Main";
+//targetId 시발련아 니 애미
 
 const Discord = () => {
   const { itemId } = useContext(TeamDel);
@@ -107,21 +107,17 @@ const Discord = () => {
                 className="discord-foot"
                 style={{ backgroundColor: color.GrayScale[0] }}
               >
-                {itemId % 2 === 0 ? (
-                  <>
-                    <div className="discord-foot-Metting">
-                      <img
-                        src={isMettingStop ? MettingStop : MettingStart}
-                        //녹음을 끊는다면 주는 값을 다르게 주어 녹음을 끊었다는것을 알아야한다
-                        onClick={isMettingStop ? openModalStart : openModalStop}
-                        style={{ width: "50%" }}
-                      />
-                      <img src={DisAlarm} style={{ width: "50%" }} />
-                    </div>
-                  </>
-                ) : (
-                  ""
-                )}
+                <>
+                  <div className="discord-foot-Metting">
+                    <img
+                      src={isMettingStop ? MettingStop : MettingStart}
+                      //녹음을 끊는다면 주는 값을 다르게 주어 녹음을 끊었다는것을 알아야한다
+                      onClick={isMettingStop ? openModalStart : openModalStop}
+                      style={{ width: "50%" }}
+                    />
+                    <img src={DisAlarm} style={{ width: "50%" }} />
+                  </div>
+                </>
                 <div className="discord-foot-Src">
                   <div className="discord-foot-NoSrc">
                     <img
@@ -156,7 +152,7 @@ const Discord = () => {
               )}
             </div>
           ) : (
-            <UserStart />
+            ""
           )}
         </>
       )}

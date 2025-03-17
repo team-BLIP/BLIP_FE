@@ -1,7 +1,7 @@
 import "../../CSS/FullScreen.css";
 import { color } from "../../../style/color";
 import { useContext, useState } from "react";
-import { TeamDel } from "./MainTeamOwner";
+import { TeamDel } from "./Main";
 import { UseStateContext } from "../../../Router";
 import { DiscordContext } from "../../../Router";
 import ModalStart from "../Modal/ModalStart";

@@ -4,19 +4,25 @@ import { color } from "../../../style/color";
 import ESC from "../../../svg/ESC.svg";
 import { useContext } from "react";
 import { SidebarContext } from "../../../Router";
-import { TeamDel } from "../Main/MainTeamOwner";
-// import { TeamDel } from "../Page/Main/Main";
+import { TeamDel } from "../Main/Main";
+import { UseStateContext } from "../../../Router";
 import { useNavigate } from "react-router-dom";
 
 const ModalDel = ({ onClose }) => {
   const { dispatch } = useContext(SidebarContext);
-  const { itemId } = useContext(TeamDel);
+  const { itemId, setOwner, setJoin } = useContext(TeamDel);
+  const { setSetting, setBasic } = useContext(UseStateContext);
   const nav = useNavigate();
 
   const ClickDel = () => {
     if (itemId) {
       dispatch.onDel(itemId);
       nav("/", { state: {} });
+      onClose();
+      setOwner(false);
+      setJoin(false);
+      setSetting(false);
+      setBasic(false);
     }
   };
 

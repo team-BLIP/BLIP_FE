@@ -29,7 +29,7 @@ const StartTeamJoinNo = () => {
 
   const handleClick = () => {
     if (isUrl) {
-      nav("/TeamJoin", { state: { urlInput } });
+      nav("/", { state: { urlInput } });
       dispatch.onCreatedouble(content);
       setContent("");
     } else {

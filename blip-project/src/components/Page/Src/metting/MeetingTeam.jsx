@@ -32,7 +32,7 @@ const MeetingTeam = () => {
       >
         <div className="MeetingTFont" style={{ ...typography.Body2 }}>
           지난 회의 내용 요약
-        </div>
+        </div>  
         <MettingContent />
       </div>
       {discord ? (

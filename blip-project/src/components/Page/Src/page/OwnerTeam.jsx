@@ -1,7 +1,7 @@
 import "../../../CSS/OwnerTeam.css";
 import { typography } from "../../../../fonts/fonts";
 import { color } from "../../../../style/color";
-import { useRef, useState, useContext } from "react";
+import { useRef, useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TeamDel } from "../../Main/Main";
 import { UseStateContext } from "../../../../Router";
@@ -18,6 +18,9 @@ const OwnerTeam = () => {
   const { setSetting } = useContext(UseStateContext);
   const nav = useNavigate();
 
+  // 각 팀에 대해 별도로 이미지를 관리하는 상태
+  const [teamImages, setTeamImages] = useState({});
+
   const openModal = () => setIsOpenModal(true);
   const closeModal = () => setIsOpenModal(false);
 
@@ -26,7 +29,10 @@ const OwnerTeam = () => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = () => {
-      setImage(reader.result); // 이미지 상태 업데이트
+      setTeamImages((prevState) => ({
+        ...prevState,
+        [targetId]: reader.result, // targetId에 해당하는 팀의 이미지만 업데이트
+      }));
     };
   };
 
@@ -42,9 +48,16 @@ const OwnerTeam = () => {
     if (image || inputFont) {
       nav("/", { state: { itemId } });
       setSetting(false);
-      setTargetId(null);
+      setTargetId(null); // targetId를 null로 설정하여 다른 팀으로 이동
     }
   };
+
+  useEffect(() => {
+    // targetId에 해당하는 팀의 이미지를 설정
+    if (targetId && teamImages[targetId]) {
+      setImage(teamImages[targetId]);
+    }
+  }, [targetId, teamImages]); // targetId나 teamImages가 바뀔 때마다 이미지 업데이트
 
   return (
     <div className="owner-main">
@@ -64,10 +77,10 @@ const OwnerTeam = () => {
           className="circle-main"
           style={{ "--gray-200": color.GrayScale[2] }}
         >
-          {image && itemId === targetId ? (
+          {teamImages[targetId] ? (
             <img
               className="circle-main-img"
-              src={image}
+              src={teamImages[targetId]}
               onClick={handleImage}
               alt="Team Space"
             />

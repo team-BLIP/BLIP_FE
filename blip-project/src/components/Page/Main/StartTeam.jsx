@@ -7,9 +7,12 @@ import { UseStateContext } from "../../../Router";
 import Alarm from "../Src/page/AlarmTeam";
 import Letter from "../Src/page/LetterTeam";
 import Discord from "../Src/page/Discord";
+import StartTeamJoinNo from "../Src/page/StartTeamJoinNo";
+import MainJoin from "./MainTeam";
 
 const StartTeam = () => {
-  const { setting, isAlarm, isLetter, discord } = useContext(UseStateContext);
+  const { setting, isAlarm, isLetter, discord, basic, join } =
+    useContext(UseStateContext);
 
   return (
     <div className="start-main">
@@ -22,8 +25,12 @@ const StartTeam = () => {
         <Letter />
       ) : discord ? (
         <Discord />
-      ) : (
+      ) : basic ? (
         <UserStart />
+      ) : join ? (
+        <MainJoin />
+      ) : (
+        <StartTeamJoinNo />
       )}
     </div>
   );

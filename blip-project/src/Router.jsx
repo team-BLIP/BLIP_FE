@@ -1,8 +1,6 @@
 import "./Router.css";
 import { Route, Routes } from "react-router-dom";
-import MainTeamJoinNo from "./components/Page/Main/MainTeamJoinNo";
-import MainTeamJoin from "./components/Page/Main/MainTeam";
-import MainTeamOwner from "./components/Page/Main/MainTeamOwner";
+import Main from "./components/Page/Main/Main";
 import SidebarImg from "./svg/add.svg";
 import {
   useRef,
@@ -41,6 +39,7 @@ function reducer(state, action) {
 export const SidebarContext = createContext();
 export const UseStateContext = createContext();
 export const DiscordContext = createContext();
+export const Call = createContext();
 
 export const AppRouter = () => {
   const [todos, dispatch] = useReducer(reducer, mocDateSide);
@@ -110,6 +109,13 @@ export const AppRouter = () => {
   const [transcript, setTranscript] = useState("");
   const videoRef = useRef(null);
   const [stream, setStream] = useState(null);
+  const [basic, setBasic] = useState(null);
+  const [TeamJoin, setTeamJoin] = useState(null);
+  const [targetId, setTargetId] = useState(null);
+
+  const [recorder, setRecorder] = useState(null);
+  const [recordedChunks, setRecordedChunks] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
 
   return (
     <SidebarContext.Provider
@@ -140,6 +146,12 @@ export const AppRouter = () => {
           setIsCamera,
           meetingEnd,
           setMeetingEnd,
+          targetId,
+          setTargetId,
+          basic,
+          setBasic,
+          TeamJoin,
+          setTeamJoin,
         }}
       >
         <DiscordContext.Provider
@@ -153,11 +165,20 @@ export const AppRouter = () => {
             setStream,
           }}
         >
-          <Routes>
-            <Route path="/" element={<MainTeamJoinNo />} />
-            <Route path="/TeamJoin" element={<MainTeamJoin />} />
-            <Route path="/TeamOwner" element={<MainTeamOwner />} />
-          </Routes>
+          <Call.Provider
+            value={{
+              recorder,
+              setRecorder,
+              recordedChunks,
+              setRecordedChunks,
+              isUploading,
+              setIsUploading,
+            }}
+          >
+            <Routes>
+              <Route path="/" element={<Main />} />
+            </Routes>
+          </Call.Provider>
         </DiscordContext.Provider>
       </UseStateContext.Provider>
     </SidebarContext.Provider>

@@ -2,8 +2,9 @@ import "../../CSS/Member.css";
 import { color } from "../../../style/color";
 import { typography } from "../../../fonts/fonts";
 import { useContext, useState } from "react";
-import { TeamDel } from "../Main/MainTeamOwner";
+import { TeamDel } from "../Main/Main";
 import { UseStateContext } from "../../../Router";
+import { FindId } from "../Main/Main";
 import MemberSVG from "../../../svg/member.svg";
 import Setting from "../../../svg/setting.svg";
 import Plus from "../../../svg/plus.svg";
@@ -21,9 +22,11 @@ const Member = ({ filterId }) => {
     isKeyword,
     setIsKeyword,
   } = useContext(UseStateContext);
+  const { targetId, setTargetId } = useContext(FindId);
 
   const onClickSetting = () => {
     setSetting((preState) => !preState);
+    console.log(targetId);
     if (isAlarm === true) {
       setIsAlarm((preState) => !preState);
     } else if (isLetter === true) {
@@ -39,7 +42,7 @@ const Member = ({ filterId }) => {
     <>
       <div className="member">
         <div className="member-header">
-          {itemId % 2 === 0 || filterId % 2 === 0 ? (
+          {(itemId % 2 === 0 || filterId % 2 === 0) && itemId !== 0 ? (
             <>
               <div
                 className="member-header-TeamName-owner"
