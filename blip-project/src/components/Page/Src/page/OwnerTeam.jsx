@@ -14,12 +14,10 @@ const OwnerTeam = () => {
   const [inputFont, setInputFont] = useState("");
   const [isOpenModal, setIsOpenModal] = useState(false);
   const { itemContent, itemId, image, setImage } = useContext(TeamDel);
-  const { targetId, setTargetId } = useContext(FindId);
+  const { targetId, setTargetId, teamImages, setTeamImages } =
+    useContext(FindId);
   const { setSetting } = useContext(UseStateContext);
   const nav = useNavigate();
-
-  // 각 팀에 대해 별도로 이미지를 관리하는 상태
-  const [teamImages, setTeamImages] = useState({});
 
   const openModal = () => setIsOpenModal(true);
   const closeModal = () => setIsOpenModal(false);
@@ -31,13 +29,13 @@ const OwnerTeam = () => {
     reader.onload = () => {
       setTeamImages((prevState) => ({
         ...prevState,
-        [targetId]: reader.result, // targetId에 해당하는 팀의 이미지만 업데이트
+        [targetId]: reader.result,
       }));
     };
   };
 
   const handleImage = () => {
-    fileInputImg.current.click(); // 이미지 업로드를 위한 파일 입력 창 열기
+    fileInputImg.current.click();
   };
 
   const onChnageInput = (e) => {
@@ -48,16 +46,15 @@ const OwnerTeam = () => {
     if (image || inputFont) {
       nav("/", { state: { itemId } });
       setSetting(false);
-      setTargetId(null); // targetId를 null로 설정하여 다른 팀으로 이동
+      setTargetId(null);
     }
   };
 
   useEffect(() => {
-    // targetId에 해당하는 팀의 이미지를 설정
     if (targetId && teamImages[targetId]) {
       setImage(teamImages[targetId]);
     }
-  }, [targetId, teamImages]); // targetId나 teamImages가 바뀔 때마다 이미지 업데이트
+  }, [targetId, teamImages]);
 
   return (
     <div className="owner-main">
@@ -77,10 +74,10 @@ const OwnerTeam = () => {
           className="circle-main"
           style={{ "--gray-200": color.GrayScale[2] }}
         >
-          {teamImages[targetId] ? (
+          {targetId === itemId ? (
             <img
               className="circle-main-img"
-              src={teamImages[targetId]}
+              src={image}
               onClick={handleImage}
               alt="Team Space"
             />

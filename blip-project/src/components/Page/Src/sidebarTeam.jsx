@@ -1,7 +1,7 @@
 import "../../CSS/sidebarTeam.css";
 import { typography } from "../../../fonts/fonts";
 import { color } from "../../../style/color";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { SidebarContext } from "../../../Router";
 import { UseStateContext } from "../../../Router";
 import { TeamDel } from "../Main/Main";
@@ -28,13 +28,14 @@ const SidebarTeam = () => {
     setIsKeyword,
   } = useContext(UseStateContext);
 
-  const { targetId, setTargetId } = useContext(FindId);
+  const { targetId, setTargetId, teamImages, setTeamImages } =
+    useContext(FindId);
+  console.log("tlqkf", targetId);
 
   const onClickEffect = (item) => {
     if (item.isPlus) {
       if (basic) {
         setBasic((prev) => !prev);
-        setTargetId(item.id);
       }
       if (join) {
         setJoin((preState) => !preState);
@@ -50,16 +51,14 @@ const SidebarTeam = () => {
       if (item.id % 2 === 0) {
         if (Owner) {
           setOwner((preState) => !preState);
-          setTargetId(item.id);
         }
         if (!basic) {
           setBasic((prev) => !prev);
-          setTargetId(item.id);
         }
         if (join) {
           setJoin((preState) => !preState);
         }
-        console.log(targetId)
+        console.log(targetId);
       } else {
         if (!join) {
           setJoin((preState) => !preState);
@@ -97,23 +96,22 @@ const SidebarTeam = () => {
               className={`content-item${
                 item.isPlus
                   ? "-plus"
-                  : item.id === targetId && image 
+                  : item.id === targetId && image
                   ? "-image"
                   : ""
               }`}
               onClick={discord ? undefined : () => onClickEffect(item)}
               style={{
                 ...typography.Header2,
-                backgroundColor:
-                  item.isPlus || item.id === targetId 
-                    ? "transparent"
-                    : color.GrayScale[1],
+                backgroundColor: item.isPlus
+                  ? "transparent"
+                  : color.GrayScale[1],
               }}
             >
               <span>
                 {item.isPlus ? (
                   item.content
-                ) : item.id === targetId && image ? ( 
+                ) : item.id === targetId && teamImages[targetId] ? (
                   <img
                     src={image}
                     style={{

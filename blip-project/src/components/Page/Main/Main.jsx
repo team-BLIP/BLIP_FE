@@ -22,7 +22,8 @@ const Main = () => {
   const { FullScreen, targetId, setTargetId } = useContext(UseStateContext);
   const [Owner, setOwner] = useState(null);
   const [join, setJoin] = useState(null);
-  const [image, setImage] = useState(null)
+  const [image, setImage] = useState(null);
+  const [teamImages, setTeamImages] = useState({});
 
   useEffect(() => {
     const matchingId = todos.find((item) => item.id === itemId);
@@ -39,7 +40,15 @@ const Main = () => {
 
   return (
     <>
-      <FindId.Provider value={{ filteredItem, targetId, setTargetId }}>
+      <FindId.Provider
+        value={{
+          filteredItem,
+          targetId,
+          setTargetId,
+          teamImages,
+          setTeamImages,
+        }}
+      >
         <TeamDel.Provider
           value={{
             itemContent,

@@ -10,7 +10,7 @@ import Setting from "../../../svg/setting.svg";
 import Plus from "../../../svg/plus.svg";
 
 const Member = ({ filterId }) => {
-  const { itemId } = useContext(TeamDel) || {};
+  const { itemId, image } = useContext(TeamDel) || {};
   const {
     setSetting,
     isAlarm,
@@ -26,6 +26,7 @@ const Member = ({ filterId }) => {
 
   const onClickSetting = () => {
     setSetting((preState) => !preState);
+    if (itemId !== targetId && image) setTargetId(null,"dafmiaubihsjkf") 
     console.log(targetId);
     if (isAlarm === true) {
       setIsAlarm((preState) => !preState);
