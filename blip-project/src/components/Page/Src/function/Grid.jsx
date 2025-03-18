@@ -12,8 +12,8 @@ import Mike from "../../../../svg/Mike.svg";
 import Camera from "../../../../svg/DisCamera.svg";
 import { data } from "react-router-dom";
 
-const SpeechRecognition =
-  window.SpeechRecognition || window.webkitSpeechRecognition;
+// const SpeechRecognition =
+//   window.SpeechRecognition || window.webkitSpeechRecognition;
 
 const FullGrid = () => {
   const { itemId } = useContext(TeamDel);

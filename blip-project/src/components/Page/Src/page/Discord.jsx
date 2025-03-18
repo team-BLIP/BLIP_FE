@@ -13,12 +13,12 @@ import MettingStart from "../../../../svg/MettingStart.svg";
 import ModalStop from "../../Modal/ModalStop";
 import ModalStart from "../../Modal/ModalStart";
 import Grid from "../function/Grid";
+import JitsiMeet from "../function/jitsiMeet";
 import { useContext, useState } from "react";
 import { TeamDel } from "../../Main/Main";
 import { UseStateContext } from "../../../../Router";
 import { DiscordContext } from "../../../../Router";
 import { FindId } from "../../Main/Main";
-//targetId 시발련아 니 애미
 
 const Discord = () => {
   const { itemId } = useContext(TeamDel);
@@ -101,7 +101,7 @@ const Discord = () => {
                 className="discord-body"
                 style={{ backgroundColor: color.GrayScale[8] }}
               >
-                <Grid />
+                <JitsiMeet setIsMettingStop={setIsMettingStop} />
               </div>
               <div
                 className="discord-foot"
