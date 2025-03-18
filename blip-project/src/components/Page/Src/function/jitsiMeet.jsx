@@ -78,6 +78,7 @@
 // };
 
 // export default JitsiMeet;
+
 import React, { useState, useEffect, useContext } from "react";
 import "../../../CSS/Grid.css";
 import { typography } from "../../../../fonts/fonts";
@@ -141,7 +142,7 @@ const JitsiMeetWithGrid = ({ setIsMettingStop }) => {
           const audioBlob = event.data;
           const audioUrl = URL.createObjectURL(audioBlob);
           console.log("녹음된 오디오 URL:", audioUrl);
-          // 오디오 저장이나 처리 로직을 추가할 수 있습니다.
+          // 오디오 저장이나 처리 로직을 추가
         };
 
         // 회의 시작 시 녹음 시작
