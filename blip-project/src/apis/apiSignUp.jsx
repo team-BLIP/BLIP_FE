@@ -1,4 +1,4 @@
-/* import { instance } from "./instance";
+import { instance } from "./instance";
 
 const apiSignUp = async (userData) => {
   try {
@@ -26,4 +26,3 @@ const apiSignUp = async (userData) => {
 */
 
 export default apiSignUp;
- */
