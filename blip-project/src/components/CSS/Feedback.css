@@ -1,7 +1,6 @@
-* {
+.Feedback-container * {
   margin: 0;
   padding: 0;
-  overflow: hidden;
 }
 
 .Feedback-p {
@@ -20,4 +19,3 @@
   align-items: center;
   justify-content: center;
 }
-

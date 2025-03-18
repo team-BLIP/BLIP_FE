@@ -33,7 +33,7 @@ const ModalDel = ({ onClose }) => {
           <h2 style={{ ...typography.Header2, color: color.GrayScale[6] }}>
             정말 스페이스를 삭제 하실건가요?
           </h2>
-          <img src={ESC} onClick={onClose} />
+          <img src={ESC} alt="스페이스 삭제 창 닫기" onClick={onClose} />
         </div>
         <div className="modalDel-button-main">
           <button

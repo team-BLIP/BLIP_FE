@@ -55,9 +55,7 @@ const Discord = () => {
   };
 
   const onClickFull = () => {
-    if (!FullScreen) {
-      setFullScreen((preState) => !preState);
-    }
+    setFullScreen(false);
   };
 
   const onClickEnd = () => {
