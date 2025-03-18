@@ -109,11 +109,11 @@ const JitsiMeetWithGrid = ({ setIsMettingStop }) => {
 
   useEffect(() => {
     const script = document.createElement("script");
-    script.src = "백엔드 url";
+    script.src = "https://192.168.1.42/external_api.js";
     script.async = true;
 
     script.onload = () => {
-      const domain = "meet.jit.si";
+      const domain = "192.168.1.42";
       const options = {
         roomName: "TestRoom",
         width: "100%",
@@ -165,7 +165,9 @@ const JitsiMeetWithGrid = ({ setIsMettingStop }) => {
     document.head.appendChild(script);
 
     return () => {
-      const scriptElement = document.querySelector('script[src="백엔드 url"]');
+      const scriptElement = document.querySelector(
+        'script[src="ws://192.168.1.42:8080/signaling"]'
+      );
       if (scriptElement) {
         document.head.removeChild(scriptElement);
       }
