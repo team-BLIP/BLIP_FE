@@ -60,7 +60,7 @@ const UserStart = () => {
           <div className="council-keyword">
             <div className="council-keyword-main">
               <div style={{ ...typography.Body2 }}>
-                회의 일정 및 키워드 요약 확인하기
+                키워드 요약 확인하기
               </div>
               <p
                 style={{
@@ -68,7 +68,7 @@ const UserStart = () => {
                   color: color.GrayScale[6],
                 }}
               >
-                진행한 회의를 바탕으로 캘린더에 키워드를 추가했어요!
+                진행한 회의를 바탕으로 키워드를 요약했어요!
               </p>
               <button
                 onClick={onClickKeyword}

@@ -10,7 +10,7 @@ import Exit from "../../../svg/Exit.svg";
 import XFullScreen from "../../../svg/XFullScreen.svg";
 import DisAlarm from "../../../svg/DisAlarm.svg";
 import NoMike from "../../../svg/NoMike.svg";
-import NoCamera from "../../../svg/noCamera.svg";
+import NoCamera from "../../../svg/NoCamera.svg"
 import Mike from "../../../svg/Mike.svg";
 import Camera from "../../../svg/DisCamera.svg";
 import MettingStart from "../../../svg/MettingStart.svg";
