@@ -1,5 +1,5 @@
 import "../../../CSS/HeaderTeam.css";
-import Alarm from "../../../../svg/Alarm.svg"
+import Alarm from "../../../../svg/alarm.svg";
 import blackLogo from "../../../../svg/blackLogo.svg";
 import Letter from "../../../../svg/letter.svg";
 import { useNavigate } from "react-router-dom";
