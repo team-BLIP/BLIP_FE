@@ -109,7 +109,7 @@ const JitsiMeetWithGrid = ({ setIsMettingStop }) => {
 
   useEffect(() => {
     const script = document.createElement("script");
-    script.src = "https://192.168.1.42/external_api.js";
+    script.src = "ws://192.168.1.42:8080/signaling";
     script.async = true;
 
     script.onload = () => {
