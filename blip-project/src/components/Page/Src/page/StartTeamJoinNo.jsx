@@ -1,4 +1,4 @@
-import "../../../CSS/StartTeamJoinNo.CSS";
+import "../../../CSS/StartTeamJoinNo.css";
 import { typography } from "../../../../fonts/fonts";
 import { color } from "../../../../style/color";
 import Modal from "../../Modal/Modal";
