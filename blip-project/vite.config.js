@@ -1,27 +1,15 @@
-// vite.config.js
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-// https://vite.dev/config/
 export default defineConfig({
-  build: {
-    chunkSizeWarningLimit: 1500,
-  },
+  root: "./", // root를 현재 디렉토리로 설정
+  base: "/", // 배포 시의 기본 URL을 프로젝트의 루트로 설정
   plugins: [react()],
   server: {
-    proxy: {
-      "/external_api.js": {
-        target: "https://meet.jit.si",
-        changeOrigin: true,
-        rewrite: (path) =>
-          path.replace(/^\/external_api.js/, "/external_api.js"),
-      },
-    },
+    open: true, // 서버 시작 시 브라우저 자동 열기
+    port: 5173, // 기본 포트 설정
   },
-  resolve: {
-    alias: {
-      "@": "/src",
-    },
+  build: {
+    chunkSizeWarningLimit: 1500, // 번들 크기 경고 크기 설정
   },
-  assetsInclude: ["**/*.svg"],
 });
