@@ -6,13 +6,13 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 8080,
-    proxy: {
+    /* proxy: {
       "/users": {
-        target: "http://192.168.1.25:8080",
+        target: "http://192.168.1.41:8080",
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/users/, ""),
       },
-    },
+    }, */
   },
 });
