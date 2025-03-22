@@ -2,10 +2,17 @@ import { instance } from "./instance";
 
 const apiSignUp = async (userData) => {
   try {
-    const response = await instance.post("/users/signup", userData);
+    const accessToken = localStorage.getItem("accessToken");
+    const response = await instance.post("/users/signup", userData, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
     return response.data;
   } catch (error) {
-    throw error.response?.data || error.message;
+    // throw error.response?.data || error.message;
+    console.log(error);
   }
 };
 
