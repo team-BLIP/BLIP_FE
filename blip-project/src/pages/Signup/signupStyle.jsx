@@ -5,17 +5,23 @@ import { typography } from "../../fonts/fonts";
 
 export const Main = styled.div`
   display: flex;
-  flex-direction: column;
-  align-items: center;
   gap: 5px;
   position: absolute;
   top: 55%;
-  left: 50%;
+  left: 73%;
   transform: translate(-50%, -50%);
-
+  /* max-height: 400px; */
+  /*  max-height: -10px; */
   p {
     margin-bottom: 2px;
   }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100vh;
+  justify-content: center;
+  gap: 1px;
 `;
 
 export const Container = styled.div`
@@ -33,7 +39,7 @@ export const LogoContainer = styled.div`
   gap: 8px;
   position: absolute;
   top: 10%;
-  left: 50%;
+  left: 73%;
   transform: translate(-50%, -50%);
 `;
 
@@ -42,8 +48,8 @@ export const Texts = styled.span`
   align-items: center;
   gap: 8px;
   position: absolute;
-  top: 21%;
-  left: 50%;
+  top: 20%;
+  left: 73%;
   transform: translate(-50%, -50%);
 `;
 
@@ -56,8 +62,8 @@ export const Link = styled.p`
   align-items: center;
   gap: 8px;
   position: absolute;
-  top: 89%;
-  left: 50%;
+  top: 92%;
+  left: 73%;
   transform: translate(-50%, -50%);
 `;
 
@@ -120,7 +126,7 @@ export const CloseButton = styled(Button)`
     background: ${color.Main[3]};
   }
 `;
-
+``;
 export const Inputs = styled.div`
   display: flex;
   gap: 8px;
@@ -129,7 +135,6 @@ export const Inputs = styled.div`
   width: 100%;
 
   input {
-    width: 64px;
     height: 100px;
     text-align: center;
     font-size: 18px;
@@ -137,5 +142,14 @@ export const Inputs = styled.div`
     text-indent: 0px;
     color: ${color.Black};
     font: ${typography.Label2_46};
+    width: 100%;
+    box-sizing: border-box;
   }
+`;
+
+export const InputContainer = styled.div`
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
 `;

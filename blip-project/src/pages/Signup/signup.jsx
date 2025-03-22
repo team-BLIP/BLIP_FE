@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Logo from "../../svg/logo.svg";
 import { typography } from "../../fonts/fonts";
 import * as S from "./signupStyle.jsx";
@@ -13,6 +13,10 @@ import { PasswordCheck } from "../../components/SignUp, Login/passwordCheck.jsx"
 import modalX from "../../svg/modalX.svg";
 import axios from "axios";
 import apiSignUp from "../../apis/apiSignUp.jsx";
+import sends from "../../svg/send.svg";
+import Number from "../../components/SignUp, Login/number.jsx";
+import background from "../../svg/background.svg";
+import Timer from "../../components/SignUp, Login/timer.jsx";
 
 const Signup = () => {
   const passwordRegEx = /^(?=.*[!@#$%^&*])(?=.{8,20}$).*/;
@@ -24,6 +28,30 @@ const Signup = () => {
     passwordCheck: "",
   });
 
+  const onValidMail = useCallback(
+    (e) => {
+      e.preventDefault();
+      fetch(api.emailCheck, {
+        method: "POST",
+        headers: { "Content-Type": "application/json;charset=utf-8" },
+        body: JSON.stringify({
+          userEmail: inputs.email,
+        }),
+      }).then((res) => {
+        if (res.status === 200) {
+          setIsGetCode(true);
+          setIsTimer(true);
+          setCount(180);
+        } else if (res.status === 401) {
+          alert("이미 존재하는 이메일입니다.");
+        } else if (res.status === 402) {
+          alert("이미 인증이 진행중입니다.");
+        }
+      });
+    },
+    [inputs.email]
+  );
+
   const { id, email, password, passwordCheck } = inputs;
   const [timeLeft, setTimeLeft] = useState(180);
   const [code, setCode] = useState(["", "", "", "", "", ""]);
@@ -32,9 +60,56 @@ const Signup = () => {
   const [idErrorMessage, setIdErrorMessage] = useState("");
   const [emailErrorMessage, setEmailErrorMessage] = useState("");
   const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
-
   const [isCodeValid, setIsCodeValid] = useState(true);
   const navigate = useNavigate();
+  const [count, setCount] = useState(180);
+  const [isTimerVisible, setIsTimerVisible] = useState(false);
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+
+  const handleStartTimer = () => {
+    setIsTimerVisible(true);
+    setIsTimerRunning(true);
+    setCount(180);
+  };
+
+  useEffect(() => {
+    if (isTimerRunning && count > 0) {
+      const timer = setInterval(() => {
+        setCount((prev) => {
+          if (prev === 1) {
+            clearInterval(timer);
+            setIsTimerRunning(false);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }
+  }, [isTimerRunning, count]);
+
+  const handleResend = () => {
+    setCount(180);
+    setCode(["", "", "", "", "", ""]);
+    setIsCodeValid(true);
+  };
+
+  useEffect(() => {
+    if (count === 0) return;
+
+    const timer = setInterval(() => {
+      setCount((prev) => {
+        if (prev === 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [count]);
 
   useEffect(() => {
     if (!isModalOpen) {
@@ -74,11 +149,11 @@ const Signup = () => {
     return `${minutes}:${secs < 10 ? `0${secs}` : secs}`;
   };
 
-  const handleResend = () => {
+  /*  const handleResend = () => {
     setTimeLeft(180);
     setCode(["", "", "", "", "", ""]);
     setIsCodeValid(true);
-  };
+  }; */
 
   const handleInputChange = (index, value) => {
     if (!/^\d?$/.test(value)) return;
@@ -125,6 +200,52 @@ const Signup = () => {
     }
   };
 
+  /*  const handleSendEmail = async () => {
+    console.log("handleSendEmail 실행됨");
+    alert("메일이 전송되었습니다.");
+    try {
+      console.log("fetch 요청 시작");
+
+      const response = await fetch("http://3.34.188.88:8080/auth/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: inputs.email }),
+      });
+
+      console.log("fetch 실행됨");
+
+      if (response.ok) {
+        console.log("이메일 전송 성공!");
+      } else {
+        console.error("이메일 전송 실패:", response.status);
+      }
+    } catch (error) {
+      console.error("fetch 요청 중 오류 발생:", error);
+    }
+  }; */
+
+  const handleSendEmail = async () => {
+    try {
+      const response = await fetch("/your-api-endpoint", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error("서버 응답 실패");
+      }
+
+      const result = await response.json();
+      console.log(result);
+    } catch (error) {
+      console.error("fetch 요청 중 오류 발생:", error);
+      alert("서버와 연결할 수 없습니다. 나중에 다시 시도해주세요.");
+    }
+  };
+
   const handleLoginClick = () => {
     let isValid = true;
 
@@ -167,12 +288,18 @@ const Signup = () => {
   return (
     <>
       <S.Container>
-        <img src={backgroundImg} />
+        <img
+          src={background}
+          style={{
+            width: "950px",
+            height: "850px",
+          }}
+        />
         <S.LogoContainer>
           <img src={Logo} alt="Logo" />
           <span style={typography.Label1}>BLIP</span>
         </S.LogoContainer>
-        <S.Texts style={typography.Header1}>계정 생성</S.Texts>
+        <S.Texts style={typography.Title1}>계정 생성</S.Texts>
         <S.Main>
           <div>
             <p
@@ -183,14 +310,37 @@ const Signup = () => {
             >
               {idErrorMessage || "아이디"}
             </p>
-            <Id
-              value={id}
-              onChange={onChange}
-              name="id"
-              placeholder="아이디를 입력하세요."
-            />
-          </div>
-          <div>
+            <S.InputContainer>
+              <Id
+                value={id}
+                onChange={onChange}
+                name="id"
+                placeholder="아이디를 입력하세요."
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  handleStartTimer();
+                  handleSendEmail();
+                }}
+                style={{
+                  position: "absolute",
+                  right: "6px",
+                  top: "50%",
+                  transform: "translateY(522%)",
+                  padding: "5px 10px",
+                  backgroundColor: color.Main[4],
+                  color: "white",
+                  border: "none",
+                  cursor: "pointer",
+                  zIndex: "1",
+                  width: "45px",
+                  height: "30px",
+                }}
+              >
+                <img src={sends} style={{ width: "20px", height: "20px" }} />
+              </button>
+            </S.InputContainer>
             <p
               style={{
                 ...typography.Body1,
@@ -205,6 +355,28 @@ const Signup = () => {
               name="email"
               placeholder="이메일 주소를 입력하세요."
             />
+          </div>
+
+          <div>
+            <p
+              style={{
+                ...typography.Body1,
+                color: emailErrorMessage ? color.Error[0] : color.GrayScale[5],
+              }}
+            >
+              인증번호
+            </p>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "10px",
+              }}
+            >
+              <Number placeholder={"인증번호를 입력해주세요."} />
+              {isTimerVisible && <Timer count={count} setCount={setCount} />}
+            </div>
           </div>
           <div>
             <p
@@ -264,59 +436,6 @@ const Signup = () => {
           </Link>
         </S.Link>
       </S.Container>
-
-      {isModalOpen && (
-        <S.ModalContainer onClick={handleCloseModal}>
-          <S.ModalContent onClick={(e) => e.stopPropagation()}>
-            <img src={modalX} onClick={handleCloseModal} />
-            <span>ESC</span>
-            <p style={{ ...typography.Label2_46, color: color.Black }}>
-              인증번호
-            </p>
-            <p style={{ ...typography.Body3Bold, color: color.GrayScale[7] }}>
-              보안을 위해 이메일로 발송된 6자리 인증 번호를 입력해 주세요.{" "}
-              <br />
-              3분 내로 입력하지 않으면 만료될 수 있으니 유의하시기 바랍니다.
-            </p>
-            <S.Inputs>
-              {code.map((digit, index) => (
-                <Input
-                  key={index}
-                  ref={(el) => (inputRefs.current[index] = el)}
-                  type="text"
-                  maxLength="1"
-                  value={digit}
-                  onChange={(e) => handleInputChange(index, e.target.value)}
-                  style={{
-                    border: isCodeValid
-                      ? `1px solid ${color.GrayScale[2]}`
-                      : `1px solid ${color.Error[0]}`,
-                  }}
-                />
-              ))}
-            </S.Inputs>
-            <p
-              style={{
-                color: timeLeft <= 60 ? color.Error[0] : color.Main[4],
-                ...typography.Body1,
-              }}
-            >
-              {formatTime(timeLeft)}
-            </p>
-
-            <p
-              onClick={handleResend}
-              style={{
-                cursor: "pointer",
-                color: !isCodeValid ? color.Error[0] : color.Main[4],
-              }}
-            >
-              인증번호 재전송
-            </p>
-            <S.CloseButton onClick={handleVerification}>확인</S.CloseButton>
-          </S.ModalContent>
-        </S.ModalContainer>
-      )}
     </>
   );
 };
