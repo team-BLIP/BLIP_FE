@@ -6,6 +6,8 @@ import { useState, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { SidebarContext } from "../../../Router";
 import { TeamDel } from "../Main/Main";
+import { FindId } from "../Main/Main";
+import axios from "axios";
 
 const ModalJoin = ({ onClose }) => {
   const [isInput, setIsInput] = useState("");
@@ -13,6 +15,7 @@ const ModalJoin = ({ onClose }) => {
   const { onCreatedouble, dispatch } = useContext(SidebarContext);
   const { setOwner, setJoin, Owner, TeamJoin, setTeamJoin } =
     useContext(TeamDel);
+  const { TeamId } = useContext(FindId);
   const [content, setContent] = useState("");
   const submitRef = useRef();
 
@@ -31,14 +34,46 @@ const ModalJoin = ({ onClose }) => {
 
   const nav = useNavigate();
 
-  const onClickUrl = () => {
+  const joinTeam = async (TeamId) => {
+    const url = "teams/join";
+    const accessToken = "토큰 값";
+
+    const data = {
+      team_id: "ertyui",
+    };
+    try {
+      const response = await axios.post(url, data, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      console.log("팀 가입 성공", response.data);
+      return response.data;
+    } catch (error) {
+      console.log("팀 가입 실패", error);
+      alert("팀 참가에 실패했습니다. 다시 시도해주세요.");
+    }
+  };
+
+  const onClickUrl = async () => {
     if (isValidURL) {
-      nav("/", { state: { isInput } });
-      dispatch.onCreatedouble(content);
-      setContent("");
-      setJoin((prev) => !prev);
-      if (Owner) {
-        setOwner((prev) => !prev);
+      const teamId = new URL(isInput).searchParams.get("team_id");
+
+      if (teamId) {
+        const result = await joinTeam(teamId);
+
+        if (result) {
+          nav("/", { state: { isInput } });
+          dispatch.onCreatedouble(content);
+          setContent("");
+          setJoin((prev) => !prev);
+          if (Owner) {
+            setOwner((prev) => !prev);
+          }
+        }
+      } else {
+        alert("유효하지 않은 초대 링크입니다. 다시 확인해주세요.");
       }
     } else if (content === "") {
       submitRef.current.focus();
