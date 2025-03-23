@@ -6,11 +6,13 @@ import { useState, useContext, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { SidebarContext } from "../../../Router";
 import { TeamDel } from "../Main/Main";
+import axios from "axios";
 
 const ModalCreate = ({ onClose }) => {
   const { dispatch } = useContext(SidebarContext);
   const { setOwner, setJoin, join } = useContext(TeamDel);
   const [content, setContent] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const submitRef = useRef();
   const nav = useNavigate();
 
@@ -19,24 +21,51 @@ const ModalCreate = ({ onClose }) => {
     console.log(e.target.value);
   };
 
-  const onClickCreate = () => {
-    if (content !== "") {
+  const onKeyDownCreate = (e) => {
+    if (e.key === "Enter") {
+      handleSubmit();
+    }
+  };
+
+  const handleSubmit = async () => {
+    const url = "/teams/create";
+    const accessToken = "토큰 값"
+
+    console.log("fds");
+    if (content === "") {
+      submitRef.current.focus();
+      return;
+    }
+
+    const data = {
+      team_name: content,
+      nick_name: "er",
+    };
+
+    try {
+      const reponse = await axios.post(url, data, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      console.log("팀 생성 성공:", reponse.data);
+
       setOwner((prev) => !prev);
       if (join) {
         setJoin((prev) => !prev);
       }
-      nav("/", { state: { content } });
+
+      const TeamId = reponse.data.team_id;
+      nav("/", { state: { content, TeamId } });
+      console.log(TeamId);
       dispatch.onCreateone(content);
       setContent("");
-    } else if (content === "") {
-      submitRef.current.focus();
-      return;
-    }
-  };
-
-  const onKeyDownCreate = (e) => {
-    if (e.key === "Enter") {
-      onClickCreate();
+      onClose();
+    } catch (error) {
+      console.error("팀 생성 실패:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -80,7 +109,7 @@ const ModalCreate = ({ onClose }) => {
             <button
               className="modal-create-button-400"
               style={{ "--main-400": color.Main[4] }}
-              onClick={onClickCreate}
+              onClick={handleSubmit}
             >
               시작하기
             </button>
