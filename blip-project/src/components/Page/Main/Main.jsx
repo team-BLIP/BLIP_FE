@@ -16,7 +16,7 @@ export const FindId = createContext({
 
 const Main = () => {
   const location = useLocation();
-  const { itemContent, itemId, itemImage } = location.state || {};
+  const { itemContent, itemId, itemImage, TeamId } = location.state || {};
   const { todos } = useContext(SidebarContext);
   const [filteredItem, setFilteredItem] = useState(null);
   const { FullScreen, targetId, setTargetId } = useContext(UseStateContext);
@@ -47,6 +47,7 @@ const Main = () => {
           setTargetId,
           teamImages,
           setTeamImages,
+          TeamId,
         }}
       >
         <TeamDel.Provider
