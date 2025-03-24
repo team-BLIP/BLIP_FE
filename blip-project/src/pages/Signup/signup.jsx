@@ -226,7 +226,9 @@ const Signup = () => {
 
   const handleSendEmail = async () => {
     try {
-      const response = await fetch("/your-api-endpoint", {
+      const data = { email: inputs.email };
+
+      const response = await fetch("http://3.34.188.88:8080/auth/send", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
