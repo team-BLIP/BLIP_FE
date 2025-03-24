@@ -11,8 +11,8 @@ const apiSignUp = async (userData) => {
     });
     return response.data;
   } catch (error) {
-    // throw error.response?.data || error.message;
-    console.log(error);
+    console.error("Signup request failed:", error);
+    throw error.response?.data || error;
   }
 };
 
