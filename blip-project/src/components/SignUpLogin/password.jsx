@@ -40,7 +40,7 @@ export const PassWord = ({
 const PassWordAll = styled.div``;
 
 const FakePassWordDiv = styled.div`
-  position: relative; 
+  position: relative;
 `;
 
 const PassWordEyes = styled.div`
