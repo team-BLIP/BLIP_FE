@@ -2,11 +2,9 @@ import { instance } from "./instance";
 
 const apiSignUp = async (userData) => {
   try {
-    const accessToken = localStorage.getItem("accessToken");
     const response = await instance.post("/users/signup", userData, {
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
       },
     });
     return response.data;
