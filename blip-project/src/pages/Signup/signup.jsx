@@ -1,22 +1,23 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef, useCallback } from "react";
 import Logo from "../../svg/logo.svg";
-import { typography } from "../../fonts/fonts";
+import { typography } from "../../fonts/fonts.jsx";
 import * as S from "./signupStyle.jsx";
-import Input from "../../components/SignUp, Login/input.jsx";
+import Input from "../../components/SignUpLogin/input.jsx";
 import backgroundImg from "../../svg/backgroundImg (5).svg";
 import { color } from "../../style/color.jsx";
-import { PassWord } from "../../components/SignUp, Login/password.jsx";
-import { Email } from "../../components/SignUp, Login/email.jsx";
-import Id from "../../components/SignUp, Login/id.jsx";
-import { PasswordCheck } from "../../components/SignUp, Login/passwordCheck.jsx";
+import { PassWord } from "../../components/SignUpLogin/password.jsx";
+import { Email } from "../../components/SignUpLogin/email.jsx";
+import Id from "../../components/SignUpLogin/id.jsx";
+import { PasswordCheck } from "../../components/SignUpLogin/passwordCheck.jsx";
 import modalX from "../../svg/modalX.svg";
 import axios from "axios";
 import apiSignUp from "../../apis/apiSignUp.jsx";
 import sends from "../../svg/send.svg";
-import Number from "../../components/SignUp, Login/number.jsx";
+import Number from "../../components/SignUpLogin/number.jsx";
 import background from "../../svg/background.svg";
-import Timer from "../../components/SignUp, Login/timer.jsx";
+import Timer from "../../components/SignUpLogin/timer.jsx";
+import { instance } from "../../apis/instance.jsx";
 
 const Signup = () => {
   const passwordRegEx = /^(?=.*[!@#$%^&*])(?=.{8,20}$).*/;
@@ -62,6 +63,10 @@ const Signup = () => {
   const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
   const [isCodeValid, setIsCodeValid] = useState(true);
   const navigate = useNavigate();
+  /* const SignUpNavClick = () => {
+    const navigate = useNavigate();
+    navigate("/signup");
+  }; */
   const [count, setCount] = useState(180);
   const [isTimerVisible, setIsTimerVisible] = useState(false);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
@@ -228,7 +233,7 @@ const Signup = () => {
     try {
       const data = { email: inputs.email };
 
-      const response = await fetch("http://3.34.188.88:8080/auth/send", {
+      const response = await fetch("http://3.35.180.21:8080/auth/send", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -271,6 +276,28 @@ const Signup = () => {
     handleSignup();
   };
 
+  const handleLogin = async () => {
+    const userData = {
+      id: inputs.id,
+      email: inputs.email,
+      password: inputs.password,
+    };
+    console.log(inputs);
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+      const response = await instance.post("/users/signup", userData, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Signup request failed:", error);
+      throw error.response?.data || error;
+    }
+  };
+
   const handleVerification = () => {
     const correctCode = "123456";
     if (code.join("").trim() !== correctCode) {
@@ -285,6 +312,21 @@ const Signup = () => {
     setIsModalOpen(false);
     setCode(["", "", "", "", "", ""]);
     setIsCodeValid(true);
+  };
+
+  const [passwordError, setPasswordError] = useState("");
+  const passwordChecking = (password) => {
+    if (!password.match(passwordRegEx)) {
+      console.log("비밀번호 형식을 확인해주세요");
+      setPasswordError("비밀번호 형식을 확인해주세요");
+      return;
+    }
+    console.log("비밀번호 형식이 맞습니다");
+    setPasswordError("");
+  };
+
+  const SignUpNavClick = () => {
+    navigate("/signup");
   };
 
   return (
@@ -395,9 +437,12 @@ const Signup = () => {
               value={password}
               onChange={onChange}
               name="password"
-              showEye="visible"
+              showEye="none"
               placeholder="비밀번호를 입력하세요."
             />
+            {passwordError && (
+              <p style={{ color: "red", fontSize: "12px" }}>{passwordError}</p>
+            )}
           </div>
           <div>
             <p
@@ -423,19 +468,20 @@ const Signup = () => {
             />
           </div>
 
-          <S.LoginButton onClick={handleLoginClick}>로그인</S.LoginButton>
+          <S.LoginButton onClick={handleLogin}>로그인</S.LoginButton>
         </S.Main>
         <S.Link style={typography.Button0}>
-          계정이 있다면?{" "}
-          <Link
-            to="/login"
+          계정이 없다면?{" "}
+          <span
+            onClick={() => navigate("/users/signup")}
             style={{
               ...typography.Button0,
-              color: timeLeft <= 60 ? color.Error[0] : color.Main[4],
+              color: color.Main[4],
+              cursor: "pointer",
             }}
           >
-            로그인
-          </Link>
+            가입하기
+          </span>
         </S.Link>
       </S.Container>
     </>

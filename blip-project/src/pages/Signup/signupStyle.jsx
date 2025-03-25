@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import Button from "../../components/SignUp, Login/button";
+import Button from "../../components/SignUpLogin/button";
 import { color } from "../../style/color";
 import { typography } from "../../fonts/fonts";
 
@@ -113,9 +113,9 @@ export const ModalContent = styled.div`
 
   span {
     position: absolute;
-    top: 55px; 
+    top: 55px;
     right: 20px;
-    font: ${typography.Body1}
+    font: ${typography.Body1};
     color: ${color.GrayScale[6]};
   }
 `;

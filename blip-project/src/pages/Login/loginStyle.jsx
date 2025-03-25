@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import Button from "../../components/SignUp, Login/button";
+import Button from "../../components/SignUpLogin/button";
 
 export const Main = styled.div`
   display: flex;

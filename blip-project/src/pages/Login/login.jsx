@@ -3,11 +3,11 @@ import { useState } from "react";
 import Logo from "../../svg/logo.svg";
 import { typography } from "../../fonts/fonts";
 import * as S from "./loginStyle.jsx";
-import Input from "../../components/SignUp, Login/input.jsx";
+import Input from "../../components/SignUpLogin/input.jsx";
 import backgroundImg from "../../svg/backgroundImg (5).svg";
 import { color } from "../../style/color.jsx";
-import { PassWord } from "../../components/SignUp, Login/password.jsx";
-import { Email } from "../../components/SignUp, Login/email.jsx";
+import { PassWord } from "../../components/SignUpLogin/password.jsx";
+import Email from "../../components/SignUpLogin/email.jsx";
 
 const Login = () => {
   const passwordRegEx = /^(?=.*[!@#$%^&*])(?=.{8,20}$).*/;
