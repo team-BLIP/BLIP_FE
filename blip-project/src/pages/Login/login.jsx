@@ -4,7 +4,7 @@ import Logo from "../../svg/logo.svg";
 import { typography } from "../../fonts/fonts";
 import * as S from "./loginStyle.jsx";
 import Input from "../../components/SignUpLogin/input.jsx";
-import backgroundImg from "../../svg/backgroundImg (5).svg";
+import background from "../../svg/background.svg";
 import { color } from "../../style/color.jsx";
 import { PassWord } from "../../components/SignUpLogin/password.jsx";
 import Email from "../../components/SignUpLogin/email.jsx";
@@ -49,7 +49,7 @@ const Login = () => {
   return (
     <>
       <S.Container>
-        <img src={backgroundImg} />
+        <img src={background} />
         <S.LogoContainer>
           <img src={Logo} alt="Logo" />
           <span style={typography.Label1}>BLIP</span>

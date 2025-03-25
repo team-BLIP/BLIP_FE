@@ -4,7 +4,6 @@ import Logo from "../../svg/logo.svg";
 import { typography } from "../../fonts/fonts.jsx";
 import * as S from "./signupStyle.jsx";
 import Input from "../../components/SignUpLogin/input.jsx";
-import backgroundImg from "../../svg/backgroundImg (5).svg";
 import { color } from "../../style/color.jsx";
 import { PassWord } from "../../components/SignUpLogin/password.jsx";
 import { Email } from "../../components/SignUpLogin/email.jsx";
