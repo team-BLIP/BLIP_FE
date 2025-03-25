@@ -13,6 +13,7 @@ const ModalCreate = ({ onClose }) => {
   const { setOwner, setJoin, join } = useContext(TeamDel);
   const [content, setContent] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [data, setData] = useState(false);
   const submitRef = useRef();
   const nav = useNavigate();
 
@@ -27,11 +28,14 @@ const ModalCreate = ({ onClose }) => {
     }
   };
 
-  const handleSubmit = async () => {
-    const url = "/teams/create";
-    const accessToken = "토큰 값"
+  const apiUrl = REACT_APP_API_URL_CREATE;
 
-    console.log("fds");
+  console.log(apiUrl, "afdnmhtrhmjy");
+
+  const handleSubmit = async () => {
+    const url = `${apiUrl}/data`;
+    const accessToken = "토큰 값";
+
     if (content === "") {
       submitRef.current.focus();
       return;
@@ -43,20 +47,20 @@ const ModalCreate = ({ onClose }) => {
     };
 
     try {
-      const reponse = await axios.post(url, data, {
+      const response = await axios.post(url, data, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      console.log("팀 생성 성공:", reponse.data);
+      console.log("팀 생성 성공:", response.data);
 
       setOwner((prev) => !prev);
       if (join) {
         setJoin((prev) => !prev);
       }
 
-      const TeamId = reponse.data.team_id;
+      const TeamId = response.data.team_id;
       nav("/", { state: { content, TeamId } });
       console.log(TeamId);
       dispatch.onCreateone(content);
