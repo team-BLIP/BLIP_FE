@@ -17,6 +17,7 @@ const ModalJoin = ({ onClose }) => {
     useContext(TeamDel);
   const { TeamId } = useContext(FindId);
   const [content, setContent] = useState("");
+  const [data, setData] = useState(false);
   const submitRef = useRef();
 
   const onChangeInput = (e) => {
@@ -34,8 +35,10 @@ const ModalJoin = ({ onClose }) => {
 
   const nav = useNavigate();
 
+  const apiUrl = import.meta.env.VITE_API_URL_URL_JOIN;
+
   const joinTeam = async (TeamId) => {
-    const url = "teams/join";
+    const url = `${apiUrl}/data`;
     const accessToken = "토큰 값";
 
     const data = {
