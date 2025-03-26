@@ -21,14 +21,53 @@ const JitsiMeetWithGrid = ({ setIsMettingStop }) => {
   const { videoRef, stream, setStream } = useContext(DiscordContext);
   const { recorder, setRecorder, setRecordedChunks } = useContext(Call);
 
+  const apiUrl = import.meta.env.VITE_API_URL_URL_;
+
+  const captureAndSendImage = () => {
+    if (!videoRef.current) return;
+
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+
+    canvas.width = videoRef.current.videoWidth;
+    canvas.height = videoRef.current.videoHeight;
+
+    context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+
+    const imageData = canvas.toDataURL("image/jpeg");
+
+    const url = `${apiUrl}/data`;
+    const accessToken = "토큰 값";
+
+    fetch(url, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ image: imageData }),
+      //string으로 전환입니당~
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("이미지 전송 성공", data);
+      })
+      .catch((error) => {
+        console.error("이미지 전송 실패:", error);
+      });
+  };
+
   const recognition = new SpeechRecognition();
   recognition.lang = "ko-KR";
   recognition.continuous = true;
   recognition.interimResults = true;
 
   useEffect(() => {
+    const captureInterval = setInterval(() => {
+      captureAndSendImage();
+    }, 100);
+
     const script = document.createElement("script");
-    script.src = "ws://192.168.1.42:8080/signaling";
+    script.src = "";
     script.async = true;
 
     script.onload = () => {
@@ -50,7 +89,6 @@ const JitsiMeetWithGrid = ({ setIsMettingStop }) => {
 
       const api = new window.JitsiMeetExternalAPI(domain, options);
 
-      // 음성 녹음 기능
       api.addEventListener("videoConferenceJoined", () => {
         const stream = api
           .getLocalTracks()
@@ -84,14 +122,13 @@ const JitsiMeetWithGrid = ({ setIsMettingStop }) => {
     document.head.appendChild(script);
 
     return () => {
-      const scriptElement = document.querySelector(
-        'script[src="ws://192.168.1.42:8080/signaling"]'
-      );
+      const scriptElement = document.querySelector('script[src=""]');
       if (scriptElement) {
         document.head.removeChild(scriptElement);
       }
+      clearInterval(captureInterval);
     };
-  }, []);
+  }, [videoRef]);
 
   useEffect(() => {
     if (setIsMettingStop) {
