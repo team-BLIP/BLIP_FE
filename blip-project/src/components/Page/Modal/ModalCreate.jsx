@@ -28,7 +28,7 @@ const ModalCreate = ({ onClose }) => {
     }
   };
 
-  const apiUrl = REACT_APP_API_URL_CREATE;
+  const apiUrl = import.meta.env.VITE_API_URL_URL_CREATE;
 
   console.log(apiUrl, "afdnmhtrhmjy");
 
