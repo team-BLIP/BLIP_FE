@@ -5,6 +5,7 @@ import Modal from "../../Modal/Modal";
 import { useState, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { SidebarContext } from "../../../../Router";
+import axios from "axios";
 
 const StartTeamJoinNo = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,6 +14,53 @@ const StartTeamJoinNo = () => {
   const { dispatch } = useContext(SidebarContext);
   const [content, setContent] = useState("");
   const submitRef = useRef();
+
+  const apiUrl = import.meta.env.VITE_API_URL_URL_JOIN;
+
+  const joinTeam = async (TeamId) => {
+    const url = `${apiUrl}/data`;
+    const accessToken = "토큰 값";
+
+    const data = {
+      item_id: "fagda",
+    };
+    try {
+      const reponse = await axios.post(url, data, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      console.log("팀 가입 성공", reponse.data);
+      return reponse.data;
+    } catch (error) {
+      console.log("팀 가입 실패", error);
+      alert("팀 참가에 실패했습니다. 다시 시도해주세요");
+    }
+  };
+
+  const onClickUrl = async () => {
+    if (isUrl) {
+      const teamId = new URL(urlInput).searchParams.get("team_id");
+
+      if (teamId) {
+        const result = await joinTeam(teamId);
+
+        if (result) {
+          nav("/", { state: { urlInput } });
+          dispatch.onCreatedouble(content);
+          setContent("");
+        } else {
+          openModal();
+        }
+      } else {
+        alert("유효하지 않은 초대 링크입니다. 다시 확인해주세여. ");
+      }
+    } else if (content === "") {
+      submitRef.current.focus();
+      return;
+    }
+  };
 
   const onChangeUrlInput = (e) => {
     const urlValue = e.target.value;
@@ -27,19 +75,9 @@ const StartTeamJoinNo = () => {
 
   const nav = useNavigate();
 
-  const handleClick = () => {
-    if (isUrl) {
-      nav("/", { state: { urlInput } });
-      dispatch.onCreatedouble(content);
-      setContent("");
-    } else {
-      openModal();
-    }
-  };
-
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
-      handleClick(); // Enter 키가 눌리면 onClickCreate 함수 호출
+      onClickUrl();
     }
   };
 
@@ -71,7 +109,7 @@ const StartTeamJoinNo = () => {
           </div>
           <button
             className="STJoinNoButton"
-            onClick={handleClick}
+            onClick={onClickUrl}
             onKeyDown={handleKeyDown}
             style={{
               ...typography.Button0,
