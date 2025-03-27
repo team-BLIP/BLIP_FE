@@ -23,6 +23,8 @@ const ModalDel = ({ onClose }) => {
       setJoin(false);
       setSetting(false);
       setBasic(false);
+    } else {
+      console.error("No item selected for deletion");
     }
   };
 
