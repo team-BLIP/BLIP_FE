@@ -175,11 +175,6 @@ const JitsiMeetWithGrid = ({ setIsMettingStop }) => {
     console.log("녹음 시작");
   };
 
-  const users = [
-    { id: 1, name: "유저1", isCameraOn: true },
-    { id: 2, name: "유저2", isCameraOn: false },
-  ];
-
   return (
     <div className="FullGrid-grid">
       {users.length > 1 && users.length % 2 === 1 ? (
