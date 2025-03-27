@@ -22,17 +22,17 @@ const StartTeamJoinNo = () => {
     const accessToken = "토큰 값";
 
     const data = {
-      item_id: "fagda",
+      item_id: TeamId,
     };
     try {
-      const reponse = await axios.post(url, data, {
+      const response = await axios.post(url, data, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      console.log("팀 가입 성공", reponse.data);
-      return reponse.data;
+      console.log("팀 가입 성공", response.data);
+      return response.data;
     } catch (error) {
       console.log("팀 가입 실패", error);
       alert("팀 참가에 실패했습니다. 다시 시도해주세요");
@@ -56,7 +56,7 @@ const StartTeamJoinNo = () => {
       } else {
         alert("유효하지 않은 초대 링크입니다. 다시 확인해주세여. ");
       }
-    } else if (content === "") {
+    } else if (content === "" || urlInput === "") {
       submitRef.current.focus();
       return;
     }
