@@ -4,20 +4,14 @@ import { color } from "../../../style/color";
 import ESC from "../../../svg/ESC.svg";
 import { useState, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { SidebarContext } from "../../../Router";
 import { TeamDel } from "../Main/Main";
-import { FindId } from "../Main/Main";
 import axios from "axios";
 
 const ModalJoin = ({ onClose }) => {
   const [isInput, setIsInput] = useState("");
   const [isValidURL, setIsValidURL] = useState(true); // URL 유효성 상태
-  const { onCreatedouble, dispatch } = useContext(SidebarContext);
-  const { setOwner, setJoin, Owner, TeamJoin, setTeamJoin } =
-    useContext(TeamDel);
-  const { TeamId } = useContext(FindId);
+  const { setOwner, setJoin, Owner } = useContext(TeamDel);
   const [content, setContent] = useState("");
-  const [data, setData] = useState(false);
   const submitRef = useRef();
 
   const onChangeInput = (e) => {
@@ -42,7 +36,7 @@ const ModalJoin = ({ onClose }) => {
     const accessToken = "토큰 값";
 
     const data = {
-      team_id: "ertyui",
+      team_id: TeamId,
     };
     try {
       const response = await axios.post(url, data, {
@@ -68,7 +62,7 @@ const ModalJoin = ({ onClose }) => {
 
         if (result) {
           nav("/", { state: { isInput } });
-          dispatch.onCreatedouble(content);
+          onCreatedouble(content);
           setContent("");
           setJoin((prev) => !prev);
           if (Owner) {
