@@ -40,21 +40,16 @@ const Discord = () => {
   const { setIsListening } = useContext(DiscordContext);
 
   const onClickMike = () => {
-    if (!isCamera) {
-      setIsMike((preState) => !preState);
-    }
+    setIsMike((preState) => !preState);
     setIsListening((preState) => !preState);
   };
 
   const onClickCamera = () => {
     setIsCamera((preState) => !preState);
-    if (!isMike) {
-      setIsMike((preState) => !preState);
-    }
   };
 
   const onClickFull = () => {
-    setFullScreen(false);
+    setFullScreen((preState) => !preState);
   };
 
   const onClickEnd = () => {
