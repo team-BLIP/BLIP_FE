@@ -8,6 +8,13 @@ export default defineConfig({
   server: {
     open: true, // 서버 시작 시 브라우저 자동 열기
     port: 5173, // 기본 포트 설정
+    proxy: {
+      "/jitsi-api": {
+        target: "https://your-jitsi-server.com",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/jitsi-api/, ""),
+      },
+    },
   },
   build: {
     chunkSizeWarningLimit: 1500, // 번들 크기 경고 크기 설정
