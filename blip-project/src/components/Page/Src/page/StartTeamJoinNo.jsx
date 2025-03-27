@@ -109,7 +109,7 @@ const StartTeamJoinNo = () => {
           </div>
           <button
             className="STJoinNoButton"
-            onClick={onClickUrl}
+            onClick={openModal}
             onKeyDown={handleKeyDown}
             style={{
               ...typography.Button0,
