@@ -9,13 +9,9 @@ import Keyword from "./Keyword";
 import Graph from "../function/graph";
 
 const UserStart = () => {
-
   const {
-    setting,
     setSetting,
-    isAlarm,
     setIsAlarm,
-    isLetter,
     setIsLetter,
     isFeedback,
     setIsFeedback,
@@ -23,31 +19,18 @@ const UserStart = () => {
     setIsKeyword,
   } = useContext(UseStateContext);
 
-  const onClickFeedback = () => {
-    setIsFeedback((preState) => !preState);
-    if (isLetter === true) {
-      setIsLetter((preState) => !preState);
-    } else if (setting === true) {
-      setSetting((preState) => !preState);
-    } else if (isAlarm === true) {
-      setIsAlarm((preState) => !preState);
-    } else if (isKeyword === true) {
-      setIsKeyword((preState) => !preState);
-    }
-  };
+  const toggleView = (viewToShow) => {
+    setSetting(false);
+    setIsAlarm(false);
+    setIsLetter(false);
+    setIsFeedback(false);
+    setIsKeyword(false);
 
-  const onClickKeyword = () => {
-    setIsKeyword((preState) => !preState);
-    if (isLetter === true) {
-      setIsLetter((preState) => !preState);
-    } else if (setting === true) {
-      setSetting((preState) => !preState);
-    } else if (isAlarm === true) {
-      setIsAlarm((preState) => !preState);
-    } else if (isFeedback === true) {
-      setIsFeedback((preState) => !preState);
-    }
+    if (viewToShow === "feedback") setIsFeedback(true);
+    if (viewToShow === "keyword") setIsKeyword(true);
   };
+  const onClickFeedback = () => toggleView("feedback");
+  const onClickKeyword = () => toggleView("keyword");
 
   return (
     <>
@@ -59,9 +42,7 @@ const UserStart = () => {
         <div className="council">
           <div className="council-keyword">
             <div className="council-keyword-main">
-              <div style={{ ...typography.Body2 }}>
-                키워드 요약 확인하기
-              </div>
+              <div style={{ ...typography.Body2 }}>키워드 요약 확인하기</div>
               <p
                 style={{
                   ...typography.Body3Regular,
@@ -71,7 +52,7 @@ const UserStart = () => {
                 진행한 회의를 바탕으로 키워드를 요약했어요!
               </p>
               <button
-                onClick={onClickKeyword}
+                onClick={toggleView}
                 style={{ ...typography.Button3, "--main-400": color.Main[4] }}
               >
                 확인하기
@@ -103,7 +84,7 @@ const UserStart = () => {
             </div>
             <img src={FeedbackSvg} />
           </div>
-          <Graph/>
+          <Graph />
         </div>
       )}
     </>
