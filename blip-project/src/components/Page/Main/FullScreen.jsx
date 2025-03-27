@@ -15,7 +15,7 @@ import Mike from "../../../svg/Mike.svg";
 import Camera from "../../../svg/DisCamera.svg";
 import MettingStart from "../../../svg/MettingStart.svg";
 import MettingStop from "../../../svg/MettingStop.svg";
-import Grid from "../Src/function/Grid";
+import JitsiMeet from "../Src/function/jitsiMeet";
 
 const FullScreenPage = () => {
   const { itemId } = useContext(TeamDel);
@@ -85,7 +85,7 @@ const FullScreenPage = () => {
         className="FullScreen-main"
         style={{ backgroundColor: color.GrayScale[8], ...gridStyle }}
       >
-        <Grid />
+        <JitsiMeet />
       </div>
       <div
         className="FullScreen-foot"
