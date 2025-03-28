@@ -8,7 +8,7 @@ import { UseStateContext } from "../../../../Router";
 import { FindId } from "../../Main/Main";
 import ModalDel from "../../Modal/ModalDel";
 import Camera from "../../../../svg/camera.svg";
-import HandleImg from "../function/HandleImg";
+import ImgUpload from "../function/ImgUpload";
 
 const OwnerTeam = () => {
   const fileInputImg = useRef(null);
@@ -77,7 +77,7 @@ const OwnerTeam = () => {
             type="file"
             accept="image/*"
             ref={fileInputImg}
-            onChange={HandleImg}
+            onChange={ImgUpload}
           />
         </div>
         <div>
