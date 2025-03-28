@@ -1,7 +1,7 @@
 import "../../CSS/Member.css";
 import { color } from "../../../style/color";
 import { typography } from "../../../fonts/fonts";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { TeamDel } from "../Main/Main";
 import { UseStateContext } from "../../../Router";
 import { FindId } from "../Main/Main";
