@@ -47,8 +47,6 @@ const FullScreenPage = () => {
   };
 
   const onClickMike = () => {
-    console.log("ddd", isCamera);
-    console.log("sss", isMike);
     if (!isCamera) {
       setIsMike((preState) => !preState);
     }
