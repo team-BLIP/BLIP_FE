@@ -15,10 +15,9 @@ const SpeechRecognition =
   window.SpeechRecognition || window.webkitSpeechRecognition;
 
 const JitsiMeetWithGrid = ({ setIsMettingStop }) => {
-  const { itemId } = useContext(TeamDel);
   const { isMike, setIsMike, isCamera, setIsCamera } =
     useContext(UseStateContext);
-  const { videoRef, stream, setStream } = useContext(DiscordContext);
+  const { videoRef, stream } = useContext(DiscordContext);
   const { recorder, setRecorder, setRecordedChunks } = useContext(Call);
 
   const apiUrl = import.meta.env.VITE_API_URL_URL_;
