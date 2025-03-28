@@ -8,31 +8,20 @@ import { UseStateContext } from "../../../../Router";
 import { FindId } from "../../Main/Main";
 import ModalDel from "../../Modal/ModalDel";
 import Camera from "../../../../svg/camera.svg";
+import HandleImg from "../function/HandleImg";
 
 const OwnerTeam = () => {
   const fileInputImg = useRef(null);
   const [inputFont, setInputFont] = useState("");
   const [isOpenModal, setIsOpenModal] = useState(false);
   const { itemContent, itemId, image, setImage } = useContext(TeamDel);
-  const { targetId, setTargetId, teamImages, setTeamImages } =
+  const { targetId, setTargetId, teamImages } =
     useContext(FindId);
   const { setSetting } = useContext(UseStateContext);
   const nav = useNavigate();
 
   const openModal = () => setIsOpenModal(true);
   const closeModal = () => setIsOpenModal(false);
-
-  const handleImg = (e) => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => {
-      setTeamImages((prevState) => ({
-        ...prevState,
-        [targetId]: reader.result,
-      }));
-    };
-  };
 
   const handleImage = () => {
     fileInputImg.current.click();
@@ -88,7 +77,7 @@ const OwnerTeam = () => {
             type="file"
             accept="image/*"
             ref={fileInputImg}
-            onChange={handleImg}
+            onChange={HandleImg}
           />
         </div>
         <div>
