@@ -5,7 +5,8 @@ import Modal from "../../Modal/Modal";
 import { useState, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { SidebarContext } from "../../../../Router";
-import axios from "axios";
+import JoinApi from "../api/JoinApi";
+import UrlCheck from "../function/UrlCheck";
 
 const StartTeamJoinNo = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -15,36 +16,12 @@ const StartTeamJoinNo = () => {
   const [content, setContent] = useState("");
   const submitRef = useRef();
 
-  const apiUrl = import.meta.env.VITE_API_URL_URL_JOIN;
-
-  const joinTeam = async (TeamId) => {
-    const url = `${apiUrl}/data`;
-    const accessToken = "토큰 값";
-
-    const data = {
-      item_id: TeamId,
-    };
-    try {
-      const response = await axios.post(url, data, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      console.log("팀 가입 성공", response.data);
-      return response.data;
-    } catch (error) {
-      console.log("팀 가입 실패", error);
-      alert("팀 참가에 실패했습니다. 다시 시도해주세요");
-    }
-  };
-
   const onClickUrl = async () => {
     if (isUrl) {
       const teamId = new URL(urlInput).searchParams.get("team_id");
 
       if (teamId) {
-        const result = await joinTeam(teamId);
+        const result = await JoinApi(teamId);
 
         if (result) {
           nav("/", { state: { urlInput } });
@@ -59,17 +36,6 @@ const StartTeamJoinNo = () => {
     } else if (content === "" || urlInput === "") {
       submitRef.current.focus();
       return;
-    }
-  };
-
-  const onChangeUrlInput = (e) => {
-    const urlValue = e.target.value;
-    setUrlInput(urlValue);
-    try {
-      new URL(urlValue);
-      setIsUrl(true);
-    } catch (error) {
-      setIsUrl(false);
     }
   };
 
@@ -99,7 +65,7 @@ const StartTeamJoinNo = () => {
               value={urlInput}
               type="text"
               onKeyDown={handleKeyDown}
-              onChange={onChangeUrlInput}
+              onChange={UrlCheck}
               ref={submitRef}
               style={{
                 ...typography.Header3,
