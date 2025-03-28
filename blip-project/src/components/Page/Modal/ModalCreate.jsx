@@ -2,20 +2,12 @@ import "../../CSS/ModalCreate.css";
 import { typography } from "../../../fonts/fonts";
 import { color } from "../../../style/color";
 import ESC from "../../../svg/ESC.svg";
-import { useState, useContext, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { SidebarContext } from "../../../Router";
-import { TeamDel } from "../Main/Main";
-import axios from "axios";
+import { useState, useRef } from "react";
+import CreateApi from "../Src/api/CreateApi";
 
 const ModalCreate = ({ onClose }) => {
-  const { dispatch } = useContext(SidebarContext);
-  const { setOwner, setJoin, join } = useContext(TeamDel);
   const [content, setContent] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [data, setData] = useState(false);
   const submitRef = useRef();
-  const nav = useNavigate();
 
   const onChangeInput = (e) => {
     setContent(e.target.value);
@@ -24,52 +16,7 @@ const ModalCreate = ({ onClose }) => {
 
   const onKeyDownCreate = (e) => {
     if (e.key === "Enter") {
-      handleSubmit();
-    }
-  };
-
-  const apiUrl = import.meta.env.VITE_API_URL_URL_CREATE;
-
-  console.log(apiUrl, "afdnmhtrhmjy");
-
-  const handleSubmit = async () => {
-    const url = `${apiUrl}/data`;
-    const accessToken = "토큰 값";
-
-    if (content === "") {
-      submitRef.current.focus();
-      return;
-    }
-
-    const data = {
-      team_name: content,
-      nick_name: "er",
-    };
-
-    try {
-      const response = await axios.post(url, data, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      console.log("팀 생성 성공:", response.data);
-
-      setOwner((prev) => !prev);
-      if (join) {
-        setJoin((prev) => !prev);
-      }
-
-      const TeamId = response.data.team_id;
-      nav("/", { state: { content, TeamId } });
-      console.log(TeamId);
-      dispatch.onCreateone(content);
-      setContent("");
-      onClose();
-    } catch (error) {
-      console.error("팀 생성 실패:", error);
-    } finally {
-      setIsLoading(false);
+      CreateApi();
     }
   };
 
@@ -113,7 +60,7 @@ const ModalCreate = ({ onClose }) => {
             <button
               className="modal-create-button-400"
               style={{ "--main-400": color.Main[4] }}
-              onClick={handleSubmit}
+              onClick={CreateApi}
             >
               시작하기
             </button>
