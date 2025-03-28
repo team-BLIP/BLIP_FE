@@ -6,7 +6,6 @@ import { useContext } from "react";
 import { UseStateContext } from "../../../../Router";
 import Feedback from "./Feedback";
 import Keyword from "./Keyword";
-import Graph from "../function/graph";
 
 const UserStart = () => {
   const {
@@ -84,7 +83,6 @@ const UserStart = () => {
             </div>
             <img src={FeedbackSvg} />
           </div>
-          <Graph />
         </div>
       )}
     </>
