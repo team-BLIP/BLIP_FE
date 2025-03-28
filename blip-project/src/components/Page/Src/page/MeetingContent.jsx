@@ -1,6 +1,5 @@
 import "../../../CSS/MeetingContent.css"
 import { typography } from "../../../../fonts/fonts";
-import { color } from "../../../../style/color";
 
 const MeetingContent = () => {
   return (
