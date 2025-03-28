@@ -5,9 +5,9 @@ import { useState, useContext } from "react";
 import { UseStateContext } from "../../../Router";
 import { TeamDel } from "../Main/Main";
 import { SidebarContext } from "../../../Router";
-import { Call } from "../../../Router";
 import ModalMeeting from "../Modal/ModalMeeting";
 import MettingContent from "./page/MeetingContent";
+import FromData from "./api/fromDataApi";
 
 const MeetingTeam = () => {
   const { discord, meetingEnd, setMeetingEnd } = useContext(UseStateContext);
@@ -16,48 +16,13 @@ const MeetingTeam = () => {
 
   const { Owner, itemId, join } = useContext(TeamDel);
 
-  const { recordedChunks, setIsUploading } = useContext(Call);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const modalOpen = () => setIsModalOpen(true);
   const modalClose = () => setIsModalOpen(false);
 
-  const uploadRecording = async () => {
-    if (!meetingEnd) {
-      setMeetingEnd((preState) => !preState);
-      console.log("시발련련");
-    }
-
-    if (!Owner) return;
-
-    if (recordedChunks.length === 0) return;
-
-    const blob = new Blob(recordedChunks, { type: "audio/webm" });
-    const formData = new FormData();
-    formData.append("file", blob, "recording.webm");
-
-    try {
-      setIsUploading(true);
-      const response = await fetch("링크", {
-        method: "post",
-        body: formData,
-      });
-
-      if (response.ok) {
-        console.log("파일 업로드 성공");
-      } else {
-        console.error("업로드 실패", response.statusText);
-      }
-    } catch (error) {
-      console.log("업로드 중 에러");
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
   const handleLeveMeeting = () => {
     if (Owner) {
-      uploadRecording();
+      FromData();
     }
     setMeetingEnd(true);
     console.log("회의 종료");
