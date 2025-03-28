@@ -12,7 +12,7 @@ const CreateApi = async () => {
 
   const data = {
     team_name: content,
-    nick_name: "er",
+    // nick_name: "er",
   };
 
   try {
