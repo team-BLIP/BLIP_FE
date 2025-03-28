@@ -33,9 +33,7 @@ const ModalMeeting = ({ onClose }) => {
   const { itemId, Owner, setOwner, join, setJoin } = useContext(TeamDel);
 
   const onClickDiscord = () => {
-    console.log("key={itemId}", itemId);
     setDiscord((perState) => !perState);
-    console.log("시발시발", discord);
     onClose();
     if (isLetter) {
       setIsLetter((preState) => !preState);
