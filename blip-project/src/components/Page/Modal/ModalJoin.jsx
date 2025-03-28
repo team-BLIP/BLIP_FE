@@ -5,60 +5,24 @@ import ESC from "../../../svg/ESC.svg";
 import { useState, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { TeamDel } from "../Main/Main";
-import axios from "axios";
+import JoinApi from "../Src/api/JoinApi";
+import UrlCheck from "../Src/function/UrlCheck";
 
 const ModalJoin = ({ onClose }) => {
   const [isInput, setIsInput] = useState("");
-  const [isValidURL, setIsValidURL] = useState(true); // URL 유효성 상태
+  const [isValidURL, setIsValidURL] = useState(true);
   const { setOwner, setJoin, Owner } = useContext(TeamDel);
   const [content, setContent] = useState("");
   const submitRef = useRef();
 
-  const onChangeInput = (e) => {
-    const value = e.target.value;
-    setIsInput(value);
-
-    // URL 유효성 검사
-    try {
-      new URL(value); // URL 객체로 변환
-      setIsValidURL(true); // 유효한 URL
-    } catch (error) {
-      setIsValidURL(false); // 유효하지 않은 URL
-    }
-  };
-
   const nav = useNavigate();
-
-  const apiUrl = import.meta.env.VITE_API_URL_URL_JOIN;
-
-  const joinTeam = async (TeamId) => {
-    const url = `${apiUrl}/data`;
-    const accessToken = "토큰 값";
-
-    const data = {
-      team_id: TeamId,
-    };
-    try {
-      const response = await axios.post(url, data, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      console.log("팀 가입 성공", response.data);
-      return response.data;
-    } catch (error) {
-      console.log("팀 가입 실패", error);
-      alert("팀 참가에 실패했습니다. 다시 시도해주세요.");
-    }
-  };
 
   const onClickUrl = async () => {
     if (isValidURL) {
       const teamId = new URL(isInput).searchParams.get("team_id");
 
       if (teamId) {
-        const result = await joinTeam(teamId);
+        const result = await JoinApi(teamId);
 
         if (result) {
           nav("/", { state: { isInput } });
@@ -114,7 +78,7 @@ const ModalJoin = ({ onClose }) => {
             placeholder="링크 주소를 입력하세요."
             value={isInput}
             type="text"
-            onChange={onChangeInput}
+            onChange={UrlCheck}
             ref={submitRef}
             style={{
               borderColor: isValidURL ? "#F2F2F2" : "red", // 유효성에 따라 색상 변경
