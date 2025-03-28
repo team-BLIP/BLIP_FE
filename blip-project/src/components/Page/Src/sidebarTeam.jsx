@@ -1,7 +1,7 @@
 import "../../CSS/sidebarTeam.css";
 import { typography } from "../../../fonts/fonts";
 import { color } from "../../../style/color";
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { SidebarContext } from "../../../Router";
 import { UseStateContext } from "../../../Router";
 import { TeamDel } from "../Main/Main";
@@ -11,8 +11,7 @@ import { useNavigate } from "react-router-dom";
 const SidebarTeam = () => {
   const nav = useNavigate();
   const { todos } = useContext(SidebarContext);
-  const { image, setImage, itemId, Owner, setOwner, join, setJoin } =
-    useContext(TeamDel);
+  const { image, Owner, setOwner, join, setJoin } = useContext(TeamDel);
   const { basic, setBasic, discord } = useContext(UseStateContext);
 
   const {
@@ -28,10 +27,7 @@ const SidebarTeam = () => {
     setIsKeyword,
   } = useContext(UseStateContext);
 
-  const { targetId, setTargetId, teamImages, setTeamImages } =
-    useContext(FindId);
-  console.log("tlqkf", targetId);
-
+  const { targetId, teamImages } = useContext(FindId);
   const onClickEffect = (item) => {
     if (item.isPlus) {
       if (basic) {
