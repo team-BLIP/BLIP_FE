@@ -19,7 +19,7 @@ const SignupSuccess = () => {
         회원가입 완료!
       </S.FirstText>
       <p style={{ ...typography.Body2, color: color.GrayScale[6] }}>
-        이제 사용자님의 목소리가 필요해s요!
+        이제 사용자님의 목소리가 필요해요!
       </p>
     </S.Container>
   );
