@@ -6,7 +6,8 @@ const JoinApi = async (TeamId) => {
   const accessToken = "토큰 값";
 
   const data = {
-    team_id: TeamId,
+    meetingId: TeamId,
+    // userId: "Long",
   };
   try {
     const response = await axios.post(url, data, {
