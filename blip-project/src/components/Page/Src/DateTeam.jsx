@@ -44,7 +44,7 @@ const DateTeamJoinNo = () => {
   const handlePrevMonth = () => {
     setCurrentDate(
       new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
-    );
+    );  
   };
 
   const handleNextMonth = () => {
