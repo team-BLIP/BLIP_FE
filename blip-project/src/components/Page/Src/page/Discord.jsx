@@ -30,7 +30,6 @@ const Discord = () => {
     setIsMike,
     isCamera,
     setIsCamera,
-    FullScreen,
     setFullScreen,
     setDiscord,
     meetingEnd,
