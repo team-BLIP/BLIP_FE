@@ -2,9 +2,9 @@ import Input from "./input";
 import X from "../../svg/X.svg";
 import styled from "styled-components";
 
-export const Id = ({ value, onChange, placeholder, ...props }) => {
+export const Id = ({ value, onChange, placeholder, name }) => {
   const handleClear = () => {
-    onChange({ target: { name: props.name, value: "" } });
+    onChange({ target: { name: name, value: "" } });
   };
 
   return (
@@ -16,7 +16,7 @@ export const Id = ({ value, onChange, placeholder, ...props }) => {
         onChange={onChange}
         maxLength="8"
         minLength="3"
-        {...props}
+        name={name}
       />
       {value && (
         <ClearIcon onClick={handleClear}>
