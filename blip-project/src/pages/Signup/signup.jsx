@@ -11,46 +11,58 @@ import Id from "../../components/SignUpLogin/id.jsx";
 import { PasswordCheck } from "../../components/SignUpLogin/passwordCheck.jsx";
 import modalX from "../../svg/modalX.svg";
 import axios from "axios";
-import apiSignUp from "../../apis/apiSignUp.jsx";
 import sends from "../../svg/send.svg";
 import Number from "../../components/SignUpLogin/number.jsx";
 import background from "../../svg/background.svg";
 import Timer from "../../components/SignUpLogin/timer.jsx";
 import { instance } from "../../apis/instance.jsx";
+import colorCheck from "../../svg/colorCheck.png";
 
-const Signup = () => {
+const Signup = (props) => {
   const passwordRegEx = /^(?=.*[!@#$%^&*])(?=.{8,20}$).*/;
 
   const [inputs, setInputs] = useState({
-    id: "",
+    account_id: "",
     email: "",
     password: "",
     passwordCheck: "",
+    code: "",
   });
 
-  const onValidMail = useCallback(
-    (e) => {
-      e.preventDefault();
-      fetch(api.emailCheck, {
-        method: "POST",
-        headers: { "Content-Type": "application/json;charset=utf-8" },
-        body: JSON.stringify({
-          userEmail: inputs.email,
-        }),
-      }).then((res) => {
-        if (res.status === 200) {
-          setIsGetCode(true);
-          setIsTimer(true);
-          setCount(180);
-        } else if (res.status === 401) {
-          alert("이미 존재하는 이메일입니다.");
-        } else if (res.status === 402) {
-          alert("이미 인증이 진행중입니다.");
-        }
+  const apiSignUp = async () => {
+    try {
+      console.log(
+        "회원가입 인증 시작 : ",
+        inputs.account_id,
+        inputs.email,
+        inputs.password
+      );
+
+      const data = {
+        account_id: inputs.id,
+        password: inputs.password,
+        email: inputs.email,
+      };
+
+      const response = await instance.post("/users/signup", data, {
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
-    },
-    [inputs.email]
-  );
+      console.log("회원가입 성공:", response.data);
+      navigate("/success");
+
+      return response.data;
+    } catch (error) {
+      console.error("Signup request failed:", error);
+      if (error.response) {
+        console.log("Server responded with:", error.response.data);
+      } else {
+        console.log("Error occured : ", error.message);
+      }
+      throw error.response?.data || error;
+    }
+  };
 
   const { id, email, password, passwordCheck } = inputs;
   const [timeLeft, setTimeLeft] = useState(180);
@@ -62,13 +74,61 @@ const Signup = () => {
   const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
   const [isCodeValid, setIsCodeValid] = useState(true);
   const navigate = useNavigate();
-  /* const SignUpNavClick = () => {
-    const navigate = useNavigate();
-    navigate("/signup");
-  }; */
   const [count, setCount] = useState(180);
   const [isTimerVisible, setIsTimerVisible] = useState(false);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [isVerified, setIsVerified] = useState(false);
+  const [verificationError, setVerificationError] = useState("");
+  const [serverCode, setServerCode] = useState(null);
+  const [isGetCode, setIsGetCode] = useState(false);
+  const [isTimer, setIsTimer] = useState(false);
+
+  const handleVerifyCode = async () => {
+    try {
+      console.log("인증 코드 검증 시작:", inputs.email, inputs.code);
+
+      if (!inputs.email || !inputs.code) {
+        alert("이메일과 인증번호를 모두 입력해주세요.");
+        return;
+      }
+
+      const data = {
+        email: inputs.email,
+        code: inputs.code,
+      };
+
+      const response = await instance.post("/auth/verify", data, {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      });
+      console.log("인증 응답:", response);
+
+      if (response.status === 200) {
+        alert("인증 성공!");
+        setIsVerified(true);
+      } else {
+        alert("인증 실패! 올바른 이메일과 인증번호를 입력해주세요.");
+      }
+    } catch (error) {
+      console.error("axios 요청 중 오류 발생:", error);
+      if (error.response) {
+        console.log("오류 상태:", error.response.status);
+        console.log("오류 데이터:", error.response.data);
+
+        if (error.response.status === 403) {
+          alert("인증 권한이 없습니다. 다시 인증번호를 요청해주세요.");
+        } else if (error.response.status === 401) {
+          alert("인증번호가 일치하지 않습니다. 다시 확인해주세요.");
+        } else {
+          alert(
+            `인증 실패: ${error.response.data.message || "알 수 없는 오류"}`
+          );
+        }
+      } else {
+        alert("서버와 연결할 수 없습니다. 나중에 다시 시도해주세요.");
+      }
+    }
+  };
 
   const handleStartTimer = () => {
     setIsTimerVisible(true);
@@ -200,54 +260,26 @@ const Signup = () => {
       alert("회원가입 성공!");
       navigate("/login");
     } catch (error) {
-      alert(`회원가입 실패: ${error}`);
+      console.error("회원가입 실패:", error);
     }
   };
-
-  /*  const handleSendEmail = async () => {
-    console.log("handleSendEmail 실행됨");
-    alert("메일이 전송되었습니다.");
-    try {
-      console.log("fetch 요청 시작");
-
-      const response = await fetch("http://3.34.188.88:8080/auth/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: inputs.email }),
-      });
-
-      console.log("fetch 실행됨");
-
-      if (response.ok) {
-        console.log("이메일 전송 성공!");
-      } else {
-        console.error("이메일 전송 실패:", response.status);
-      }
-    } catch (error) {
-      console.error("fetch 요청 중 오류 발생:", error);
-    }
-  }; */
 
   const handleSendEmail = async () => {
     try {
       const data = { email: inputs.email };
 
-      const response = await fetch("http://3.35.180.21:8080/auth/send", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
+      const response = await instance.post("/auth/send", data, {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
       });
 
-      if (!response.ok) {
-        throw new Error("서버 응답 실패");
+      if (response.status === 200) {
+        console.log(response.data);
+        alert("이메일 전송 성공!");
+      } else {
+        alert("이메일 전송 실패");
       }
-
-      const result = await response.json();
-      console.log(result);
     } catch (error) {
-      console.error("fetch 요청 중 오류 발생:", error);
+      console.error("axios 요청 중 오류 발생:", error);
       alert("서버와 연결할 수 없습니다. 나중에 다시 시도해주세요.");
     }
   };
@@ -273,38 +305,6 @@ const Signup = () => {
     if (!isValid) return;
 
     handleSignup();
-  };
-
-  const handleLogin = async () => {
-    const userData = {
-      id: inputs.id,
-      email: inputs.email,
-      password: inputs.password,
-    };
-    console.log(inputs);
-    try {
-      const accessToken = localStorage.getItem("accessToken");
-      const response = await instance.post("/users/signup", userData, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      return response.data;
-    } catch (error) {
-      console.error("Signup request failed:", error);
-      throw error.response?.data || error;
-    }
-  };
-
-  const handleVerification = () => {
-    const correctCode = "123456";
-    if (code.join("").trim() !== correctCode) {
-      setIsCodeValid(false);
-    } else {
-      setIsCodeValid(true);
-      navigate("/success");
-    }
   };
 
   const handleCloseModal = () => {
@@ -355,12 +355,16 @@ const Signup = () => {
             </p>
             <S.InputContainer>
               <Id
-                value={id}
+                type="text"
+                value={id ?? ""}
                 onChange={onChange}
+                maxLength="8"
+                minLength="3"
+                {...props}
                 name="id"
                 placeholder="아이디를 입력하세요."
               />
-              <button
+              <S.EmailButton
                 type="button"
                 onClick={() => {
                   handleStartTimer();
@@ -369,7 +373,7 @@ const Signup = () => {
                 style={{
                   position: "absolute",
                   right: "6px",
-                  top: "50%",
+                  top: "-150%",
                   transform: "translateY(522%)",
                   padding: "5px 10px",
                   backgroundColor: color.Main[4],
@@ -382,7 +386,7 @@ const Signup = () => {
                 }}
               >
                 <img src={sends} style={{ width: "20px", height: "20px" }} />
-              </button>
+              </S.EmailButton>
             </S.InputContainer>
             <p
               style={{
@@ -398,6 +402,31 @@ const Signup = () => {
               name="email"
               placeholder="이메일 주소를 입력하세요."
             />
+          </div>
+
+          <div style={{ position: "relative" }}>
+            {!isVerified && (
+              <S.verificationButton
+                style={{
+                  position: "absolute",
+                  left: "152px",
+                  top: "50px",
+                  padding: "5px 10px",
+                  backgroundColor: color.Main[4],
+                  color: "white",
+                  border: "none",
+                  cursor: "pointer",
+                  zIndex: "1",
+                  width: "45px",
+                  height: "30px",
+                  fontSize: "12px",
+                }}
+                onClick={handleVerifyCode}
+              >
+                확인
+              </S.verificationButton>
+            )}
+            {verificationError && <p>{verificationError}</p>}
           </div>
 
           <div>
@@ -417,8 +446,18 @@ const Signup = () => {
                 gap: "10px",
               }}
             >
-              <Number placeholder={"인증번호를 입력해주세요."} />
-              {isTimerVisible && <Timer count={count} setCount={setCount} />}
+              <Number
+                placeholder={"인증번호를 입력해주세요."}
+                onChange={(e) =>
+                  setInputs((prev) => ({ ...prev, code: e.target.value }))
+                }
+                value={inputs.code}
+                type="number"
+                isVerified={isVerified}
+              />
+              {!isVerified && isTimerVisible && (
+                <Timer count={count} setCount={setCount} />
+              )}
             </div>
           </div>
           <div>
@@ -467,12 +506,12 @@ const Signup = () => {
             />
           </div>
 
-          <S.LoginButton onClick={handleLogin}>로그인</S.LoginButton>
+          <S.SignupButton onClick={apiSignUp}>회원가입</S.SignupButton>
         </S.Main>
         <S.Link style={typography.Button0}>
           계정이 없다면?{" "}
           <span
-            onClick={() => navigate("/users/signup")}
+            onClick={() => navigate("/users/login")}
             style={{
               ...typography.Button0,
               color: color.Main[4],

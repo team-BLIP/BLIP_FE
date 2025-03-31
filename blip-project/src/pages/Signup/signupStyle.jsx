@@ -53,7 +53,7 @@ export const Texts = styled.span`
   transform: translate(-50%, -50%);
 `;
 
-export const LoginButton = styled(Button)`
+export const SignupButton = styled(Button)`
   margin-top: 40px;
 `;
 
@@ -153,3 +153,7 @@ export const InputContainer = styled.div`
   display: flex;
   align-items: center;
 `;
+
+export const EmailButton = styled.button``;
+
+export const verificationButton = styled.button``;
