@@ -8,9 +8,11 @@ import background from "../../svg/background.svg";
 import { color } from "../../style/color.jsx";
 import { PassWord } from "../../components/SignUpLogin/password.jsx";
 import Email from "../../components/SignUpLogin/email.jsx";
+import { instance } from "../../apis/instance.jsx";
 
 const Login = () => {
   const passwordRegEx = /^(?=.*[!@#$%^&*])(?=.{8,20}$).*/;
+  const navigate = useNavigate();
 
   const passwordChecking = (password) => {
     if (!password.match(passwordRegEx)) {
@@ -41,6 +43,38 @@ const Login = () => {
 
     if (name === "password") {
       passwordChecking(value);
+    }
+  };
+
+  const apiLogIn = async () => {
+    try {
+      console.log("로그인 요청 시작:", email, password);
+
+      const data = { email, password };
+
+      const response = await instance.post("/users/login", data, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      console.log("로그인 성공:", response.data);
+
+      const accessToken = response.data?.access_token;
+      if (accessToken) {
+        localStorage.setItem("accessToken", accessToken);
+        console.log("accessToken 저장 완료:", accessToken);
+        navigate("/"); //ㅁㅇ님 페이지로 이동~~
+      } else {
+        console.error("accessToken 없음, 응답 확인 필요:", response.data);
+      }
+    } catch (error) {
+      console.error("로그인 실패:", error);
+      if (error.response) {
+        console.log("서버 응답:", error.response.data);
+      } else {
+        console.log("오류 발생:", error.message);
+      }
     }
   };
 
@@ -82,13 +116,16 @@ const Login = () => {
               placeholder="비밀번호를 입력하세요."
             />
           </div>
-          <S.LoginButton>로그인</S.LoginButton>
+          <S.LoginButton onClick={apiLogIn}>로그인</S.LoginButton>
         </S.Main>
         <S.Link style={typography.Button0}>
           계정이 없다면?{" "}
-          <a href="#" style={{ ...typography.Button0, color: color.Main[4] }}>
+          <span
+            onClick={() => navigate("/users/signup")}
+            style={{ ...typography.Button0, color: color.Main[4] }}
+          >
             가입하기
-          </a>
+          </span>
         </S.Link>
       </S.Container>
     </>

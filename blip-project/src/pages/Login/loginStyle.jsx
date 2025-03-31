@@ -8,7 +8,7 @@ export const Main = styled.div`
   gap: 15px;
   position: absolute;
   top: 57%;
-  left: 50%;
+  left: 80%;
   transform: translate(-50%, -50%);
 
   p {
@@ -22,8 +22,9 @@ export const Link = styled.p`
   gap: 8px;
   position: absolute;
   top: 84%;
-  left: 50%;
+  left: 80%;
   transform: translate(-50%, -50%);
+  white-space: nowrap;
 `;
 
 export const Container = styled.div`
@@ -40,7 +41,7 @@ export const LogoContainer = styled.div`
   gap: 8px;
   position: absolute;
   top: 10%;
-  left: 50%;
+  left: 80%;
   transform: translate(-50%, -50%);
 `;
 
@@ -50,8 +51,9 @@ export const Texts = styled.span`
   gap: 8px;
   position: absolute;
   top: 25%;
-  left: 50%;
+  left: 80%;
   transform: translate(-50%, -50%);
+  white-space: nowrap;
 `;
 
 export const LoginButton = styled(Button)`
