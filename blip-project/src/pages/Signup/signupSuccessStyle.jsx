@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import Button from "../../components/SignUpLogin/button";
 
 export const Container = styled.div`
   display: flex;
@@ -6,15 +7,18 @@ export const Container = styled.div`
   align-items: center;
   text-align: center;
   position: absolute;
-  top: 50%;
+  top: 45%;
   left: 50%;
   transform: translate(-50%, -50%);
 `;
 
 export const Image = styled.img`
-  margin-bottom: -30px;
+  margin-bottom: 100px;
+  margin-top: -120px;
 `;
 
-export const FirstText = styled.p`
-  margin-bottom: 4px; 
+export const SuccessButton = styled(Button)``;
+
+export const Texts = styled.p`
+  margin-bottom: 180px;
 `;
