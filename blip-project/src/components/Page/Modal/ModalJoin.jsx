@@ -2,7 +2,7 @@ import "../../CSS/ModalJoin.css";
 import { typography } from "../../../fonts/fonts";
 import { color } from "../../../style/color";
 import ESC from "../../../svg/ESC.svg";
-import { useState, useContext, useRef } from "react";
+import { useState, useContext, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TeamDel } from "../Main/Main";
 import JoinApi from "../Src/api/JoinApi";
@@ -12,33 +12,38 @@ const ModalJoin = ({ onClose }) => {
   const [isInput, setIsInput] = useState("");
   const [isValidURL, setIsValidURL] = useState(true);
   const { setOwner, setJoin, Owner } = useContext(TeamDel);
-  const [content, setContent] = useState("");
+  const [JoinUrl, setJoinUrl] = useState("");
   const submitRef = useRef();
-
   const nav = useNavigate();
 
   const onClickUrl = async () => {
+    if (!isInput) {
+      submitRef.current.focus();
+      return;
+    }
+
     if (isValidURL) {
-      const teamId = new URL(isInput).searchParams.get("team_id");
+      try {
+        const inviteCode = isInput.trim();
+        console.log("초대 코드", inviteCode);
+        console.log(isInput);
+        console.log("Dafsghg",isValidURL)
 
-      if (teamId) {
-        const result = await JoinApi(teamId);
+        const rusult = await JoinApi(inviteCode);
 
-        if (result) {
+        if (rusult) {
+          console.log("팀 참가 성공", rusult);
           nav("/", { state: { isInput } });
-          onCreatedouble(content);
-          setContent("");
           setJoin((prev) => !prev);
           if (Owner) {
             setOwner((prev) => !prev);
           }
         }
-      } else {
+        onClose();
+      } catch (error) {
+        console.error("팀 참가 중 오류 발생:", error);
         alert("유효하지 않은 초대 링크입니다. 다시 확인해주세요.");
       }
-    } else if (content === "") {
-      submitRef.current.focus();
-      return;
     }
   };
 
@@ -47,6 +52,24 @@ const ModalJoin = ({ onClose }) => {
       onClickUrl();
     }
   };
+
+  const handleClick = UrlCheck(setIsInput, setIsValidURL);
+
+  useEffect(() => {
+    try {
+      const storedTeams = JSON.parse(localStorage.getItem("teams") || "[]");
+      if (storedTeams.length > 0) {
+        const latestTeam = storedTeams[storedTeams.length - 1];
+        if (latestTeam && latestTeam.JoinUrl) {
+          console.log("로컬 스토리지에서 JoinUrl 발견:", latestTeam.JoinUrl);
+          setJoinUrl(latestTeam.JoinUrl);
+          return;
+        }
+      }
+    } catch (error) {
+      console.error("로컬 스토리지 접근 오류:", error);
+    }
+  }, [location.state]);
 
   return (
     <div className="modal-overlay">
@@ -78,10 +101,10 @@ const ModalJoin = ({ onClose }) => {
             placeholder="링크 주소를 입력하세요."
             value={isInput}
             type="text"
-            onChange={UrlCheck}
+            onChange={handleClick}
             ref={submitRef}
             style={{
-              borderColor: isValidURL ? "#F2F2F2" : "red", // 유효성에 따라 색상 변경
+              borderColor: isValidURL ? "#F2F2F2" : "red",
             }}
           ></input>
         </div>
@@ -97,7 +120,7 @@ const ModalJoin = ({ onClose }) => {
               "--main-200": color.Main[2],
               cursor: isInput && isValidURL ? "pointer" : "not-allowed",
             }}
-            disabled={!isInput || !isValidURL} // URL이 유효하지 않으면 버튼 비활성화
+            disabled={!isInput || !isValidURL}
             onClick={onClickUrl}
           >
             시작하기
