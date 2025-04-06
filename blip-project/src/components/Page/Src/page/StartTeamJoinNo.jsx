@@ -10,30 +10,31 @@ import UrlCheck from "../function/UrlCheck";
 
 const StartTeamJoinNo = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [urlInput, setUrlInput] = useState("");
-  const [isUrl, setIsUrl] = useState(false);
-  const { dispatch } = useContext(SidebarContext);
+  const [isValidURL, setIsValidURL] = useState(true);
+  const [isInput, setIsInput] = useState("");
   const [content, setContent] = useState("");
   const submitRef = useRef();
 
   const onClickUrl = async () => {
-    if (isUrl) {
-      const teamId = new URL(urlInput).searchParams.get("team_id");
+    if (isValidURL) {
+      const teamId = new URL(isInput).searchParams.get("team_id");
 
       if (teamId) {
         const result = await JoinApi(teamId);
 
         if (result) {
-          nav("/", { state: { urlInput } });
-          dispatch.onCreatedouble(content);
+          nav("/", { state: { isInput } });
+          onCreatedouble(content);
           setContent("");
-        } else {
-          openModal();
+          setJoin((prev) => !prev);
+          if (Owner) {
+            setOwner((prev) => !prev);
+          }
         }
       } else {
-        alert("유효하지 않은 초대 링크입니다. 다시 확인해주세여. ");
+        alert("유효하지 않은 초대 링크입니다. 다시 확인해주세요.");
       }
-    } else if (content === "" || urlInput === "") {
+    } else if (content === "") {
       submitRef.current.focus();
       return;
     }
@@ -46,6 +47,8 @@ const StartTeamJoinNo = () => {
       onClickUrl();
     }
   };
+
+  const handleClick = UrlCheck(setIsInput, setIsValidURL);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -62,14 +65,14 @@ const StartTeamJoinNo = () => {
             <input
               className="STJoinNoInput"
               placeholder="링크 주소를 입력하세요."
-              value={urlInput}
+              value={isInput}
               type="text"
               onKeyDown={handleKeyDown}
-              onChange={UrlCheck}
+              onChange={handleClick}
               ref={submitRef}
               style={{
                 ...typography.Header3,
-                borderColor: isUrl ? "#616064" : "red",
+                borderColor: isValidURL ? "#616064" : "red",
               }}
             />
           </div>
