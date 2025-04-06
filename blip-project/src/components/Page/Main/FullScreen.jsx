@@ -15,7 +15,7 @@ import Mike from "../../../svg/Mike.svg";
 import Camera from "../../../svg/DisCamera.svg";
 import MettingStart from "../../../svg/MettingStart.svg";
 import MettingStop from "../../../svg/MettingStop.svg";
-import JitsiMeet from "../Src/function/jitsiMeet";
+import JitsiMeet from "../Src/function/jitsiMeetMain";
 
 const FullScreenPage = () => {
   const { itemId } = useContext(TeamDel);
