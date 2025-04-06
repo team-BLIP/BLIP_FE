@@ -5,7 +5,7 @@ import FullScreenPage from "./FullScreen";
 import { useLocation } from "react-router-dom";
 import { SidebarContext } from "../../../Router";
 import { UseStateContext } from "../../../Router";
-import { createContext, useState, useContext, useEffect } from "react";
+import { useMemo, createContext, useState, useContext, useEffect } from "react";
 
 export const TeamDel = createContext();
 export const FindId = createContext({
@@ -16,7 +16,8 @@ export const FindId = createContext({
 
 const Main = () => {
   const location = useLocation();
-  const { itemContent, itemId, itemImage, TeamId } = location.state || {};
+  const { itemContent, itemId, itemImage, TeamId, content, TeamUrl } =
+    location.state || {};
   const { todos } = useContext(SidebarContext);
   const [filteredItem, setFilteredItem] = useState(null);
   const { FullScreen, targetId, setTargetId } = useContext(UseStateContext);
@@ -24,30 +25,37 @@ const Main = () => {
   const [join, setJoin] = useState(null);
   const [image, setImage] = useState(null);
   const [teamImages, setTeamImages] = useState({});
+  const [isTopic, setIsTopic] = useState("");
+  const [userName, setUserName] = useState([]);
+
+  const AddMember = (name) => {
+    console.log("멤버 추가", name);
+    setUserName((prevName) => [...prevName, name]);
+  };
+
+  const matchingItem = useMemo(() => {
+    todos.find((item) => item.id === targetId);
+  }, [targetId, todos]);
 
   useEffect(() => {
-    const matchingId = todos.find((item) => item.id === itemId);
-    setFilteredItem(matchingId);
-  }, [todos, itemId]);
-
-  useEffect(() => {
-    if (targetId === null) {
-      const foodId = todos.find((item) => item.id === itemId)?.id || null;
-      setTargetId(foodId);
-      console.log(targetId);
+    const newtargetId = matchingItem ? `${targetId}` : null;
+    if (typeof setTargetId === "function") {
+      setTargetId((preV) => (preV !== newtargetId ? newtargetId : preV));
+    } else {
+      console.log("이건 아니야");
     }
-  }, [targetId, itemId, todos, setTargetId]);
+  }, [matchingItem, targetId]);
 
   return (
     <>
       <FindId.Provider
         value={{
           filteredItem,
-          targetId,
-          setTargetId,
           teamImages,
           setTeamImages,
           TeamId,
+          content,
+          TeamUrl,
         }}
       >
         <TeamDel.Provider
@@ -61,7 +69,11 @@ const Main = () => {
             setOwner,
             join,
             setJoin,
-            targetId,
+            isTopic,
+            setIsTopic,
+            userName,
+            setUserName,
+            AddMember,
           }}
         >
           {FullScreen ? (
