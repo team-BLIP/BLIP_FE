@@ -2,12 +2,14 @@ import "../../../CSS/UserStart.css";
 import { typography } from "../../../../fonts/fonts";
 import { color } from "../../../../style/color";
 import FeedbackSvg from "../../../../svg/feedback.svg";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { UseStateContext } from "../../../../Router";
 import Feedback from "./Feedback";
 import Keyword from "./Keyword";
+import ModalName from "../../Modal/ModalName"
 
 const UserStart = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const {
     setSetting,
     setIsAlarm,
@@ -30,6 +32,19 @@ const UserStart = () => {
   };
   const onClickFeedback = () => toggleView("feedback");
   const onClickKeyword = () => toggleView("keyword");
+
+  useEffect(() => {
+    setIsModalOpen(true);
+    // openModal();
+    // const hasShownModal = localStorage.getItem("hasShownModal");
+
+    // if (!hasShownModal) {
+    //   localStorage.setItem("hasShownModal", "true");
+    // }
+  }, []);
+
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
   return (
     <>
@@ -85,6 +100,7 @@ const UserStart = () => {
           </div>
         </div>
       )}
+      {isModalOpen && <ModalName onClose={closeModal} />}
     </>
   );
 };
