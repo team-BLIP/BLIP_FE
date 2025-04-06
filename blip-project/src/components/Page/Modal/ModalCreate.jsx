@@ -2,13 +2,20 @@ import "../../CSS/ModalCreate.css";
 import { typography } from "../../../fonts/fonts";
 import { color } from "../../../style/color";
 import ESC from "../../../svg/ESC.svg";
-import { useState, useRef } from "react";
+import { useState, useRef, useContext } from "react";
+import { SidebarContext } from "../../../Router";
+import { UseStateContext } from "../../../Router";
+import { useNavigate } from "react-router-dom";
 import CreateApi from "../Src/api/CreateApi";
 
 const ModalCreate = ({ onClose }) => {
+  const { dispatch } = useContext(SidebarContext);
+  const { targetId, setTargetId } = useContext(UseStateContext);
   const [content, setContent] = useState("");
   const submitRef = useRef();
+  const nav = useNavigate();
 
+  console.log(dispatch);
   const onChangeInput = (e) => {
     setContent(e.target.value);
     console.log(e.target.value);
@@ -16,7 +23,20 @@ const ModalCreate = ({ onClose }) => {
 
   const onKeyDownCreate = (e) => {
     if (e.key === "Enter") {
-      CreateApi();
+      if (typeof setTargetId === "function") {
+        CreateApi(
+          content,
+          nav,
+          submitRef,
+          onClose,
+          dispatch || {},
+          targetId,
+          setTargetId
+        );
+      } else {
+        alert("팀 생성중 오류가 발생했습니다");
+      }
+      onClose();
     }
   };
 
@@ -60,7 +80,21 @@ const ModalCreate = ({ onClose }) => {
             <button
               className="modal-create-button-400"
               style={{ "--main-400": color.Main[4] }}
-              onClick={CreateApi}
+              onClick={() => {
+                if (typeof setTargetId === "function") {
+                  CreateApi(
+                    content,
+                    nav,
+                    submitRef,
+                    onClose,
+                    dispatch || {},
+                    targetId,
+                    setTargetId
+                  );
+                } else {
+                  alert("팀 생성중 오류가 발생했습니다");
+                }
+              }}
             >
               시작하기
             </button>
