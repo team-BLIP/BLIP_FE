@@ -12,7 +12,7 @@ import MettingStop from "../../../../svg/MettingStop.svg";
 import MettingStart from "../../../../svg/MettingStart.svg";
 import ModalStop from "../../Modal/ModalStop";
 import ModalStart from "../../Modal/ModalStart";
-import JitsiMeet from "../function/jitsiMeet";
+import JitsiMeetMain from "../function/jitsiMeetMain";
 import { useContext, useState } from "react";
 import { TeamDel } from "../../Main/Main";
 import { UseStateContext } from "../../../../Router";
@@ -92,7 +92,7 @@ const Discord = () => {
                 className="discord-body"
                 style={{ backgroundColor: color.GrayScale[8] }}
               >
-                <JitsiMeet setIsMettingStop={setIsMettingStop} />
+                <JitsiMeetMain setIsMettingStop={setIsMettingStop} />
               </div>
               <div
                 className="discord-foot"
