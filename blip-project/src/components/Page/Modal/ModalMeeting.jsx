@@ -5,15 +5,17 @@ import { useState, useContext, useEffect } from "react";
 import ESC from "../../../svg/ESC.svg";
 import { UseStateContext } from "../../../Router";
 import { TeamDel } from "../Main/Main";
+import { FindId } from "../Main/Main";
+import MeetingStartApi from "../Src/api/MeetingStartApi";
 
 const ModalMeeting = ({ onClose }) => {
-  const [isTopic, setIsTopic] = useState("");
   const [isCheckMike, setIsCheckMike] = useState(false);
   const [isCheckCamera, setIsCheckCamera] = useState(false);
 
   const {
     setIsMike,
     setIsCamera,
+    discord,
     setting,
     setSetting,
     isAlarm,
@@ -24,35 +26,23 @@ const ModalMeeting = ({ onClose }) => {
     setIsFeedback,
     isKeyword,
     setIsKeyword,
-    discord,
     setDiscord,
     basic,
     setBasic,
   } = useContext(UseStateContext);
 
-  const { itemId, Owner, setOwner, join, setJoin } = useContext(TeamDel);
+  const {
+    itemId,
+    Owner,
+    setOwner,
+    join,
+    setJoin,
+    isTopic,
+    setIsTopic,
+    userName,
+  } = useContext(TeamDel);
 
-  const onClickDiscord = () => {
-    setDiscord((perState) => !perState);
-    onClose();
-    if (isLetter) {
-      setIsLetter((preState) => !preState);
-    } else if (isAlarm) {
-      setIsAlarm((preState) => !preState);
-    } else if (setting) {
-      setSetting((preState) => !preState); 
-    } else if (isFeedback) {
-      setIsFeedback((preState) => !preState);
-    } else if (isKeyword) {
-      setIsKeyword((preState) => !preState);
-    } else if (Owner) {
-      setOwner((perState) => !perState);
-    } else if (join) {
-      setJoin((perState) => !perState);
-    } else if (basic) {
-      setBasic((perState) => !perState);
-    }
-  };
+  const { content, TeamId } = useContext(FindId);
 
   useEffect(() => {
     console.log("discord 상태 변경:", discord);
@@ -71,6 +61,26 @@ const ModalMeeting = ({ onClose }) => {
     setIsCheckCamera(!isCheckCamera);
     setIsCamera((prev) => !prev);
   };
+
+  // setDiscord((perState) => !perState);
+  // onClose();
+  // if (isLetter) {
+  //   setIsLetter((preState) => !preState);
+  // } else if (isAlarm) {
+  //   setIsAlarm((preState) => !preState);
+  // } else if (setting) {
+  //   setSetting((preState) => !preState);
+  // } else if (isFeedback) {
+  //   setIsFeedback((preState) => !preState);
+  // } else if (isKeyword) {
+  //   setIsKeyword((preState) => !preState);
+  // } else if (Owner) {
+  //   setOwner((perState) => !perState);
+  // } else if (join) {
+  //   setJoin((perState) => !perState);
+  // } else if (basic) {
+  //   setBasic((perState) => !perState);
+  // }
 
   return (
     <div className="modalMeeting-overlay">
@@ -100,6 +110,7 @@ const ModalMeeting = ({ onClose }) => {
                 "--gray-200": color.GrayScale[2],
               }}
               type="text"
+              minLength={5}
               value={isTopic}
               onChange={onChageTopic}
               placeholder="정기회의"
@@ -155,10 +166,16 @@ const ModalMeeting = ({ onClose }) => {
           </div>
         </div>
         <div className="modalMeeting-button-main">
-          {isTopic || isCheckMike || isCheckCamera ? (
+          {isTopic.length >= 5 || isCheckMike || isCheckCamera ? (
             <button
               className="modalMeeting-button"
-              onClick={onClickDiscord}
+              onClick={() => {
+                if (typeof setDiscord === "function") {
+                  MeetingStartApi(isTopic, content, userName, TeamId);
+                } else {
+                  console.log("Fdn");
+                }
+              }}
               style={{
                 ...typography.Button0,
                 backgroundColor: color.Main[4],
