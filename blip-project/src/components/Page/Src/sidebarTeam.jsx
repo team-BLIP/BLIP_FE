@@ -1,7 +1,7 @@
 import "../../CSS/sidebarTeam.css";
 import { typography } from "../../../fonts/fonts";
 import { color } from "../../../style/color";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { SidebarContext } from "../../../Router";
 import { UseStateContext } from "../../../Router";
 import { TeamDel } from "../Main/Main";
@@ -13,7 +13,7 @@ const SidebarTeam = () => {
   const { todos } = useContext(SidebarContext);
   const { image, Owner, setOwner, join, setJoin } = useContext(TeamDel);
   const { basic, setBasic, discord } = useContext(UseStateContext);
-
+  const { targetId, teamImages, TeamId, content, TeamUrl } = useContext(FindId);
   const {
     setting,
     setSetting,
@@ -27,8 +27,14 @@ const SidebarTeam = () => {
     setIsKeyword,
   } = useContext(UseStateContext);
 
-  const { targetId, teamImages } = useContext(FindId);
   const onClickEffect = (item) => {
+    console.log(TeamId);
+    console.log(content);
+    console.log(item.id);
+    console.log("targetid", targetId);
+    console.log("ddadfs", todos);
+    console.log("dddd", content);
+    console.log("dsffsd", TeamUrl);
     if (item.isPlus) {
       if (basic) {
         setBasic((prev) => !prev);
@@ -36,15 +42,9 @@ const SidebarTeam = () => {
       if (join) {
         setJoin((preState) => !preState);
       }
-      nav("/", {
-        state: {
-          itemContent:
-            typeof item.content === "string" ? item.content : "기본 텍스트",
-          itemId: item.id,
-        },
-      });
+      nav("/", { state: { TeamId, content } });
     } else {
-      if (item.id % 2 === 0) {
+      if (TeamId.startsWith("create-")) {
         if (Owner) {
           setOwner((preState) => !preState);
         }
@@ -66,13 +66,7 @@ const SidebarTeam = () => {
           setOwner((preState) => !preState);
         }
       }
-      nav("/", {
-        state: {
-          itemContent:
-            typeof item.content === "string" ? item.content : "기본 텍스트",
-          itemId: item.id,
-        },
-      });
+      nav("/", { state: { TeamId, content } });
     }
 
     if (isLetter) setIsLetter(false);
@@ -86,9 +80,9 @@ const SidebarTeam = () => {
     <>
       <div className="MainSTJoinNo">
         {todos.length > 0 ? (
-          todos.map((item) => (
+          todos.map((item, index) => (
             <div
-              key={item.id}
+              key={index}
               className={`content-item${
                 item.isPlus
                   ? "-plus"
@@ -118,7 +112,7 @@ const SidebarTeam = () => {
                     alt="Team Space"
                   />
                 ) : (
-                  item.content
+                  content
                 )}
               </span>
             </div>
