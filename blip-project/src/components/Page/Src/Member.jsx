@@ -1,13 +1,15 @@
 import "../../CSS/Member.css";
 import { color } from "../../../style/color";
 import { typography } from "../../../fonts/fonts";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { TeamDel } from "../Main/Main";
-import { UseStateContext } from "../../../Router";
 import { FindId } from "../Main/Main";
+import { UseStateContext } from "../../../Router";
+import ModalMember from "../Modal/modalMember";
 import MemberSVG from "../../../svg/member.svg";
 import Setting from "../../../svg/setting.svg";
 import Plus from "../../../svg/plus.svg";
+import MemberAdd from "./function/MemberAdd";
 
 const Member = ({ filterId }) => {
   const { itemId, image } = useContext(TeamDel) || {};
@@ -22,11 +24,15 @@ const Member = ({ filterId }) => {
     isKeyword,
     setIsKeyword,
   } = useContext(UseStateContext);
-  const { targetId, setTargetId } = useContext(FindId);
+  const { targetId, setTargetId, TeamId } = useContext(FindId);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
   const onClickSetting = () => {
     setSetting((preState) => !preState);
-    if (itemId !== targetId && image) setTargetId(null,"dafmiaubihsjkf") 
+    if (itemId !== targetId && image) setTargetId(null, "dafmiaubihsjkf");
     console.log(targetId);
     if (isAlarm === true) {
       setIsAlarm((preState) => !preState);
@@ -43,7 +49,7 @@ const Member = ({ filterId }) => {
     <>
       <div className="member">
         <div className="member-header">
-          {(itemId % 2 === 0 || filterId % 2 === 0) && itemId !== 0 ? (
+          {(TeamId || "").startsWith("create-") ? (
             <>
               <div
                 className="member-header-TeamName-owner"
@@ -54,7 +60,7 @@ const Member = ({ filterId }) => {
               </div>
               <div className="member-header-member-owner">
                 <img src={MemberSVG} />
-                <img src={Plus} />
+                <img src={Plus} onClick={openModal} />
               </div>
             </>
           ) : (
@@ -71,8 +77,11 @@ const Member = ({ filterId }) => {
             </>
           )}
         </div>
-        <div className="member-name"></div>
+        <div className="member-name">
+          <MemberAdd />
+        </div>
       </div>
+      {isModalOpen && <ModalMember onClose={closeModal} />}
     </>
   );
 };
