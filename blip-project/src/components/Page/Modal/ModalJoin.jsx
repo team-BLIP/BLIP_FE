@@ -5,6 +5,8 @@ import ESC from "../../../svg/ESC.svg";
 import { useState, useContext, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TeamDel } from "../Main/Main";
+import { UseStateContext } from "../../../Router";
+import { FindId } from "../Main/Main";
 import JoinApi from "../Src/api/JoinApi";
 import UrlCheck from "../Src/function/UrlCheck";
 
@@ -12,6 +14,8 @@ const ModalJoin = ({ onClose }) => {
   const [isInput, setIsInput] = useState("");
   const [isValidURL, setIsValidURL] = useState(true);
   const { setOwner, setJoin, Owner } = useContext(TeamDel);
+  const { targetId, setTargetId } = useContext(UseStateContext);
+  const { content } = useContext(FindId);
   const [JoinUrl, setJoinUrl] = useState("");
   const submitRef = useRef();
   const nav = useNavigate();
@@ -27,9 +31,14 @@ const ModalJoin = ({ onClose }) => {
         const inviteCode = isInput.trim();
         console.log("초대 코드", inviteCode);
         console.log(isInput);
-        console.log("Dafsghg",isValidURL)
+        console.log("Dafsghg", isValidURL);
 
-        const rusult = await JoinApi(inviteCode);
+        const rusult = await JoinApi(
+          inviteCode,
+          targetId,
+          setTargetId,
+          content
+        );
 
         if (rusult) {
           console.log("팀 참가 성공", rusult);
@@ -106,7 +115,7 @@ const ModalJoin = ({ onClose }) => {
             style={{
               borderColor: isValidURL ? "#F2F2F2" : "red",
             }}
-          ></input>
+          />
         </div>
         <div className="modal-Join-button">
           <button
