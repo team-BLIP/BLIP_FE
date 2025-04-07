@@ -10,6 +10,8 @@ import {
   useMemo,
   useState,
 } from "react";
+import MyPage from "./components/Page/MyPage/myPage";
+import Profiles from "./components/Page/MyPage/Profiles/profile";
 
 const mocDateSide = [
   {
@@ -112,6 +114,7 @@ export const AppRouter = () => {
   const [basic, setBasic] = useState(null);
   const [TeamJoin, setTeamJoin] = useState(null);
   const [targetId, setTargetId] = useState(null);
+  const [teamImages, setTeamImages] = useState({});
 
   const [recorder, setRecorder] = useState(null);
   const [recordedChunks, setRecordedChunks] = useState([]);
@@ -148,6 +151,8 @@ export const AppRouter = () => {
           setMeetingEnd,
           targetId,
           setTargetId,
+          targetId,
+          setTargetId,
           basic,
           setBasic,
           TeamJoin,
@@ -177,6 +182,8 @@ export const AppRouter = () => {
           >
             <Routes>
               <Route path="/" element={<Main />} />
+              <Route path="/profile" element={<Profiles />} />
+              <Route path="/users/mypage" element={<MyPage />} />
             </Routes>
           </Call.Provider>
         </DiscordContext.Provider>
