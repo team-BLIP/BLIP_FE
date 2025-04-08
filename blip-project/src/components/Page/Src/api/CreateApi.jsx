@@ -7,7 +7,8 @@ const CreateApi = async (
   onClose,
   memoizedDispatch,
   targetId,
-  setTargetId
+  setTargetId,
+  parentOnClose
 ) => {
   const apiUrl = import.meta.env.VITE_API_URL_URL_CREATE;
   const url = `${apiUrl}`;
@@ -35,29 +36,31 @@ const CreateApi = async (
     });
     console.log("팀 생성 성공:", response.data);
     console.log("팀 생성 id", response.data.team_id);
+    console.log("afsdgg", response.data.role);
 
     // setOwner((prev) => !prev);
     // if (join) {
     //   setJoin((prev) => !prev);
     // }
 
-    const newTeagetId = response.data.team_id;
+    const newTeamId = response.data.team_id;
     if (typeof setTargetId === "function") {
-      setTargetId(newTeagetId);
+      setTargetId(newTeamId);
       console.log(targetId);
     } else {
       alert("팀 생성 오류");
     }
 
-    const TeamId = `create-${response.data.team_id}`;
-    const TeamUrl = response.data.invite_link;
-    console.log("sadfasdf" + TeamId);
-    console.log("dafs", TeamUrl);
+    const createTeamId = `create-${response.data.team_id}`;
+    const createTeamUrl = response.data.invite_link;
+    console.log("sadfasdf" + createTeamId);
+    console.log("dafs", createTeamUrl);
     const newTeam = {
-      id: TeamId,
+      id: createTeamId,
+      _orginalId: newTeamId,
       content: String(content),
       isPlus: false,
-      TeamUrl: TeamUrl,
+      createTeamUrl: createTeamUrl,
     };
 
     if (memoizedDispatch) {
@@ -78,34 +81,50 @@ const CreateApi = async (
       console.error("memoizedDispatch가 유효하지 않습니다:", memoizedDispatch);
     }
 
+    //로컬 스토리지에 저장
     const storedTeams = JSON.parse(localStorage.getItem("teams") || "[]");
     const validStoredTeams = Array.isArray(storedTeams) ? storedTeams : [];
+
+    //기존 팀 ID 검사로 팀 중복 방지
+    const existingTeamIndex = validStoredTeams.findIndex(
+      (team) => team.id === createTeamId || team._orginalId === newTeamId
+    );
+
+    let updatedTeams;
+    if (existingTeamIndex >= 0) {
+      updatedTeams = [...validStoredTeams];
+      updatedTeams[existingTeamIndex] = newTeam;
+    } else {
+      updatedTeams = [...validStoredTeams, newTeam];
+    }
+
     localStorage.setItem(
       "teams",
       JSON.stringify([...validStoredTeams, newTeam])
     );
 
-    if (TeamUrl) {
+    if (createTeamUrl) {
       nav("/", {
         state: {
           content: String(content),
-          TeamId,
-          targetId: newTeagetId,
-          TeamUrl,
+          createTeamId,
+          targetId: newTeamId,
+          createTeamUrl,
         },
       });
-      console.log(TeamId);
+      console.log(createTeamUrl);
     } else {
-      console.log("TeamUrl이 undefined입니다");
+      console.log("createTeamUrl이 undefined입니다");
       nav("/", {
         state: {
           content: String(content),
-          TeamId,
-          targetId: newTeagetId,
+          createTeamId,
+          targetId: newTeamId,
         },
       });
     }
     onClose();
+    if (parentOnClose) parentOnClose();
   } catch (error) {
     console.error("팀 생성 실패:", error);
   }
