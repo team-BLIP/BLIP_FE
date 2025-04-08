@@ -17,9 +17,12 @@ const ModalMember = ({ onClose }) => {
       const storedTeams = JSON.parse(localStorage.getItem("teams") || "[]");
       if (storedTeams.length > 0) {
         const latestTeam = storedTeams[storedTeams.length - 1];
-        if (latestTeam && latestTeam.TeamUrl) {
-          console.log("로컬 스토리지에서 TeamUrl 발견:", latestTeam.TeamUrl);
-          setTeamUrl(latestTeam.TeamUrl);
+        if (latestTeam && latestTeam.createTeamUrl) {
+          console.log(
+            "로컬 스토리지에서 TeamUrl 발견:",
+            latestTeam.createTeamUrl
+          );
+          setTeamUrl(latestTeam.createTeamUrl);
           return;
         }
       }
