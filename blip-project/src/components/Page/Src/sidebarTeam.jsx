@@ -1,7 +1,7 @@
 import "../../CSS/sidebarTeam.css";
 import { typography } from "../../../fonts/fonts";
 import { color } from "../../../style/color";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 import { SidebarContext } from "../../../Router";
 import { UseStateContext } from "../../../Router";
 import { TeamDel } from "../Main/Main";
@@ -13,7 +13,7 @@ const SidebarTeam = () => {
   const { todos } = useContext(SidebarContext);
   const { image, Owner, setOwner, join, setJoin } = useContext(TeamDel);
   const { basic, setBasic, discord } = useContext(UseStateContext);
-  const { targetId, teamImages, TeamId, content, TeamUrl } = useContext(FindId);
+  const { targetId, teamImages, createTeamId, content } = useContext(FindId);
   const {
     setting,
     setSetting,
@@ -27,24 +27,49 @@ const SidebarTeam = () => {
     setIsKeyword,
   } = useContext(UseStateContext);
 
+  const [localTodos, setLocalTodos] = useState([]);
+  const prevTodosRef = useRef();
+
+  useEffect(() => {
+    if (todos && todos.length > 0) {
+      const todosDeepCopy = todos.map((todo) => ({
+        ...todo,
+        _originalId: todo.id,
+      }));
+      setLocalTodos(todosDeepCopy);
+      prevTodosRef.current = todos;
+
+      console.log("LocalTodos 업데이트:", todosDeepCopy);
+    }
+  }, [todos]);
+
   const onClickEffect = (item) => {
-    console.log(TeamId);
-    console.log(content);
-    console.log(item.id);
-    console.log("targetid", targetId);
-    console.log("ddadfs", todos);
-    console.log("dddd", content);
-    console.log("dsffsd", TeamUrl);
-    if (item.isPlus) {
+    console.log("todos", todos);
+    // console.log("Teamid", TeamId);
+    // console.log("targetId", targetId);
+    // console.log("content", content);
+    // console.log("TeamUrl", TeamUrl);
+    // console.log("localTodos", localTodos);
+    const itemId = item._originalId || item.id || "";
+    const itemContent = item.content || "";
+    const itemUrl = item.TeamUrl || "";
+    if (item && item.isPlus) {
       if (basic) {
         setBasic((prev) => !prev);
       }
       if (join) {
         setJoin((preState) => !preState);
       }
-      nav("/", { state: { TeamId, content } });
-    } else {
-      if (TeamId.startsWith("create-")) {
+      nav("/", { state: { createTeamId, content, itemId } });
+    } else if (item) {
+      const currentTeamId =
+        item && typeof itemId === "string" && itemId.startsWith("create-")
+          ? itemId
+          : `create-${itemId}`;
+
+      if (currentTeamId.startsWith("create-")) {
+        alert("create");
+        alert(createTeamId);
         if (Owner) {
           setOwner((preState) => !preState);
         }
@@ -66,7 +91,15 @@ const SidebarTeam = () => {
           setOwner((preState) => !preState);
         }
       }
-      nav("/", { state: { TeamId, content } });
+      nav("/", {
+        state: {
+          createTeamId: currentTeamId,
+          content: itemContent,
+          targetId: itemId.replace("create-", ""),
+          createTeamUrl: itemUrl,
+          itemId,
+        },
+      });
     }
 
     if (isLetter) setIsLetter(false);
@@ -79,10 +112,10 @@ const SidebarTeam = () => {
   return (
     <>
       <div className="MainSTJoinNo">
-        {todos.length > 0 ? (
-          todos.map((item, index) => (
+        {localTodos.length > 0 ? (
+          localTodos.map((item, index) => (
             <div
-              key={index}
+              key={`todo-${index}-${item._originalId || item.id || Date.now()}`}
               className={`content-item${
                 item.isPlus
                   ? "-plus"
@@ -112,7 +145,7 @@ const SidebarTeam = () => {
                     alt="Team Space"
                   />
                 ) : (
-                  content
+                  item.content
                 )}
               </span>
             </div>
