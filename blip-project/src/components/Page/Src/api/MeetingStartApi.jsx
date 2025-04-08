@@ -1,13 +1,13 @@
 import axios from "axios";
 
-const MeetingStartApi = async ({ isTopic, content, userName, TeamId }) => {
+const MeetingStartApi = async ({ isTopic, content, userName, TeamId, itemId }) => {
   const apiStart = import.meta.env.VITE_API_URL_URL_MEETINGS_START;
   const accessToken = import.meta.env.VITE_API_REACT_APP_API_KEY;
 
   const data = {
-    team_id: TeamId || content,
+    team_id: itemId,
     topic: isTopic,
-  };
+  };  
 
   try {
     const response = await axios.post(apiStart, data, {
