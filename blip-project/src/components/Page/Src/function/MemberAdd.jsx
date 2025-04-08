@@ -31,18 +31,18 @@ const MemberContainer = styled.div`
   display: flex;
   flex-direction: column;
   display: flex;
-  justify-content: center;
   border-radius: 8px;
   width: 100%;
-  height: 5%;
+  height: 100%;
 `;
 
 const MemberItem = styled.div`
   display: flex;
   align-items: center;
   padding-left: 10%;
-  padding-top: 1%;
+  padding-top: 10%;
   gap: 10%;
+  padding-bottom: 5%;
 `;
 
 const MemberImg = styled.img`
