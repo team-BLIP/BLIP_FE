@@ -8,84 +8,114 @@ const CreateApi = async (
   memoizedDispatch,
   targetId,
   setTargetId,
-  parentOnClose
+  parentOnClose,
+  addIdMappings // ID 매핑 함수 추가
 ) => {
-  const apiUrl = import.meta.env.VITE_API_URL_URL_CREATE;
-  const url = `${apiUrl}`;
-  const accessToken = import.meta.env.VITE_API_REACT_APP_API_KEY;
-  console.log(accessToken);
-  if (content === "") {
-    submitRef.current.focus();
-    return;
+  // 빈 내용 검사
+  if (!content) {
+    submitRef.current?.focus();
+    return null;
   }
 
+  const apiUrl = import.meta.env.VITE_API_URL_URL_CREATE;
+  const accessToken = import.meta.env.VITE_API_REACT_APP_API_KEY;
+  
   const data = {
     team_name: content,
     nick_name: "",
   };
 
-  console.log("content 값 확인:", content);
-  console.log("데이터 객체:", JSON.stringify(data, null, 2));
-
   try {
-    const response = await axios.post(url, data, {
+    // API 호출
+    const response = await axios.post(apiUrl, data, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken.trim()}`,
       },
     });
-    console.log("팀 생성 성공:", response.data);
-    console.log("팀 생성 id", response.data.team_id);
-    console.log("afsdgg", response.data.role);
-
-    // setOwner((prev) => !prev);
-    // if (join) {
-    //   setJoin((prev) => !prev);
-    // }
 
     const newTeamId = response.data.team_id;
+    const createTeamId = `create-${newTeamId}`;
+    const createTeamUrl = response.data.invite_link || null;
+    
+    // targetId 상태 업데이트
     if (typeof setTargetId === "function") {
       setTargetId(newTeamId);
-      console.log(targetId);
     } else {
-      alert("팀 생성 오류");
+      console.error("setTargetId가 함수가 아닙니다");
+      return null;
+    }
+    
+    // ID 매핑 추가 (제공된 경우)
+    if (typeof addIdMappings === "function") {
+      // 다음 사용 가능한 클라이언트 ID를 찾거나 적절한 방식으로 결정
+      const clientId = Date.now(); // 또는 다른 방법으로 생성
+      addIdMappings(clientId, newTeamId);
     }
 
-    const createTeamId = `create-${response.data.team_id}`;
-    const createTeamUrl = response.data.invite_link;
-    console.log("sadfasdf" + createTeamId);
-    console.log("dafs", createTeamUrl);
+    // 새 팀 객체 생성
     const newTeam = {
       id: createTeamId,
       _orginalId: newTeamId,
       content: String(content),
       isPlus: false,
-      createTeamUrl: createTeamUrl,
+      createTeamUrl,
     };
 
-    if (memoizedDispatch) {
-      if (typeof memoizedDispatch === "function") {
-        // memoizedDispatch가 Redux 스타일 함수인 경우
-        memoizedDispatch({ type: "ADD_TEAM", payload: newTeam });
-      } else if (memoizedDispatch.onCreateone) {
-        // memoizedDispatch가 객체이고 onCreateone 메서드가 있는 경우
-        try {
-          memoizedDispatch.onCreateone(newTeam.content);
-        } catch (error) {
-          console.error("onCreateone 호출 오류:", error);
-        }
-      } else {
-        console.error("memoizedDispatch 객체에 onCreateone 메서드가 없습니다");
-      }
-    } else {
-      console.error("memoizedDispatch가 유효하지 않습니다:", memoizedDispatch);
-    }
+    // 디스패치 처리 (조건에 따라)
+    handleDispatch(memoizedDispatch, newTeam);
+    
+    // 로컬 스토리지 업데이트 - 중복 제거된 버전
+    updateLocalStorage(createTeamId, newTeamId, newTeam);
 
-    //로컬 스토리지에 저장
+    // 네비게이션 처리
+    nav("/", {
+      state: {
+        content: String(content),
+        createTeamId,
+        targetId: newTeamId,
+        createTeamUrl,
+      },
+    });
+
+    // 모달 닫기
+    onClose();
+    if (parentOnClose) parentOnClose();
+    
+    return newTeamId;
+  } catch (error) {
+    console.error("팀 생성 실패:", error);
+    return null;
+  }
+};
+
+// 디스패치 처리 함수
+function handleDispatch(memoizedDispatch, newTeam) {
+  if (!memoizedDispatch) {
+    console.error("memoizedDispatch가 제공되지 않았습니다");
+    return;
+  }
+
+  if (typeof memoizedDispatch === "function") {
+    memoizedDispatch({ type: "ADD_TEAM", payload: newTeam });
+  } else if (memoizedDispatch.onCreateone) {
+    try {
+      memoizedDispatch.onCreateone(newTeam.content);
+    } catch (error) {
+      console.error("onCreateone 호출 오류:", error);
+    }
+  } else {
+    console.error("지원되지 않는 memoizedDispatch 형식:", memoizedDispatch);
+  }
+}
+
+// 로컬 스토리지 업데이트 함수
+function updateLocalStorage(createTeamId, newTeamId, newTeam) {
+  try {
     const storedTeams = JSON.parse(localStorage.getItem("teams") || "[]");
     const validStoredTeams = Array.isArray(storedTeams) ? storedTeams : [];
 
-    //기존 팀 ID 검사로 팀 중복 방지
+    // 기존 팀 ID 검사로 팀 중복 방지
     const existingTeamIndex = validStoredTeams.findIndex(
       (team) => team.id === createTeamId || team._orginalId === newTeamId
     );
@@ -98,39 +128,10 @@ const CreateApi = async (
       updatedTeams = [...validStoredTeams, newTeam];
     }
 
-    localStorage.setItem(
-      "teams",
-      JSON.stringify([...validStoredTeams, newTeam])
-    );
-
-    if (createTeamUrl) {
-      nav("/", {
-        state: {
-          content: String(content),
-          createTeamId,
-          targetId: newTeamId,
-          createTeamUrl,
-        },
-      });
-      console.log(createTeamUrl);
-    } else {
-      console.log("createTeamUrl이 undefined입니다");
-      nav("/", {
-        state: {
-          content: String(content),
-          createTeamId,
-          targetId: newTeamId,
-        },
-      });
-    }
-    onClose();
-    if (parentOnClose) parentOnClose();
+    localStorage.setItem("teams", JSON.stringify(updatedTeams));
   } catch (error) {
-    console.error("팀 생성 실패:", error);
+    console.error("로컬 스토리지 업데이트 실패:", error);
   }
-  // finally {
-  //   setIsLoading(false);
-  // }
-};
+}
 
 export default CreateApi;
