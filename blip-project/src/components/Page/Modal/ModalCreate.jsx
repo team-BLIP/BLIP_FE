@@ -24,9 +24,9 @@ const ModalCreate = ({ onClose, parentOnClose }) => {
   };
 
   const handleCreateAndClose = async () => {
-    if (typeof setTargetId === "function") {
+    if (content.trim().length > 0) {
       try {
-        CreateApi(
+        await CreateApi(
           content,
           nav,
           submitRef,
