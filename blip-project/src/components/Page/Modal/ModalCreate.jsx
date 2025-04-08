@@ -5,12 +5,14 @@ import ESC from "../../../svg/ESC.svg";
 import { useState, useRef, useContext, useEffect } from "react";
 import { SidebarContext } from "../../../Router";
 import { UseStateContext } from "../../../Router";
+import { FindId } from "../Main/Main";
 import { useNavigate } from "react-router-dom";
 import CreateApi from "../Src/api/CreateApi";
 
 const ModalCreate = ({ onClose, parentOnClose }) => {
   const { dispatch } = useContext(SidebarContext);
   const { targetId, setTargetId } = useContext(UseStateContext);
+  const { idMappings } = useContext(FindId);
   const [content, setContent] = useState("");
   const submitRef = useRef();
   const nav = useNavigate();
@@ -32,7 +34,8 @@ const ModalCreate = ({ onClose, parentOnClose }) => {
           dispatch || {},
           targetId,
           setTargetId,
-          parentOnClose
+          parentOnClose,
+          idMappings
         );
       } catch (error) {
         console.log("팀 생성 중 오류 발생", error);
