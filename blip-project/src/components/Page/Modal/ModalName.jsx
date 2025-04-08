@@ -12,11 +12,13 @@ const ModalName = ({ onClose }) => {
     if (inputName.length >= 3) {
       if (typeof AddMember === "function") {
         AddMember(inputName);
+        onClose();
       } else {
         setUserName([...userName, inputName]);
       }
+    } else {
+      alert("이름은 3글자 이상이어야 합니다.");
     }
-    onClose();
   };
   const onInput = (e) => {
     setInputName(e.target.value);
@@ -27,7 +29,7 @@ const ModalName = ({ onClose }) => {
     console.log("현재 userName 상태:", userName);
     console.log("AddMember 함수 타입:", typeof AddMember);
   }, [userName, AddMember]);
-  
+
   return (
     <Name>
       <Main>

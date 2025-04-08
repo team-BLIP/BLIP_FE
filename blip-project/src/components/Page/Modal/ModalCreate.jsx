@@ -2,13 +2,13 @@ import "../../CSS/ModalCreate.css";
 import { typography } from "../../../fonts/fonts";
 import { color } from "../../../style/color";
 import ESC from "../../../svg/ESC.svg";
-import { useState, useRef, useContext } from "react";
+import { useState, useRef, useContext, useEffect } from "react";
 import { SidebarContext } from "../../../Router";
 import { UseStateContext } from "../../../Router";
 import { useNavigate } from "react-router-dom";
 import CreateApi from "../Src/api/CreateApi";
 
-const ModalCreate = ({ onClose }) => {
+const ModalCreate = ({ onClose, parentOnClose }) => {
   const { dispatch } = useContext(SidebarContext);
   const { targetId, setTargetId } = useContext(UseStateContext);
   const [content, setContent] = useState("");
@@ -21,9 +21,9 @@ const ModalCreate = ({ onClose }) => {
     console.log(e.target.value);
   };
 
-  const onKeyDownCreate = (e) => {
-    if (e.key === "Enter") {
-      if (typeof setTargetId === "function") {
+  const handleCreateAndClose = async () => {
+    if (typeof setTargetId === "function") {
+      try {
         CreateApi(
           content,
           nav,
@@ -31,14 +31,31 @@ const ModalCreate = ({ onClose }) => {
           onClose,
           dispatch || {},
           targetId,
-          setTargetId
+          setTargetId,
+          parentOnClose
         );
-      } else {
-        alert("팀 생성중 오류가 발생했습니다");
+      } catch (error) {
+        console.log("팀 생성 중 오류 발생", error);
+        alert("팀 생성 중 오류 발생");
       }
-      onClose();
     }
   };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.keyCode === 27) {
+        handleCreateAndClose();
+      } else if (e.keyCode === 13) {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
 
   return (
     <div className="modal-overlay">
@@ -70,7 +87,7 @@ const ModalCreate = ({ onClose }) => {
             placeholder="팀스페이스의 이름을 작성해주세요."
             value={content}
             type="text"
-            onKeyDown={onKeyDownCreate}
+            onKeyDown={handleCreateAndClose}
             onChange={onChangeInput}
             ref={submitRef}
           ></input>
@@ -80,21 +97,7 @@ const ModalCreate = ({ onClose }) => {
             <button
               className="modal-create-button-400"
               style={{ "--main-400": color.Main[4] }}
-              onClick={() => {
-                if (typeof setTargetId === "function") {
-                  CreateApi(
-                    content,
-                    nav,
-                    submitRef,
-                    onClose,
-                    dispatch || {},
-                    targetId,
-                    setTargetId
-                  );
-                } else {
-                  alert("팀 생성중 오류가 발생했습니다");
-                }
-              }}
+              onClick={handleCreateAndClose}
             >
               시작하기
             </button>

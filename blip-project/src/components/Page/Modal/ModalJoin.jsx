@@ -6,16 +6,18 @@ import { useState, useContext, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TeamDel } from "../Main/Main";
 import { UseStateContext } from "../../../Router";
+import { SidebarContext } from "../../../Router";
 import { FindId } from "../Main/Main";
 import JoinApi from "../Src/api/JoinApi";
 import UrlCheck from "../Src/function/UrlCheck";
 
-const ModalJoin = ({ onClose }) => {
+const ModalJoin = ({ onClose, parentOnClose }) => {
   const [isInput, setIsInput] = useState("");
   const [isValidURL, setIsValidURL] = useState(true);
   const { setOwner, setJoin, Owner } = useContext(TeamDel);
   const { targetId, setTargetId } = useContext(UseStateContext);
-  const { content } = useContext(FindId);
+  const { dispatch } = useContext(SidebarContext);
+  const { content, TeamUrl } = useContext(FindId);
   const [JoinUrl, setJoinUrl] = useState("");
   const submitRef = useRef();
   const nav = useNavigate();
@@ -37,6 +39,10 @@ const ModalJoin = ({ onClose }) => {
           inviteCode,
           targetId,
           setTargetId,
+          content,
+          dispatch,
+          TeamUrl,
+          nav,
           content
         );
 
@@ -49,6 +55,7 @@ const ModalJoin = ({ onClose }) => {
           }
         }
         onClose();
+        if (parentOnClose) parentOnClose();
       } catch (error) {
         console.error("팀 참가 중 오류 발생:", error);
         alert("유효하지 않은 초대 링크입니다. 다시 확인해주세요.");
@@ -57,12 +64,27 @@ const ModalJoin = ({ onClose }) => {
   };
 
   const onKeyDownUrl = (e) => {
-    if (e.key === "Enter") {
+    if (e.keyCode === 13) {
       onClickUrl();
     }
   };
 
   const handleClick = UrlCheck(setIsInput, setIsValidURL);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.keyCode === 27) {
+        onClose();
+        if (parentOnClose) parentOnClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
 
   useEffect(() => {
     try {

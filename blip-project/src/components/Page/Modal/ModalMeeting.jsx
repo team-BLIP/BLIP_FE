@@ -62,6 +62,47 @@ const ModalMeeting = ({ onClose }) => {
     setIsCamera((prev) => !prev);
   };
 
+  const onClickStartMeeting = async () => {
+    console.log("asfdghg");
+    if (typeof setDiscord === "function") {
+      try {
+        const result = await MeetingStartApi({
+          isTopic,
+          content,
+          userName,
+          TeamId: TeamId || itemId,
+        });
+
+        console.log("회의 시작 성공:", result);
+
+        setDiscord(true);
+        onClose();
+      } catch (error) {
+        console.error("회의 시작 실패:", error);
+        let errorMsg = "회의 시작에 실패했습니다.";
+
+        if (error.response) {
+          switch (error.response.status) {
+            case 403:
+              errorMsg = "권한이 없습니다. 로그인 상태를 확인해주세요.";
+              break;
+            case 404:
+              errorMsg = "리소스를 찾을 수 없습니다.";
+              break;
+            case 400:
+              errorMsg = "잘못된 요청입니다. 입력 정보를 확인해주세요.";
+              break;
+            case 500:
+              errorMsg = "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+              break;
+          }
+        }
+        alert(errorMsg);
+      }
+    } else {
+      console.log("setDiscord 함수가 정의되지 않았습니다");
+    }
+  };
   // setDiscord((perState) => !perState);
   // onClose();
   // if (isLetter) {
@@ -169,13 +210,7 @@ const ModalMeeting = ({ onClose }) => {
           {isTopic.length >= 5 || isCheckMike || isCheckCamera ? (
             <button
               className="modalMeeting-button"
-              onClick={() => {
-                if (typeof setDiscord === "function") {
-                  MeetingStartApi(isTopic, content, userName, TeamId);
-                } else {
-                  console.log("Fdn");
-                }
-              }}
+              onClick={onClickStartMeeting}
               style={{
                 ...typography.Button0,
                 backgroundColor: color.Main[4],
