@@ -19,6 +19,10 @@ export const Profile = styled.div`
   border-radius: 100px;
   border: 0.5px solid ${color.GrayScale[1]};
   position: relative;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 50%;
 `;
 
 /* export const Name = styled.p`
