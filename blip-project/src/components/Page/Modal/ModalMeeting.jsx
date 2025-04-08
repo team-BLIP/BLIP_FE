@@ -12,35 +12,10 @@ const ModalMeeting = ({ onClose }) => {
   const [isCheckMike, setIsCheckMike] = useState(false);
   const [isCheckCamera, setIsCheckCamera] = useState(false);
 
-  const {
-    setIsMike,
-    setIsCamera,
-    discord,
-    setting,
-    setSetting,
-    isAlarm,
-    setIsAlarm,
-    isLetter,
-    setIsLetter,
-    isFeedback,
-    setIsFeedback,
-    isKeyword,
-    setIsKeyword,
-    setDiscord,
-    basic,
-    setBasic,
-  } = useContext(UseStateContext);
+  const { setIsMike, setIsCamera, discord, setDiscord } =
+    useContext(UseStateContext);
 
-  const {
-    itemId,
-    Owner,
-    setOwner,
-    join,
-    setJoin,
-    isTopic,
-    setIsTopic,
-    userName,
-  } = useContext(TeamDel);
+  const { itemId, isTopic, setIsTopic, userName } = useContext(TeamDel);
 
   const { content, TeamId } = useContext(FindId);
 
@@ -151,7 +126,7 @@ const ModalMeeting = ({ onClose }) => {
                 "--gray-200": color.GrayScale[2],
               }}
               type="text"
-              minLength={5}
+              minLength={4}
               value={isTopic}
               onChange={onChageTopic}
               placeholder="정기회의"
@@ -207,7 +182,7 @@ const ModalMeeting = ({ onClose }) => {
           </div>
         </div>
         <div className="modalMeeting-button-main">
-          {isTopic.length >= 5 || isCheckMike || isCheckCamera ? (
+          {isTopic.length >= 4 || isCheckMike || isCheckCamera ? (
             <button
               className="modalMeeting-button"
               onClick={onClickStartMeeting}
