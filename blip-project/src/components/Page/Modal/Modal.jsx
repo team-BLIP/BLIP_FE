@@ -1,8 +1,8 @@
-import "../../CSS/Modal.css"
+import "../../CSS/Modal.css";
 import { typography } from "../../../fonts/fonts";
 import { color } from "../../../style/color";
-import ESC from "../../../svg/ESC.svg"
-import { useState } from "react";
+import ESC from "../../../svg/ESC.svg";
+import { useState, useEffect } from "react";
 import ModalCreate from "./ModalCreate";
 import ModalJoin from "./ModalJoin";
 
@@ -33,6 +33,20 @@ const Modal = ({ onClose }) => {
       setIsColorButton(false);
     }
   };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.keyCode === 27) {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
 
   return (
     <div className="modal-overlay">
@@ -124,8 +138,12 @@ const Modal = ({ onClose }) => {
           )}
         </div>
       </div>
-      {isModalJoin && <ModalJoin onClose={CloseModalJoin} />}
-      {isModalCreate && <ModalCreate onClose={CloseModalCreate} />}
+      {isModalJoin && (
+        <ModalJoin onClose={CloseModalJoin} parentOnClose={onClose} />
+      )}
+      {isModalCreate && (
+        <ModalCreate onClose={CloseModalCreate} parentOnClose={onClose} />
+      )}
     </div>
   );
 };
