@@ -3,9 +3,15 @@ import MainTeamOwner from "./MainTeamOwner";
 import MTeamJoinNo from "./MainTeamJoinNo";
 import FullScreenPage from "./FullScreen";
 import { useLocation } from "react-router-dom";
-import { SidebarContext } from "../../../Router";
 import { UseStateContext } from "../../../Router";
-import { useMemo, createContext, useState, useContext, useEffect } from "react";
+import {
+  useMemo,
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  useCallback,
+} from "react";
 
 export const TeamDel = createContext();
 export const FindId = createContext({
@@ -24,77 +30,139 @@ const Main = () => {
     content,
     createTeamUrl,
   } = location.state || {};
-  const { todos } = useContext(SidebarContext);
-  const [filteredItem, setFilteredItem] = useState(null);
+
   const { FullScreen, targetId, setTargetId } = useContext(UseStateContext);
+
+  const [filteredItem, setFilteredItem] = useState(null);
   const [Owner, setOwner] = useState(null);
   const [join, setJoin] = useState(null);
   const [image, setImage] = useState(null);
-  const [teamImages, setTeamImages] = useState({});
+  const [teamImages, setTeamImages] = useState(() => {
+    const savedImages = localStorage.getItem("teamImages");
+    return savedImages ? JSON.parse(savedImages) : {};
+  });
   const [isTopic, setIsTopic] = useState("");
   const [userName, setUserName] = useState([]);
 
-  const AddMember = (name) => {
+  // ID 매핑 상태 - 철자 오류 수정 및 최적화
+  const [idMappings, setIdMappings] = useState(() => {
+    const savedMappings = localStorage.getItem("idMappings");
+    return savedMappings ? JSON.parse(savedMappings) : {};
+  });
+
+  // useCallback을 사용하여 함수 재생성 방지
+  const addIdMappings = useCallback((clientId, backendId) => {
+    setIdMappings((prevMappings) => {
+      const newMappings = {
+        ...prevMappings,
+        [clientId]: backendId,
+      };
+      localStorage.setItem("idMappings", JSON.stringify(newMappings));
+      return newMappings;
+    });
+  }, []);
+
+  // useCallback을 사용하여 함수 재생성 방지
+  const AddMember = useCallback((name) => {
     console.log("멤버 추가", name);
     setUserName((prevName) => [...prevName, name]);
-  };
+  }, []);
 
-  const matchingItem = useMemo(() => {
-    todos.find((item) => item.id === targetId);
-  }, [targetId, todos]);
-
+  // 팀 이미지 LocalStorage 저장 최적화
   useEffect(() => {
-    const newtargetId = matchingItem ? `${targetId}` : null;
-    if (typeof setTargetId === "function") {
-      setTargetId((preV) => (preV !== newtargetId ? newtargetId : preV));
-    } else {
-      console.log("이건 아니야");
+    localStorage.setItem("teamImages", JSON.stringify(teamImages));
+  }, [teamImages]);
+
+  // targetId 업데이트 로직 최적화
+  useEffect(() => {
+    if (typeof setTargetId === "function" && targetId !== undefined) {
+      setTargetId((prevId) => (prevId !== targetId ? targetId : prevId));
     }
-  }, [matchingItem, targetId]);
+  }, [targetId, setTargetId]);
+
+  // 메모이제이션된 Context 값
+  const findIdValue = useMemo(
+    () => ({
+      filteredItem,
+      teamImages,
+      setTeamImages,
+      createTeamId,
+      content,
+      createTeamUrl,
+      idMappings,
+      addIdMappings,
+      targetId, // targetId 추가하여 SidebarTeam에서 접근 가능하게 함
+    }),
+    [
+      filteredItem,
+      teamImages,
+      setTeamImages,
+      createTeamId,
+      content,
+      createTeamUrl,
+      idMappings,
+      addIdMappings,
+      targetId,
+    ]
+  );
+
+  const teamDelValue = useMemo(
+    () => ({
+      itemContent,
+      itemId,
+      image,
+      setImage,
+      itemImage,
+      Owner,
+      setOwner,
+      join,
+      setJoin,
+      isTopic,
+      setIsTopic,
+      userName,
+      setUserName,
+      AddMember,
+    }),
+    [
+      itemContent,
+      itemId,
+      image,
+      setImage,
+      itemImage,
+      Owner,
+      setOwner,
+      join,
+      setJoin,
+      isTopic,
+      setIsTopic,
+      userName,
+      setUserName,
+      AddMember,
+    ]
+  );
+
+  // 조건부 렌더링 최적화
+  const renderContent = () => {
+    if (FullScreen) {
+      return <FullScreenPage />;
+    }
+
+    if (Owner) {
+      return <MainTeamOwner />;
+    }
+
+    if (join) {
+      return <MTeamJoinNo />;
+    }
+
+    return <MainTeam />;
+  };
 
   return (
     <>
-      <FindId.Provider
-        value={{
-          filteredItem,
-          teamImages,
-          setTeamImages,
-          createTeamId,
-          content,
-          createTeamUrl,
-        }}
-      >
-        <TeamDel.Provider
-          value={{
-            itemContent,
-            itemId,
-            image,
-            setImage,
-            itemImage,
-            Owner,
-            setOwner,
-            join,
-            setJoin,
-            isTopic,
-            setIsTopic,
-            userName,
-            setUserName,
-            AddMember,
-          }}
-        >
-          {FullScreen ? (
-            <FullScreenPage />
-          ) : (
-            <>
-              {Owner ? (
-                <MainTeamOwner />
-              ) : join ? (
-                <MTeamJoinNo />
-              ) : (
-                <MainTeam />
-              )}
-            </>
-          )}
+      <FindId.Provider value={findIdValue}>
+        <TeamDel.Provider value={teamDelValue}>
+          {renderContent()}
         </TeamDel.Provider>
       </FindId.Provider>
     </>
