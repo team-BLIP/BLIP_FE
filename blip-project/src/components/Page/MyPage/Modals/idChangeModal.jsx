@@ -1,7 +1,7 @@
 import { color } from "../../../../style/color";
 import { typography } from "../../../../fonts/fonts";
 import ESC from "../../../../svg/ESC.svg";
-const LogoutModal = ({ message, onConfirm, onCancel }) => {
+const IdChangeModal = ({ message, onConfirm, onCancel }) => {
   return (
     <div
       style={{
@@ -23,7 +23,7 @@ const LogoutModal = ({ message, onConfirm, onCancel }) => {
           borderRadius: "12px",
           textAlign: "left",
           width: "560px",
-          height: "300px",
+          height: "578px",
           position: "relative",
         }}
       >
@@ -42,41 +42,54 @@ const LogoutModal = ({ message, onConfirm, onCancel }) => {
             ...typography.Title1,
             color: color.GrayScale[8],
             marginLeft: "24px",
-            marginTop: "32px",
+            marginTop: "40px",
             marginBottom: "8px",
           }}
         >
           {message}
         </p>
-        <p
-          style={{
-            ...typography.Body2,
-            color: color.GrayScale[6],
-            marginLeft: "24px",
-          }}
-        >
-          언제든지 다시 로그인할 수 있습니다!
-        </p>
         <div
           style={{
-            marginTop: "64px",
+            marginTop: "32px",
             marginLeft: "24px",
           }}
         >
+          <div>
+            <p
+              style={{
+                ...typography.Body1,
+                color: color.GrayScale[5],
+                marginBottom: "8px",
+                marginTop: "2px",
+              }}
+            >
+              아이디
+            </p>
+            <input
+              type="text"
+              placeholder="아이디를 입력하세요."
+              style={{
+                borderRadius: "12px",
+                width: "512px",
+                height: "50px",
+                textIndent: "20px",
+              }}
+            />
+          </div>
           <button
             style={{
               width: "512px",
               height: "68px",
               borderRadius: "12px",
               border: "none",
-              backgroundColor: color.Main[4],
+              backgroundColor: color.Main[2],
               color: color.White,
               font: typography.Button0,
-              marginTop: "24px",
+              marginTop: "280px",
             }}
-            onClick={onConfirm} //API 연동하깅, 연동 성공하면 다른 화면 뜨게 하기
+            onClick={onConfirm} //API 연동하깅, 연동 성공하면 ~가 성공했어요~!! 다른 화면 뜨게 하기
           >
-            로그아웃
+            변경하기
           </button>
         </div>
       </div>
@@ -84,4 +97,4 @@ const LogoutModal = ({ message, onConfirm, onCancel }) => {
   );
 };
 
-export default LogoutModal;
+export default IdChangeModal;

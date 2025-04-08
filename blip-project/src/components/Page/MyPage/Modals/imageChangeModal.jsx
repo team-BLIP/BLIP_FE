@@ -1,7 +1,7 @@
 import { color } from "../../../../style/color";
 import { typography } from "../../../../fonts/fonts";
 import ESC from "../../../../svg/ESC.svg";
-const LogoutModal = ({ message, onConfirm, onCancel }) => {
+const ImageChangeModal = ({ message, onConfirm, onCancel }) => {
   return (
     <div
       style={{
@@ -22,8 +22,8 @@ const LogoutModal = ({ message, onConfirm, onCancel }) => {
           background: "white",
           borderRadius: "12px",
           textAlign: "left",
-          width: "560px",
-          height: "300px",
+          width: "1110px",
+          height: "740px",
           position: "relative",
         }}
       >
@@ -39,7 +39,7 @@ const LogoutModal = ({ message, onConfirm, onCancel }) => {
         />
         <p
           style={{
-            ...typography.Title1,
+            ...typography.Label2_46,
             color: color.GrayScale[8],
             marginLeft: "24px",
             marginTop: "32px",
@@ -48,15 +48,16 @@ const LogoutModal = ({ message, onConfirm, onCancel }) => {
         >
           {message}
         </p>
-        <p
+        <div
           style={{
-            ...typography.Body2,
-            color: color.GrayScale[6],
-            marginLeft: "24px",
+            width: "1040px",
+            height: "400px",
+            backgroundColor: color.GrayScale[0],
+            margin: "0 auto",
+            marginTop: "80px",
           }}
-        >
-          언제든지 다시 로그인할 수 있습니다!
-        </p>
+        ></div>
+
         <div
           style={{
             marginTop: "64px",
@@ -65,18 +66,19 @@ const LogoutModal = ({ message, onConfirm, onCancel }) => {
         >
           <button
             style={{
-              width: "512px",
-              height: "68px",
+              width: "107px",
+              height: "48px",
               borderRadius: "12px",
               border: "none",
               backgroundColor: color.Main[4],
               color: color.White,
               font: typography.Button0,
               marginTop: "24px",
+              marginLeft: "940px",
             }}
             onClick={onConfirm} //API 연동하깅, 연동 성공하면 다른 화면 뜨게 하기
           >
-            로그아웃
+            변경
           </button>
         </div>
       </div>
@@ -84,4 +86,4 @@ const LogoutModal = ({ message, onConfirm, onCancel }) => {
   );
 };
 
-export default LogoutModal;
+export default ImageChangeModal;

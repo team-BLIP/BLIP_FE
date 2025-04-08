@@ -1,7 +1,7 @@
 import { color } from "../../../../style/color";
 import { typography } from "../../../../fonts/fonts";
 import ESC from "../../../../svg/ESC.svg";
-const LogoutModal = ({ message, onConfirm, onCancel }) => {
+const EmailChange = ({ message, onConfirm, onCancel }) => {
   return (
     <div
       style={{
@@ -20,10 +20,10 @@ const LogoutModal = ({ message, onConfirm, onCancel }) => {
       <div
         style={{
           background: "white",
-          borderRadius: "12px",
+          borderRadius: "24px",
           textAlign: "left",
-          width: "560px",
-          height: "300px",
+          width: "672px",
+          height: "808px",
           position: "relative",
         }}
       >
@@ -39,11 +39,11 @@ const LogoutModal = ({ message, onConfirm, onCancel }) => {
         />
         <p
           style={{
-            ...typography.Title1,
+            ...typography.Label2_46,
             color: color.GrayScale[8],
-            marginLeft: "24px",
-            marginTop: "32px",
+            marginTop: "76px",
             marginBottom: "8px",
+            textAlign: "center",
           }}
         >
           {message}
@@ -51,32 +51,60 @@ const LogoutModal = ({ message, onConfirm, onCancel }) => {
         <p
           style={{
             ...typography.Body2,
-            color: color.GrayScale[6],
+            color: color.GrayScale[7],
             marginLeft: "24px",
+            marginBottom: "40px",
+            textAlign: "center",
+            marginTop: "32px",
           }}
         >
-          언제든지 다시 로그인할 수 있습니다!
+          보안을 위해 이메일로 발송된 6자리 인증 번호를 입력해 주세요. <br />
+          3분 내로 입력하지 않으면 만료될 수 있으니 유의하시기 바랍니다.
         </p>
         <div
           style={{
-            marginTop: "64px",
+            marginTop: "32px",
             marginLeft: "24px",
           }}
         >
+          <div>
+            <p
+              style={{
+                ...typography.Body1,
+                color: color.GrayScale[5],
+                marginBottom: "8px",
+                marginLeft: "60px",
+              }}
+            >
+              인증번호
+            </p>
+            <input
+              type="number"
+              placeholder="인증번호를 입력하세요."
+              style={{
+                borderRadius: "12px",
+                width: "512px",
+                height: "50px",
+                textIndent: "20px",
+                marginLeft: "60px",
+              }}
+            />
+          </div>
           <button
             style={{
               width: "512px",
               height: "68px",
               borderRadius: "12px",
               border: "none",
-              backgroundColor: color.Main[4],
+              backgroundColor: color.Main[2],
               color: color.White,
               font: typography.Button0,
-              marginTop: "24px",
+              marginTop: "300px",
+              marginLeft: "60px",
             }}
             onClick={onConfirm} //API 연동하깅, 연동 성공하면 다른 화면 뜨게 하기
           >
-            로그아웃
+            확인
           </button>
         </div>
       </div>
@@ -84,4 +112,4 @@ const LogoutModal = ({ message, onConfirm, onCancel }) => {
   );
 };
 
-export default LogoutModal;
+export default EmailChange;
