@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const EndApi = async (TeamId) => {
+const MeetingEndApi = async (TeamId) => {
   const apiUrl = import.meta.env.VITE_API_URL_URL_MEETINGS_END;
   const url = `${apiUrl}/data`;
   const accessToken = "토큰 값";
@@ -25,4 +25,4 @@ const EndApi = async (TeamId) => {
   }
 };
 
-export default EndApi;
+export default MeetingEndApi;
