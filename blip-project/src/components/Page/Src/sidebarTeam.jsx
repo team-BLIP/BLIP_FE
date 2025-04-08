@@ -9,10 +9,11 @@ import { FindId } from "../Main/Main";
 import { useNavigate } from "react-router-dom";
 
 const SidebarTeam = () => {
+  const [targetId, setTargetId] = useState("");
   const nav = useNavigate();
   const { todos } = useContext(SidebarContext);
   const { image, Owner, setOwner, join, setJoin } = useContext(TeamDel);
-  const { basic, setBasic, discord, targetId } = useContext(UseStateContext);
+  const { basic, setBasic, discord } = useContext(UseStateContext);
   const { teamImages, createTeamId, content, idMappings, addIdMappings } =
     useContext(FindId);
   const {
@@ -28,6 +29,8 @@ const SidebarTeam = () => {
     setIsKeyword,
   } = useContext(UseStateContext);
 
+  console.log("DSafggdsafgsrafsx", createTeamId);
+
   const [localTodos, setLocalTodos] = useState([]);
   const prevTodosRef = useRef();
 
@@ -36,7 +39,7 @@ const SidebarTeam = () => {
 
   // 백엔드와 클라이언트 ID 간의 양방향 매핑 구축
   useEffect(() => {
-    if (createTeamId && targetId) {
+    if (createTeamId) {
       const clientId =
         typeof createTeamId === "string"
           ? createTeamId.replace("create-", "")
@@ -45,15 +48,15 @@ const SidebarTeam = () => {
       // 역방향 매핑 업데이트 (백엔드 ID → 클라이언트 ID)
       setBackendToClientIdMap((prev) => ({
         ...prev,
-        [targetId]: clientId,
+        [createTeamId]: clientId,
       }));
 
       // 필요한 경우 addIdMappings 호출
       if (typeof addIdMappings === "function") {
-        addIdMappings(clientId, targetId);
+        addIdMappings(clientId, createTeamId);
       }
     }
-  }, [createTeamId, targetId, addIdMappings]);
+  }, [createTeamId, addIdMappings]);
 
   // todos 상태가 변경될 때 localTodos 업데이트
   useEffect(() => {
@@ -90,11 +93,6 @@ const SidebarTeam = () => {
   }, [todos, idMappings]);
 
   const onClickEffect = (item) => {
-    console.log("todos", todos);
-    console.log("targetId", targetId);
-    console.log("content", content);
-    console.log("localTodos", localTodos);
-    console.log("createTeamId", createTeamId);
     const itemId = (item._originalId || item.id || "").toString();
     const itemContent = item.content || "";
     const itemUrl = item.TeamUrl || "";
@@ -114,15 +112,12 @@ const SidebarTeam = () => {
 
       if (currentTeamId.startsWith("create-")) {
         alert("create");
-        alert(targetId);
-        if (Owner) {
-          setOwner((preState) => !preState);
-        }
-        if (!basic) setBasic(false);
-        if (join) {
-          setJoin((preState) => !preState);
-        }
-        console.log(targetId);
+        alert(createTeamId);
+        if (Owner) setOwner((preState) => !preState);
+        if (!basic) setBasic((preState) => !preState);
+        if (join) setJoin((preState) => !preState);
+
+        console.log(createTeamId);
       } else {
         if (!join) setJoin(false);
         if (!basic) setBasic(false);
@@ -147,11 +142,11 @@ const SidebarTeam = () => {
     if (isFeedback) setIsFeedback(false);
   };
 
-  // SidebarTeam.jsx 내부에 추가할 디버깅 useEffect
+  // 디버깅용 코드 수정
   useEffect(() => {
-    // 디버깅 정보 로깅
     console.log("=== ID 매핑 디버깅 정보 ===");
-    console.log("현재 targetId (백엔드):", targetId);
+    console.log("현재 targetId (백엔드):", createTeamId);
+    console.log("targetId 타입:", typeof createTeamId);
     console.log("idMappings:", idMappings);
 
     if (localTodos.length > 0) {
@@ -168,25 +163,13 @@ const SidebarTeam = () => {
           "클라이언트 ID": item.id,
           "클라이언트 타입": typeof item.id,
           "백엔드 ID": itemBackendId,
-          "타입": typeof itemBackendId,
-          "ID 일치 여부": String(itemBackendId) === String(targetId),
-          "ID 느슨한 비교": itemBackendId == targetId,
+          "백엔드 ID 타입": typeof itemBackendId,
+          "targetId 타입": typeof createTeamId,
+          "ID 엄격 비교 (===)": itemBackendId === createTeamId,
+          "ID 느슨한 비교 (==)": itemBackendId == createTeamId,
+          "문자열 비교": Number(itemBackendId) === Number(createTeamId),
         });
       });
-    }
-
-    // createTeamId 확인 (있는 경우)
-    if (createTeamId) {
-      console.log("createTeamId:", createTeamId);
-      const extractedId =
-        typeof createTeamId === "string"
-          ? createTeamId.replace("create-", "")
-          : createTeamId;
-      console.log("createTeamId에서 추출한 ID:", extractedId);
-      console.log(
-        "targetId와 일치 여부:",
-        String(extractedId) === String(targetId)
-      );
     }
     console.log("=== 디버깅 정보 끝 ===");
   }, [localTodos, targetId, idMappings, createTeamId]);
