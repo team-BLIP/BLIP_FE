@@ -19,6 +19,7 @@ export const Profile = styled.div`
   border-radius: 100px;
   border: 0.5px solid ${color.GrayScale[1]};
   position: relative;
+
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -35,9 +36,15 @@ export const Id = styled.p`
   font: ${typography.Header2};
   color: ${color.GrayScale[8]};
   margin-left: 36px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100% - 150px);
 `;
 
 export const ProfileChangeButton = styled.button`
+  position: absolute;
+  right: 35px;
   width: 111px;
   height: 34px;
   border-radius: 12px;
@@ -45,7 +52,6 @@ export const ProfileChangeButton = styled.button`
   background-color: ${color.Main[4]};
   color: ${color.White};
   font: ${typography.Button3};
-  margin-left: 430px;
 `;
 
 export const InfoLine = styled.div`
@@ -137,9 +143,10 @@ export const SmallId = styled.p`
 `;
 
 export const TextWithButtonContainer = styled.div`
+  position: relative;
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 12px;
 `;
 
 export const InfoItem = styled.div`

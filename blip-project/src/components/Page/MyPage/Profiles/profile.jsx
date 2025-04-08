@@ -7,7 +7,7 @@ import KillModal from "../Modals/killModal";
 import EmailChangeModal from "../Modals/emailChangeModal";
 import IdChangeModal from "../Modals/idChangeModal";
 import PasswordChangeModal from "../Modals/passwordChangeModal";
-import ImageChangeModal from "../Modals/imageEditModal";
+import ImageChangeModal from "../Modals/imageChangeModal";
 import profileDefault from "../../../../svg/profileDefault.svg";
 
 const Profiles = () => {
@@ -17,6 +17,10 @@ const Profiles = () => {
   const [showIdModal, setIdChangemModal] = useState(false);
   const [showPasswordModal, setPasswordChangeModal] = useState(false);
   const [showImageModal, setImageChangeModal] = useState(false);
+  const [userId, setUserId] = useState("kimchijonmattang11");
+  const [newIdInput, setNewIdInput] = useState("");
+  const [userEmail, setUserEmail] = useState("aaaa@gmail.com");
+  const [newEmailInput, setNewEmailInput] = useState("");
 
   const handleLogout = () => {
     console.log("로그아웃 완료");
@@ -31,7 +35,9 @@ const Profiles = () => {
     setEmailChangeModal(false);
   };
   const handleChangeId = () => {
-    console.log("아이디 바꾸기용용");
+    setUserId(newIdInput);
+    setIdChangemModal(false);
+    console.log("아이디가 바뀌었어용:", newIdInput);
   };
   const handleChangePassword = () => {
     console.log("비밀번호 바꾸기용용용");
@@ -50,7 +56,7 @@ const Profiles = () => {
             }}
           />
           <S.TextWithButtonContainer>
-            <S.Id>kimchijonmattang11</S.Id>
+            <S.Id>{userId}</S.Id>
             <S.ProfileChangeButton onClick={() => setImageChangeModal(true)}>
               프로필 사진 변경
             </S.ProfileChangeButton>
@@ -66,7 +72,7 @@ const Profiles = () => {
               <S.Email
                 style={{ ...typography.Body1, color: color.GrayScale[8] }}
               >
-                aaaaaaaaaaaa@gmail.com
+                {userEmail}
               </S.Email>
             </S.TextBlock>
             <S.EmailChangeButton onClick={() => setEmailChangeModal(true)}>
@@ -82,7 +88,7 @@ const Profiles = () => {
               <S.SmallId
                 style={{ ...typography.Body1, color: color.GrayScale[8] }}
               >
-                kimchijonmattang11
+                {userId}
               </S.SmallId>
             </S.TextBlock>
             <S.IdChangeButton onClick={() => setIdChangemModal(true)}>
@@ -137,6 +143,7 @@ const Profiles = () => {
           message="인증번호"
           onConfirm={handleChangeEmail}
           onCancel={() => setEmailChangeModal(false)}
+          onChange={setNewEmailInput}
         />
       )}
 
@@ -145,6 +152,7 @@ const Profiles = () => {
           message="아이디 변경"
           onConfirm={handleChangeId}
           onCancel={() => setIdChangemModal(false)}
+          onChange={setNewIdInput}
         />
       )}
 
