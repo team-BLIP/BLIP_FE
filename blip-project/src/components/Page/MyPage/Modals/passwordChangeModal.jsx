@@ -1,6 +1,8 @@
 import { color } from "../../../../style/color";
 import { typography } from "../../../../fonts/fonts";
 import ESC from "../../../../svg/ESC.svg";
+import { PassWord } from "../../../SignUpLogin/password";
+import { PasswordCheck } from "../../../SignUpLogin/passwordCheck";
 const PasswordChangeModal = ({ message, onConfirm, onCancel }) => {
   return (
     <div
@@ -65,7 +67,7 @@ const PasswordChangeModal = ({ message, onConfirm, onCancel }) => {
             >
               현재 비밀번호
             </p>
-            <input
+            <PassWord
               type="text"
               placeholder="비밀번호를 입력하세요."
               style={{
@@ -87,7 +89,7 @@ const PasswordChangeModal = ({ message, onConfirm, onCancel }) => {
             >
               새 비밀번호
             </p>
-            <input
+            <PassWord
               type="text"
               placeholder="비밀번호를 입력하세요."
               style={{
@@ -109,7 +111,7 @@ const PasswordChangeModal = ({ message, onConfirm, onCancel }) => {
             >
               비밀번호 확인
             </p>
-            <input
+            <PassWord
               type="text"
               placeholder="비밀번호를 입력하세요."
               style={{

@@ -1,7 +1,15 @@
 import { color } from "../../../../style/color";
 import { typography } from "../../../../fonts/fonts";
 import ESC from "../../../../svg/ESC.svg";
-const IdChangeModal = ({ message, onConfirm, onCancel }) => {
+import Id from "../../../SignUpLogin/id";
+import { useState } from "react";
+
+const IdChangeModal = ({ message, onConfirm, onCancel, onChange }) => {
+  const [id, setId] = useState("");
+  const handleChange = (value) => {
+    setId(value);
+    onChange(value);
+  };
   return (
     <div
       style={{
@@ -68,6 +76,7 @@ const IdChangeModal = ({ message, onConfirm, onCancel }) => {
             <input
               type="text"
               placeholder="아이디를 입력하세요."
+              onChange={(e) => handleChange(e.target.value)}
               style={{
                 borderRadius: "12px",
                 width: "512px",

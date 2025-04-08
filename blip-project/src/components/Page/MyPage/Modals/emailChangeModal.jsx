@@ -1,7 +1,15 @@
 import { color } from "../../../../style/color";
 import { typography } from "../../../../fonts/fonts";
 import ESC from "../../../../svg/ESC.svg";
-const EmailChange = ({ message, onConfirm, onCancel }) => {
+import { useState } from "react";
+import Timer from "../../../SignUpLogin/timer";
+const EmailChangeModal = ({ message, onConfirm, onCancel, onChange }) => {
+  const [email, setEmail] = useState("");
+  const [count, setCount] = useState(180);
+  const handleChange = (value) => {
+    setEmail(value);
+    onChange(value);
+  };
   return (
     <div
       style={{
@@ -81,6 +89,7 @@ const EmailChange = ({ message, onConfirm, onCancel }) => {
             <input
               type="number"
               placeholder="인증번호를 입력하세요."
+              onChange={(e) => handleChange(e.target.value)}
               style={{
                 borderRadius: "12px",
                 width: "512px",
@@ -90,6 +99,7 @@ const EmailChange = ({ message, onConfirm, onCancel }) => {
               }}
             />
           </div>
+          <Timer count={count} setCount={setCount} />
           <button
             style={{
               width: "512px",
@@ -112,4 +122,4 @@ const EmailChange = ({ message, onConfirm, onCancel }) => {
   );
 };
 
-export default EmailChange;
+export default EmailChangeModal;
