@@ -24,7 +24,7 @@ const Member = ({ filterId }) => {
     isKeyword,
     setIsKeyword,
   } = useContext(UseStateContext);
-  const { targetId, setTargetId, TeamId } = useContext(FindId);
+  const { targetId, setTargetId, createTeamId } = useContext(FindId);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const openModal = () => setIsModalOpen(true);
@@ -49,7 +49,7 @@ const Member = ({ filterId }) => {
     <>
       <div className="member">
         <div className="member-header">
-          {(TeamId || "").startsWith("create-") ? (
+          {(createTeamId || "").startsWith("create-") ? (
             <>
               <div
                 className="member-header-TeamName-owner"
