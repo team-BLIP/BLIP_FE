@@ -5,24 +5,32 @@ import { useContext, useState, useEffect } from "react";
 import { TeamDel } from "../Main/Main";
 
 const ModalName = ({ onClose }) => {
-  const { userName, setUserName, AddMember } = useContext(TeamDel);
-  const [inputName, setInputName] = useState("");
+  const { userName, setUserName, AddMember, setInputName } =
+    useContext(TeamDel);
+  const [localInputName, setLocalInputName] = useState("");
 
   const onClickStart = () => {
-    if (inputName.length >= 3) {
+    if (localInputName.length >= 3) {
+      setInputName(localInputName);
       if (typeof AddMember === "function") {
-        AddMember(inputName);
+        AddMember(localInputName);
         onClose();
       } else {
-        setUserName([...userName, inputName]);
+        setUserName([...userName, localInputName]);
       }
     } else {
       alert("이름은 3글자 이상이어야 합니다.");
     }
   };
   const onInput = (e) => {
-    setInputName(e.target.value);
+    setLocalInputName(e.target.value);
     console.log(e.target.value);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.keyCode === 13) {
+      onClickStart();
+    }
   };
 
   useEffect(() => {
@@ -46,6 +54,7 @@ const ModalName = ({ onClose }) => {
             }}
             type="text"
             onChange={onInput}
+            onKeyDown={handleKeyDown}
             placeholder="이름을 입력하세요"
           ></NameInput>
         </Inputdiv>
@@ -55,7 +64,7 @@ const ModalName = ({ onClose }) => {
             style={{
               ...typography.Button0,
               backgroundColor:
-                inputName.length >= 3 ? color.Main[4] : color.Main[2],
+                localInputName.length >= 3 ? color.Main[4] : color.Main[2],
             }}
           >
             확인
