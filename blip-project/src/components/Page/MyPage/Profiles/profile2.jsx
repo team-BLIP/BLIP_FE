@@ -9,20 +9,24 @@ import IdChangeModal from "../Modals/idChangeModal";
 import PasswordChangeModal from "../Modals/passwordChangeModal";
 import ImageChangeModal from "../Modals/imageChangeModal";
 import profileDefault from "../../../../svg/profileDefault.svg";
+import NameChangeModal from "../Modals/nameChangeModal";
 
-const Profiles = () => {
+const Profiles2 = () => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showKillModal, setShowKillModal] = useState(false);
   const [showEmailModal, setEmailChangeModal] = useState(false);
   const [showIdModal, setIdChangemModal] = useState(false);
   const [showPasswordModal, setPasswordChangeModal] = useState(false);
   const [showImageModal, setImageChangeModal] = useState(false);
+  const [showNameModal, setNameChangeModal] = useState(false);
   const [userId, setUserId] = useState("kimchijonmattang11");
   const [newIdInput, setNewIdInput] = useState("");
   const [userEmail, setUserEmail] = useState("aaaaaaaaaaaa@gmail.com");
   const [newEmailInput, setNewEmailInput] = useState("");
   const [profileImage, setProfileImage] = useState(profileDefault);
   const [selectedImageFile, setSelectedImageFile] = useState(null);
+  const [userName, setUserName] = useState("손희찬");
+  const [newNameInput, setNewNameInput] = useState("");
 
   const handleLogout = () => {
     console.log("로그아웃 완료");
@@ -33,9 +37,8 @@ const Profiles = () => {
     setShowKillModal(false);
   };
   const handleChangeEmail = () => {
-    setUserEmail(newEmailInput);
+    console.log("인증번호~~");
     setEmailChangeModal(false);
-    console.log("이메일 바뀜딘메ㅐㄻㄴ얼;ㅁㄴㅇ", newEmailInput);
   };
   const handleChangeId = () => {
     setUserId(newIdInput);
@@ -53,6 +56,11 @@ const Profiles = () => {
     setImageChangeModal(false);
 
     console.log("프로필 이미지 변경 완료:", selectedImageFile);
+  };
+  const handleChangeName = () => {
+    setUserName(newNameInput);
+    setNameChangeModal(false);
+    console.log("이름이 바뀌었어용");
   };
 
   return (
@@ -103,6 +111,22 @@ const Profiles = () => {
               수정
             </S.IdChangeButton>
           </S.InfoItem>
+
+          <S.InfoItem>
+            <S.TextBlock>
+              <p style={{ ...typography.Body3Bold, color: color.GrayScale[6] }}>
+                이 스페이스에서 사용하는 이름
+              </p>
+              <S.SmallId
+                style={{ ...typography.Body1, color: color.GrayScale[8] }}
+              >
+                {userName}
+              </S.SmallId>
+            </S.TextBlock>
+            <S.IdChangeButton onClick={() => setNameChangeModal(true)}>
+              수정
+            </S.IdChangeButton>
+          </S.InfoItem>
         </S.InfoLine>
 
         <S.ChangeLine>
@@ -148,7 +172,7 @@ const Profiles = () => {
 
       {showEmailModal && (
         <EmailChangeModal
-          message="이메일 변경"
+          message="인증번호"
           onConfirm={handleChangeEmail}
           onCancel={() => setEmailChangeModal(false)}
           onChange={setNewEmailInput}
@@ -180,8 +204,17 @@ const Profiles = () => {
           onImageSelect={setSelectedImageFile}
         />
       )}
+
+      {showNameModal && (
+        <NameChangeModal
+          message="이름 변경"
+          onConfirm={handleChangeName}
+          onCancel={() => setNameChangeModal(false)}
+          onChange={setNewNameInput}
+        />
+      )}
     </>
   );
 };
 
-export default Profiles;
+export default Profiles2;
