@@ -14,13 +14,7 @@ class RecordingService {
       listeners: new Set(),
     };
   }
-
-  /**
-   * 녹음 설정
-   * @param {MediaStream} stream - 오디오 스트림
-   * @param {Object} options - 녹음 옵션
-   * @returns {boolean} 설정 성공 여부
-   */
+  
   async setupRecording(stream, options = {}) {
     if (!stream) {
       console.error("유효한 스트림이 필요합니다");
@@ -86,11 +80,6 @@ class RecordingService {
     }
   }
 
-  /**
-   * 녹음 시작
-   * @param {number} timeslice - 청크 생성 간격 (ms)
-   * @returns {boolean} 시작 성공 여부
-   */
   startRecording(timeslice = 1000) {
     if (!this.recordingState.recorder) {
       console.error("녹음기가 설정되지 않았습니다");
@@ -110,10 +99,6 @@ class RecordingService {
     }
   }
 
-  /**
-   * 녹음 중지
-   * @returns {Blob|null} 녹음된 오디오 Blob
-   */
   stopRecording() {
     if (!this.recordingState.recorder || !this.recordingState.isRecording) {
       console.error("녹음 중이 아닙니다");
@@ -138,10 +123,6 @@ class RecordingService {
     }
   }
 
-  /**
-   * 녹음 일시중지
-   * @returns {boolean} 일시중지 성공 여부
-   */
   pauseRecording() {
     if (
       !this.recordingState.recorder ||
@@ -163,10 +144,6 @@ class RecordingService {
     }
   }
 
-  /**
-   * 녹음 재개
-   * @returns {boolean} 재개 성공 여부
-   */
   resumeRecording() {
     if (
       !this.recordingState.recorder ||
@@ -189,9 +166,6 @@ class RecordingService {
     }
   }
 
-  /**
-   * 녹음 초기화
-   */
   resetRecording() {
     this.recordingState.chunks = [];
     this.recordingState.startTime = null;
@@ -201,10 +175,6 @@ class RecordingService {
     this.recordingState.isPaused = false;
   }
 
-  /**
-   * 녹음 지속 시간 반환
-   * @returns {number} 지속 시간 (ms)
-   */
   getRecordingDuration() {
     if (!this.recordingState.startTime) return 0;
 
@@ -216,10 +186,6 @@ class RecordingService {
     );
   }
 
-  /**
-   * 녹음 상태 반환
-   * @returns {Object} 녹음 상태 객체
-   */
   getRecordingState() {
     return {
       isRecording: this.recordingState.isRecording,
@@ -230,10 +196,6 @@ class RecordingService {
     };
   }
 
-  /**
-   * 녹음된 데이터를 다운로드 가능한 URL로 변환
-   * @returns {string|null} 다운로드 URL
-   */
   getRecordingUrl() {
     if (this.recordingState.chunks.length === 0) return null;
 
