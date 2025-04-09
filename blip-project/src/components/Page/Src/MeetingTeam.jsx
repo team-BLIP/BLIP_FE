@@ -16,6 +16,8 @@ const MeetingTeam = () => {
 
   const { Owner, itemId, join } = useContext(TeamDel);
 
+  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const modalOpen = () => setIsModalOpen(true);
   const modalClose = () => setIsModalOpen(false);
