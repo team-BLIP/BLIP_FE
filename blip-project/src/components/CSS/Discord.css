@@ -9,6 +9,7 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+  background-color: aqua;
 }
 
 .discord-end {
@@ -52,11 +53,12 @@
   gap: 50%;
 }
 
-.discord-foot-Metting{
+.discord-foot-Metting {
   width: 10%;
   height: 100%;
   display: flex;
-  gap: 30%; 
+  gap: 30%;
+  
 }
 
 .discord-foot-Src {

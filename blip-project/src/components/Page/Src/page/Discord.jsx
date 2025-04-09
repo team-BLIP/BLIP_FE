@@ -13,7 +13,7 @@ import MettingStart from "../../../../svg/MettingStart.svg";
 import ModalStop from "../../Modal/ModalStop";
 import ModalStart from "../../Modal/ModalStart";
 import JitsiMeetMain from "../function/jitsiMeetMain";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { TeamDel } from "../../Main/Main";
 import { UseStateContext } from "../../../../Router";
 import { DiscordContext } from "../../../../Router";
@@ -23,7 +23,7 @@ const Discord = () => {
   const { itemId } = useContext(TeamDel);
   const [isMettingStop, setIsMettingStop] = useState(false);
 
-  const { targetId } = useContext(FindId);
+  const { targetId, createTeamId, itemBackendId } = useContext(FindId);
 
   const {
     isMike,
@@ -35,6 +35,11 @@ const Discord = () => {
     meetingEnd,
     setMeetingEnd,
   } = useContext(UseStateContext);
+
+  useEffect(() => {
+    console.log("dasf", targetId);
+    console.log("aaaa", itemId);
+  }, []);
 
   const { setIsListening } = useContext(DiscordContext);
 
@@ -86,7 +91,7 @@ const Discord = () => {
         </div>
       ) : (
         <>
-          {itemId === targetId ? (
+          {itemBackendId === createTeamId ? (
             <div className="discord">
               <div
                 className="discord-body"
