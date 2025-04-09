@@ -96,6 +96,11 @@ const SidebarTeam = () => {
     const itemId = (item._originalId || item.id || "").toString();
     const itemContent = item.content || "";
     const itemUrl = item.TeamUrl || "";
+    const itemBackendId =
+      item.backendId ||
+      (typeof itemId === "string" && itemId.startsWith("create-")
+        ? itemId.replace("create-", "")
+        : itemId);
     if (item && item.isPlus) {
       if (basic) {
         setBasic((prev) => !prev);
@@ -131,6 +136,7 @@ const SidebarTeam = () => {
             typeof itemId === "string" ? itemId.replace("create-", "") : itemId,
           createTeamUrl: itemUrl,
           itemId,
+          itemBackendId,
         },
       });
     }
