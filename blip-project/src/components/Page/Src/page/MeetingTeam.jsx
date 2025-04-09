@@ -2,15 +2,15 @@ import "./CSS/MeetingTeam.css";
 import { color } from "../../../style/color";
 import { typography } from "../../../fonts/fonts";
 import { useState, useContext } from "react";
-import { useLocation } from "react-router-dom";
 import { UseStateContext } from "../../../Router";
+import { FindId } from "../../Main/Main";
 import ModalMeeting from "../../Modal/ModalMeeting";
 import MettingContent from "./page/MeetingContent";
 
 const MeetingTeam = () => {
-  const location = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { discord, meetingEnd, setMeetingEnd } = useContext(UseStateContext);
+  const { createTeamId } = useContext(FindId);
   const modalOpen = () => setIsModalOpen(true);
   const modalClose = () => setIsModalOpen(false);
 
@@ -32,7 +32,7 @@ const MeetingTeam = () => {
       >
         <div className="MeetingTFont" style={{ ...typography.Body2 }}>
           지난 회의 내용 요약
-        </div>  
+        </div>
         <MettingContent />
       </div>
       {discord ? (
@@ -55,7 +55,7 @@ const MeetingTeam = () => {
         >
           {meetingEnd ? "회의 시작하기" : "회의 나가기"}
         </button>
-      ) : location.pathname === "/TeamOwner" ? (
+      ) : createTeamId.startsWith("create-") ? (
         <button
           className="MeetingTButton"
           onClick={modalOpen}
@@ -75,7 +75,7 @@ const MeetingTeam = () => {
           회의 참가하기
         </button>
       )}
-      {isModalOpen && <ModalMeeting onClose={modalClose} />}
+      {isModalOpen && <ModalMeeting onClose={modalClose} discord={discord} />}
     </>
   );
 };
