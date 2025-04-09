@@ -1,7 +1,28 @@
+import { useState, useRef } from "react";
 import { color } from "../../../../style/color";
 import { typography } from "../../../../fonts/fonts";
 import ESC from "../../../../svg/ESC.svg";
-const ImageChangeModal = ({ message, onConfirm, onCancel }) => {
+
+const ImageChangeModal = ({ message, onConfirm, onCancel, onImageSelect }) => {
+  const [previewImage, setPreviewImage] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setPreviewImage(reader.result);
+        onImageSelect(file);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current.click();
+  };
+
   return (
     <div
       style={{
@@ -29,6 +50,7 @@ const ImageChangeModal = ({ message, onConfirm, onCancel }) => {
       >
         <img
           src={ESC}
+          alt="Close"
           onClick={onCancel}
           style={{
             position: "absolute",
@@ -48,6 +70,7 @@ const ImageChangeModal = ({ message, onConfirm, onCancel }) => {
         >
           {message}
         </p>
+
         <div
           style={{
             width: "1040px",
@@ -55,28 +78,106 @@ const ImageChangeModal = ({ message, onConfirm, onCancel }) => {
             backgroundColor: color.GrayScale[0],
             margin: "0 auto",
             marginTop: "80px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            position: "relative",
+            overflow: "hidden",
+            border: `1px solid ${color.GrayScale[2]}`,
+            borderRadius: "8px",
           }}
-        ></div>
+        >
+          {previewImage ? (
+            <img
+              src={previewImage}
+              alt="Preview"
+              style={{
+                maxWidth: "100%",
+                maxHeight: "100%",
+                objectFit: "contain",
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <p style={{ ...typography.Body1, color: color.GrayScale[5] }}>
+                프로필 이미지를 선택해주세요
+              </p>
+              <button
+                style={{
+                  backgroundColor: color.Main[3],
+                  color: color.White,
+                  border: "none",
+                  borderRadius: "8px",
+                  padding: "12px 24px",
+                  marginTop: "16px",
+                  cursor: "pointer",
+                  ...typography.Button1,
+                }}
+                onClick={triggerFileInput}
+              >
+                이미지 선택하기
+              </button>
+            </div>
+          )}
+        </div>
+
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileSelect}
+          accept="image/*"
+          style={{ display: "none" }}
+        />
 
         <div
           style={{
-            marginTop: "64px",
-            marginLeft: "24px",
+            marginTop: "24px",
+            display: "flex",
+            justifyContent: "space-between",
+            padding: "0 24px",
           }}
         >
+          {previewImage && (
+            <button
+              style={{
+                padding: "12px 24px",
+                borderRadius: "12px",
+                border: `1px solid ${color.Main[4]}`,
+                backgroundColor: color.White,
+                color: color.Main[4],
+                ...typography.Button1,
+                cursor: "pointer",
+              }}
+              onClick={triggerFileInput}
+            >
+              다른 이미지 선택
+            </button>
+          )}
+
           <button
             style={{
               width: "107px",
               height: "48px",
               borderRadius: "12px",
               border: "none",
-              backgroundColor: color.Main[4],
+              backgroundColor: previewImage
+                ? color.Main[4]
+                : color.GrayScale[3],
               color: color.White,
-              font: typography.Button0,
-              marginTop: "24px",
-              marginLeft: "940px",
+              ...typography.Button0,
+              marginLeft: "auto",
+              cursor: previewImage ? "pointer" : "not-allowed",
             }}
-            onClick={onConfirm} //API 연동하깅, 연동 성공하면 다른 화면 뜨게 하기
+            onClick={onConfirm}
+            disabled={!previewImage}
           >
             변경
           </button>

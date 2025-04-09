@@ -1,13 +1,12 @@
 import { color } from "../../../../style/color";
 import { typography } from "../../../../fonts/fonts";
 import ESC from "../../../../svg/ESC.svg";
-import Id from "../../../SignUpLogin/id";
 import { useState } from "react";
 
-const EmailChangeModal = ({ message, onConfirm, onCancel, onChange }) => {
-  const [email, setEmail] = useState("");
+const NameChangeModal = ({ message, onConfirm, onCancel, onChange }) => {
+  const [name, setName] = useState("");
   const handleChange = (value) => {
-    setEmail(value);
+    setName(value);
     onChange(value);
   };
   return (
@@ -71,11 +70,11 @@ const EmailChangeModal = ({ message, onConfirm, onCancel, onChange }) => {
                 marginTop: "2px",
               }}
             >
-              이메일
+              이름
             </p>
             <input
-              type="gmail"
-              placeholder="이메일 주소를 입력하세요."
+              type="text"
+              placeholder="이름을 입력하세요."
               onChange={(e) => handleChange(e.target.value)}
               style={{
                 borderRadius: "12px",
@@ -98,7 +97,7 @@ const EmailChangeModal = ({ message, onConfirm, onCancel, onChange }) => {
             }}
             onClick={onConfirm} //API 연동하깅, 연동 성공하면 ~가 성공했어요~!! 다른 화면 뜨게 하기
           >
-            확인
+            변경하기
           </button>
         </div>
       </div>
@@ -106,4 +105,4 @@ const EmailChangeModal = ({ message, onConfirm, onCancel, onChange }) => {
   );
 };
 
-export default EmailChangeModal;
+export default NameChangeModal;
