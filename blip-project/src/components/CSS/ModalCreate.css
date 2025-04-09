@@ -1,0 +1,67 @@
+.modal-create-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 40px;
+}
+
+.modal-create-p {
+  color: var(--gary-600);
+}
+
+.modal-create-main {
+  width: 100%;
+  height: 25%;
+  padding-left: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+.modal-create-main-title {
+  color: var(--gary-700);
+}
+
+.modal-create-main p {
+  color: var(--gary-600);
+}
+
+.modal-create-main input {
+  width: 40%;
+  height: 45%;
+  border-radius: 12px;
+  border: 1px solid #f2f2f2;
+  outline: none;
+  font-size: 100%;
+}
+
+.modal-create-main input::placeholder {
+  font-size: 100%;
+  padding-left: 10px;
+  color: #cacaca;
+}
+
+.modal-create-button {
+  width: 100%;
+  height: 45%;
+  display: flex;
+  justify-content: center;
+  align-items: end;
+}
+
+.modal-create-button-400 {
+  width: 40%;
+  height: 17%;
+  background-color: var(--main-400);
+  color: white;
+  border-radius: 12px;
+  border: none;
+}
+
+.modal-create-button-200 {
+  width: 40%;
+  height: 17%;
+  background-color: var(--main-200);
+  color: white;
+  border-radius: 12px;
+  border: none;
+}

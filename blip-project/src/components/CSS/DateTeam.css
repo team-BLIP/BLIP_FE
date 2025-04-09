@@ -1,0 +1,97 @@
+.DateTeamJoinNos {
+  height: 40%;
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid black;
+  padding: 10px 15px 20px;
+  box-sizing: border-box; /* 패딩을 포함한 크기 계산 */
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between; /* 년도/월과 달 넘기기 버튼을 양쪽으로 배치 */
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.year-month {
+  display: flex;
+  align-items: center;
+  gap: 5px; /* 년도와 월 사이의 간격 */
+}
+
+.year {
+  color: var(--gray-800);
+  margin: 0; /* 년도의 마진 제거 */
+}
+
+.month {
+  margin: 0; /* 월의 마진 제거 */
+  color: var(--gray-800);
+}
+
+.month-navigation {
+  display: flex;
+  align-items: center;
+  gap: 20px; /* 버튼 사이의 간격 */
+}
+
+.nav-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gray-800);
+}
+
+.header-divider {
+  border-bottom: 1px solid #ccc; /* 헤더와 날짜를 구분하는 선 */
+  margin-bottom: 10px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr); /* 7개의 열로 구성 */
+  gap: 2px; /* 간격 줄임 */
+  height: calc(100% - 60px); /* 헤더와 구분선을 제외한 높이 */
+}
+
+.calendar-day-header {
+  text-align: center;
+  padding: 5px;
+  border-radius: 4px;
+}
+
+.calendar-week {
+  display: contents; /* 주 단위로 줄바꿈 */
+}
+
+.calendar-day {
+  text-align: center;
+  padding: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 같은 달이 아닌 날짜 스타일 */
+.calendar-day.other-month {
+  color: var(--gray-300); /* 회색으로 표시 */
+}
+
+/* 일요일 스타일 */
+.calendar-day.sunday {
+  color: var(--error-400); /* 빨간색으로 표시 */
+}
+
+.calendar-day:hover {
+  background-color: #e0e0e0;
+}
+
+.calendar-day.selected {
+  border-radius: 80%;
+  background-color: var(--gray-100); /* 회색 배경 */
+}

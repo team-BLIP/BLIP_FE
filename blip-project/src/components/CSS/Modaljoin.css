@@ -1,0 +1,67 @@
+.modal-Join-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 40px;
+}
+
+.modal-Join-p {
+  color: var(--gary-600);
+}
+
+.modal-Join-main {
+  width: 100%;
+  height: 25%;
+  padding-left: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+.modal-Join-main-title {
+  color: var(--gary-700);
+}
+
+.modal-Join-main p {
+  color: var(--gary-600);
+}
+
+.modal-Join-main input {
+  width: 40%;
+  height: 30%;
+  border-radius: 12px;
+  border: 1px solid #f2f2f2;
+  outline: none;
+font-size: 100%;
+}
+
+.modal-Join-main input::placeholder {
+  font-size: 100%;
+  padding-left: 10px;
+  color: #cacaca;
+}
+
+.modal-Join-button {
+  width: 100%;
+  height: 45%;
+  display: flex;
+  justify-content: center;
+  align-items: end;
+}
+
+.modal-Join-button-400 {
+  width: 40%;
+  height: 17%;
+  background-color: var(--main-400);
+  color: white;
+  border-radius: 12px;
+  border: none;
+}
+
+.modal-Join-button-200 {
+  width: 40%;
+  height: 17%;
+  background-color: var(--main-200);
+  color: white;
+  border-radius: 12px;
+  border: none;
+}
