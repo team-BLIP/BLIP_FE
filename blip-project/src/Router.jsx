@@ -27,10 +27,6 @@ function reducer(state, action) {
       return state.filter((item) => item.id != action.targetId);
     case "Find":
       return state.filter((item) => item.id === action.targetId);
-    case "Update":
-      return state.map((item) =>
-        item.id === action.targetId ? { ...item, ...action.payload } : item
-      );
     default:
       return state;
   }
@@ -43,32 +39,19 @@ export const Call = createContext();
 
 export const AppRouter = () => {
   const [todos, dispatch] = useReducer(reducer, mocDateSide);
-  const idRefEven = useRef(2);
-  const idRefOdd = useRef(1);
-
+  const lastId = useRef(1);
   const onCreateone = useCallback((content) => {
-    const newId = idRefEven.current;
-    idRefEven.current += 2;
-    dispatch({
-      type: "CREATE",
-      data: {
-        id: newId,
-        content: content,
-        isPlus: false,
-      },
-    });
-  }, []);
+    const newId = lastId.current++;
 
-  const onCreatedouble = useCallback((content) => {
-    const newId = idRefOdd.current;
-    idRefOdd.current += 2;
+    const newTeam = {
+      id: newId,
+      content: content,
+      isPlus: false,
+    };
+
     dispatch({
       type: "CREATE",
-      data: {
-        id: newId,
-        content: content,
-        isPlus: false,
-      },
+      data: newTeam,
     });
   }, []);
 
@@ -89,7 +72,6 @@ export const AppRouter = () => {
   const memoizedDispatch = useMemo(() => {
     return {
       onCreateone,
-      onCreatedouble,
       onDel,
       onFind,
     };
@@ -106,13 +88,12 @@ export const AppRouter = () => {
   const [FullScreen, setFullScreen] = useState(false);
   const [meetingEnd, setMeetingEnd] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [basic, setBasic] = useState(false);
   const [transcript, setTranscript] = useState("");
   const videoRef = useRef(null);
   const [stream, setStream] = useState(null);
-  const [basic, setBasic] = useState(null);
   const [TeamJoin, setTeamJoin] = useState(null);
   const [targetId, setTargetId] = useState(null);
-
   const [recorder, setRecorder] = useState(null);
   const [recordedChunks, setRecordedChunks] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
