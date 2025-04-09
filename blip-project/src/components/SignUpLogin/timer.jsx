@@ -16,7 +16,7 @@ const Timer = ({ count }) => {
         display: "flex",
         alignItems: "center",
         gap: "10px",
-        marginRight: "-40px",
+        marginRight: "-100px",
       }}
     >
       {count > 0 ? `${formatTime(count)}` : "시간 초과"}
