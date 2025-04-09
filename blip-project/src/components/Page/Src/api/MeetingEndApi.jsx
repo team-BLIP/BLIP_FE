@@ -2,16 +2,14 @@ import axios from "axios";
 
 const MeetingEndApi = async (TeamId) => {
   const apiUrl = import.meta.env.VITE_API_URL_URL_MEETINGS_END;
-  const url = `${apiUrl}/data`;
-  const accessToken = "토큰 값";
+  const accessToken = "import.meta.env.VITE_API_REACT_APP_API_KEY";
 
   const data = {
     meeting_id: TeamId,
-    // leader_id: "Long",
   };
 
   try {
-    const response = await axios.post(url, data, {
+    const response = await axios.post(apiUrl, data, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
