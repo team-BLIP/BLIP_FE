@@ -12,6 +12,7 @@ import {
 } from "react";
 import MyPage from "./components/Page/MyPage/myPage";
 import Profiles from "./components/Page/MyPage/Profiles/profile";
+import Profiles2 from "./components/Page/MyPage/Profiles/profile2";
 
 const mocDateSide = [
   {
@@ -183,6 +184,7 @@ export const AppRouter = () => {
             <Routes>
               <Route path="/" element={<Main />} />
               <Route path="/profile" element={<Profiles />} />
+              <Route path="/profile2" element={<Profiles2 />} />
               <Route path="/users/mypage" element={<MyPage />} />
             </Routes>
           </Call.Provider>
