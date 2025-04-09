@@ -29,6 +29,7 @@ const Main = () => {
     createTeamId,
     content,
     createTeamUrl,
+    itemBackendId,
   } = location.state || {};
 
   const { FullScreen, targetId, setTargetId } = useContext(UseStateContext);
@@ -43,6 +44,7 @@ const Main = () => {
   });
   const [isTopic, setIsTopic] = useState("");
   const [userName, setUserName] = useState([]);
+  const [inputName, setInputName] = useState("");
 
   // ID 매핑 상태 - 철자 오류 수정 및 최적화
   const [idMappings, setIdMappings] = useState(() => {
@@ -92,6 +94,7 @@ const Main = () => {
       idMappings,
       addIdMappings,
       targetId, // targetId 추가하여 SidebarTeam에서 접근 가능하게 함
+      itemBackendId,
     }),
     [
       filteredItem,
@@ -122,6 +125,8 @@ const Main = () => {
       userName,
       setUserName,
       AddMember,
+      inputName,
+      setInputName,
     }),
     [
       itemContent,
