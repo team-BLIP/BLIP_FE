@@ -30,6 +30,7 @@ const Main = () => {
     content,
     createTeamUrl,
     itemBackendId,
+    newTeamId,
   } = location.state || {};
 
   const { FullScreen, targetId, setTargetId } = useContext(UseStateContext);
@@ -45,12 +46,16 @@ const Main = () => {
   const [isTopic, setIsTopic] = useState("");
   const [userName, setUserName] = useState([]);
   const [inputName, setInputName] = useState("");
+  const [meetingId, setMeetingId] = useState("");
 
   // ID 매핑 상태 - 철자 오류 수정 및 최적화
   const [idMappings, setIdMappings] = useState(() => {
     const savedMappings = localStorage.getItem("idMappings");
     return savedMappings ? JSON.parse(savedMappings) : {};
   });
+
+  console.log("createTeamId", createTeamId);
+  console.log("itemBackendId", itemBackendId);
 
   // useCallback을 사용하여 함수 재생성 방지
   const addIdMappings = useCallback((clientId, backendId) => {
@@ -95,6 +100,7 @@ const Main = () => {
       addIdMappings,
       targetId, // targetId 추가하여 SidebarTeam에서 접근 가능하게 함
       itemBackendId,
+      newTeamId,
     }),
     [
       filteredItem,
@@ -127,6 +133,8 @@ const Main = () => {
       AddMember,
       inputName,
       setInputName,
+      meetingId,
+      setMeetingId,
     }),
     [
       itemContent,
