@@ -61,18 +61,6 @@ const RecordingIndicator = styled.div`
     props.isPaused ? color.Yellow500 : color.Red500};
   animation: ${(props) =>
     props.isPaused ? "none" : "pulse 1.5s infinite ease-in-out"};
-
-  @keyframes pulse {
-    0% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.5;
-    }
-    100% {
-      opacity: 1;
-    }
-  }
 `;
 
 const ControlBar = ({
