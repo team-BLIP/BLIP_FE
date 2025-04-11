@@ -33,18 +33,20 @@
 
 .FullGrid-main-circle {
   width: 100%;
-  height: 60%;
+  height: 100%;
   display: flex;
-  align-items: end;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  background-color:aquamarine;
+  background-color: blueviolet;
 }
 
 .FullGrid-main-circle-src {
-  width: 20%;
+  width: 30%;
   aspect-ratio: 1/1;
   border-radius: 50%;
-  background-color: black;
+  background-color: #ff6b6b;
+  position: relative;
 }
 
 .FullGrid-main-nofoot {
@@ -125,8 +127,8 @@
 }
 
 .FullGrid-main-circle-src-last {
-  width: 20%;
+  width: 30%;
   aspect-ratio: 1/1;
   border-radius: 50%;
-  background-color: black;
+  background-color: #ff6b6b;
 }
