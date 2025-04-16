@@ -1,4 +1,3 @@
-// ParticipantsGrid.jsx - 참가자 그리드 표시 컴포넌트
 import React, { useMemo, memo } from "react";
 import ParticipantTile from "./ParticipantTile";
 
