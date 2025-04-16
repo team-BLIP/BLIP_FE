@@ -3,7 +3,7 @@ import axios from "axios";
 const LeaveApi = async (TeamId) => {
   const apiurl = import.meta.env.VITE_API_URL_URL_MEETINGS_LEAVE;
   const url = `${apiurl}/data`;
-  const accessToken = "토큰 값";
+  const accessToken = import.meta.env.VITE_API_URL_URL_KEY;
 
   const data = {
     meetingId: TeamId,
