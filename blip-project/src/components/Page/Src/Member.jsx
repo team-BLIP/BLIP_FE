@@ -11,10 +11,11 @@ import Setting from "../../../svg/setting.svg";
 import Plus from "../../../svg/plus.svg";
 import MemberAdd from "./function/MemberAdd";
 
-const Member = ({ filterId }) => {
+const Member = () => {
   const { itemId, image } = useContext(TeamDel) || {};
   const {
     setSetting,
+    setting,
     isAlarm,
     setIsAlarm,
     isLetter,
@@ -23,6 +24,9 @@ const Member = ({ filterId }) => {
     setIsFeedback,
     isKeyword,
     setIsKeyword,
+    basic,
+    discord,
+    join,
   } = useContext(UseStateContext);
   const { targetId, setTargetId, createTeamId } = useContext(FindId);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -45,11 +49,18 @@ const Member = ({ filterId }) => {
     }
   };
 
+  // StartTeamJoinNo가 아니면서 동시에 팀 ID에 'create-'가 붙어있을 때만 Setting 이미지 표시
+  // StartTeamJoinNo는 setting, isAlarm, isLetter, discord, basic, join이 모두 false일 때 표시됨
+  const isStartTeamJoinNo =
+    !setting && !isAlarm && !isLetter && !discord && !basic && !join;
+  const showSettingIcon =
+    !isStartTeamJoinNo && createTeamId && createTeamId.startsWith("create-");
+
   return (
     <>
       <div className="member">
         <div className="member-header">
-          {(createTeamId || "").startsWith("create-") ? (
+          {showSettingIcon ? (
             <>
               <div
                 className="member-header-TeamName-owner"
@@ -77,9 +88,12 @@ const Member = ({ filterId }) => {
             </>
           )}
         </div>
-        <div className="member-name">
-          <MemberAdd />
-        </div>
+        {/* StartTeamJoinNo 페이지일 때는 멤버 이름 목록을 표시하지 않음 */}
+        {!isStartTeamJoinNo && (
+          <div className="member-name">
+            <MemberAdd />
+          </div>
+        )}
       </div>
       {isModalOpen && <ModalMember onClose={closeModal} />}
     </>
