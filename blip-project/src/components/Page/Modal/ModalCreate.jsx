@@ -14,13 +14,40 @@ const ModalCreate = ({ onClose, parentOnClose }) => {
   const { targetId, setTargetId } = useContext(UseStateContext);
   const { idMappings } = useContext(FindId);
   const [content, setContent] = useState("");
+  const [teamNames, setTeamName] = useState([]);
   const submitRef = useRef();
   const nav = useNavigate();
 
   console.log(dispatch);
+
+  useEffect(() => {
+    try {
+      const localName = localStorage.getItem("TeamName");
+      if (localName) {
+        setTeamName(JSON.parse(localName));
+      }
+    } catch (error) {
+      console.log("팀 이름 로드 실패", error);
+    }
+  }, []);
+
   const onChangeInput = (e) => {
     setContent(e.target.value);
     console.log(e.target.value);
+  };
+
+  const addTeams = () => {
+    if (content.trim()) {
+      const updataLocal = [...teamNames, content];
+      setTargetId(updataLocal);
+      setTeamName("");
+      try {
+        localStorage.setItem("TeamName", JSON.stringify(updataLocal));
+        console.log("정상적으로 팀 이름을 저장함", content);
+      } catch (error) {
+        console.log("팀 이름 저장을 실패함", error);
+      }
+    }
   };
 
   const handleCreateAndClose = async () => {
@@ -35,8 +62,10 @@ const ModalCreate = ({ onClose, parentOnClose }) => {
           targetId,
           setTargetId,
           parentOnClose,
-          idMappings
+          idMappings,
+          teamNames
         );
+        addTeams();
       } catch (error) {
         console.log("팀 생성 중 오류 발생", error);
         alert("팀 생성 중 오류 발생");
