@@ -2,7 +2,7 @@ import "../../CSS/ModalDel.css";
 import { typography } from "../../../fonts/fonts";
 import { color } from "../../../style/color";
 import ESC from "../../../svg/ESC.svg";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { SidebarContext } from "../../../Router";
 import { TeamDel } from "../Main/Main";
 import { FindId } from "../Main/Main";
@@ -18,6 +18,27 @@ const ModalDel = ({ onClose }) => {
   const { itemBackendId } = useContext(FindId);
   const [isDeleting, setIsDeleting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  // 커스텀 이벤트 리스너 등록
+  useEffect(() => {
+    // 컴포넌트가 마운트될 때 이벤트 리스너 등록
+    const handleTeamDeleted = (event) => {
+      const deletedTeamId = event.detail?.teamId;
+      console.log("팀 삭제 이벤트 감지:", deletedTeamId);
+
+      // 추가 UI 업데이트 로직 (필요한 경우)
+      if (dispatch && typeof dispatch.onDel === "function") {
+        dispatch.onDel(deletedTeamId);
+      }
+    };
+
+    window.addEventListener("teamDeleted", handleTeamDeleted);
+
+    // 컴포넌트가 언마운트될 때 이벤트 리스너 제거
+    return () => {
+      window.removeEventListener("teamDeleted", handleTeamDeleted);
+    };
+  }, [dispatch]);
 
   const ClickDel = async () => {
     if (!itemId && !createTeamId) {
@@ -46,16 +67,21 @@ const ModalDel = ({ onClose }) => {
 
       console.log("삭제할 팀 ID:", idToDelete);
 
-      // 백엔드 API 호출하여 팀 삭제
-      const success = await listDel(idToDelete, itemId);
+      // UI 업데이트 콜백 함수 정의
+      const onSuccessfulDelete = (deletedId) => {
+        console.log("팀 삭제 성공 콜백 실행:", deletedId);
 
-      if (success) {
-        console.log("팀이 성공적으로 삭제되었습니다.");
-
-        // 로컬 UI 상태 업데이트
+        // dispatch를 통해 UI 컴포넌트 업데이트
         if (dispatch && typeof dispatch.onDel === "function") {
-          dispatch.onDel(itemId);
+          dispatch.onDel(itemId || createTeamId);
         }
+
+        // 커스텀 이벤트 발생 - 다른 컴포넌트에게 알림
+        window.dispatchEvent(
+          new CustomEvent("teamDeleted", {
+            detail: { teamId: deletedId },
+          })
+        );
 
         // 로컬 스토리지에서 현재 선택된 팀 ID 제거
         localStorage.removeItem("currentTeamId");
@@ -63,13 +89,20 @@ const ModalDel = ({ onClose }) => {
         // 홈으로 리디렉션
         nav("/", { state: {} });
 
-        // 모달 닫기 및 상태 초기화
-        onClose();
+        // 상태 초기화
         setOwner(false);
         setJoin(false);
         setSetting(false);
         setBasic(false);
-      } else {
+
+        // 모달 닫기
+        onClose();
+      };
+
+      // 백엔드 API 호출하여 팀 삭제 (콜백 함수 전달)
+      const success = await listDel(idToDelete, onSuccessfulDelete);
+
+      if (!success) {
         console.error("팀 삭제 실패");
         setErrorMessage("권한이 없거나 서버 오류가 발생했습니다.");
 
@@ -80,52 +113,7 @@ const ModalDel = ({ onClose }) => {
 
         if (forceLocalDelete) {
           // 로컬에서만 삭제 처리
-          if (dispatch && typeof dispatch.onDel === "function") {
-            dispatch.onDel(itemId);
-          }
-
-          localStorage.removeItem("currentTeamId");
-
-          // 로컬 스토리지에서 팀 데이터 제거
-          try {
-            // teamsList에서 제거
-            const teamsListJSON = localStorage.getItem("teamsList");
-            if (teamsListJSON) {
-              const teamsList = JSON.parse(teamsListJSON);
-              const updatedTeamsList = teamsList.filter(
-                (team) =>
-                  String(team.id) !== String(idToDelete) &&
-                  String(team.backendId) !== String(idToDelete) &&
-                  String(team._originalId) !== String(idToDelete)
-              );
-              localStorage.setItem(
-                "teamsList",
-                JSON.stringify(updatedTeamsList)
-              );
-            }
-
-            // teams에서 제거
-            const teamsJSON = localStorage.getItem("teams");
-            if (teamsJSON) {
-              const teams = JSON.parse(teamsJSON);
-              const updatedTeams = teams.filter(
-                (team) =>
-                  String(team.id) !== String(`create-${idToDelete}`) &&
-                  String(team._orginalId) !== String(idToDelete)
-              );
-              localStorage.setItem("teams", JSON.stringify(updatedTeams));
-            }
-          } catch (storageError) {
-            console.error("로컬 스토리지 업데이트 실패:", storageError);
-          }
-
-          // 홈으로 리디렉션 및 상태 초기화
-          nav("/", { state: {} });
-          onClose();
-          setOwner(false);
-          setJoin(false);
-          setSetting(false);
-          setBasic(false);
+          onSuccessfulDelete(idToDelete);
         }
       }
     } catch (error) {
