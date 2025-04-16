@@ -11,17 +11,50 @@ import MeetingStartApi from "../Src/api/MeetingStartApi";
 const ModalMeeting = ({ onClose }) => {
   const [isCheckMike, setIsCheckMike] = useState(false);
   const [isCheckCamera, setIsCheckCamera] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
 
   const { setIsMike, setIsCamera, discord, setDiscord } =
     useContext(UseStateContext);
 
-  const { itemId, isTopic, setIsTopic, userName } = useContext(TeamDel);
+  const { itemId, isTopic, setIsTopic, userName, meetingId, setMeetingId } =
+    useContext(TeamDel);
 
-  const { content, TeamId } = useContext(FindId);
+  const { content, targetId, itemBackendId, createTeamId } =
+    useContext(FindId);
 
+  // 컴포넌트 마운트 시 필요한 정보 로드
   useEffect(() => {
+    // 로컬 스토리지에서 사용자 이메일 가져오기 시도
+    try {
+      const storedEmail = localStorage.getItem("userEmail");
+      if (storedEmail) {
+        setUserEmail(storedEmail);
+        console.log("저장된 사용자 이메일 로드:", storedEmail);
+      }
+    } catch (error) {
+      console.error("저장된 이메일 로드 실패:", error);
+    }
+
     console.log("discord 상태 변경:", discord);
   }, [discord]);
+
+  // 팀 ID에 따른 리더 이메일 확인
+  const getLeaderEmailForTeam = (teamId) => {
+    // ID 정제
+    const cleanedId = typeof teamId === "string" 
+      ? Number(teamId.replace("create-", "")) 
+      : Number(teamId);
+    
+    // 팀 ID 기반 이메일 선택
+    if (cleanedId === 1) {
+      return "enhld00@gmail.com";
+    } else if (cleanedId === 2) {
+      return "enhld00@dsm.hs.kr";
+    }
+    
+    // 기본 이메일 반환
+    return userEmail || "";
+  };
 
   const onChageTopic = (e) => {
     setIsTopic(e.target.value);
@@ -38,18 +71,42 @@ const ModalMeeting = ({ onClose }) => {
   };
 
   const onClickStartMeeting = async () => {
-    console.log("asfdghg");
+    console.log("회의 시작 시도");
+    console.log(
+      "itemBackendId:",
+      itemBackendId,
+      "targetId:",
+      targetId,
+      "itemId:",
+      itemId
+    );
+
+    // 백엔드 ID 확인
+    const validTeamId = itemBackendId || targetId || itemId;
+
+    if (!validTeamId) {
+      alert("유효한 팀 ID를 찾을 수 없습니다.");
+      return;
+    }
+
+    // 팀 ID에 맞는 리더 이메일 가져오기
+    const leaderEmail = getLeaderEmailForTeam(validTeamId);
+    console.log("회의 시작에 사용할 리더 이메일:", leaderEmail);
+
     if (typeof setDiscord === "function") {
       try {
         const result = await MeetingStartApi({
           isTopic,
-          content,
-          userName,
-          TeamId: TeamId || itemId,
+          targetId: validTeamId,
+          createTeamId,
+          itemBackendId,
+          setMeetingId,
+          userEmail: leaderEmail // 리더 이메일 전달
         });
 
         console.log("회의 시작 성공:", result);
 
+        // 회의 시작 성공시에만 Discord 화면으로 이동
         setDiscord(true);
         onClose();
       } catch (error) {
@@ -57,25 +114,36 @@ const ModalMeeting = ({ onClose }) => {
         let errorMsg = "회의 시작에 실패했습니다.";
 
         if (error.response) {
-          switch (error.response.status) {
-            case 403:
-              errorMsg = "권한이 없습니다. 로그인 상태를 확인해주세요.";
-              break;
-            case 404:
-              errorMsg = "리소스를 찾을 수 없습니다.";
-              break;
-            case 400:
-              errorMsg = "잘못된 요청입니다. 입력 정보를 확인해주세요.";
-              break;
-            case 500:
-              errorMsg = "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
-              break;
+          // 서버 응답에 따른 에러 메시지 설정
+          if (error.response.data && typeof error.response.data === "string") {
+            errorMsg = error.response.data;
+          } else {
+            switch (error.response.status) {
+              case 403:
+                errorMsg = "권한이 없습니다. 로그인 상태를 확인해주세요.";
+                break;
+              case 404:
+                errorMsg = "리소스를 찾을 수 없습니다.";
+                break;
+              case 400:
+                errorMsg = "잘못된 요청입니다. 입력 정보를 확인해주세요.";
+                break;
+              case 500:
+                errorMsg =
+                  "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+                break;
+            }
           }
         }
+
         alert(errorMsg);
+        // 에러 발생 시 Discord 화면으로 이동하지 않고 모달만 닫음
+        onClose();
       }
     } else {
       console.log("setDiscord 함수가 정의되지 않았습니다");
+      alert("회의 시작 기능을 사용할 수 없습니다.");
+      onClose();
     }
   };
   // setDiscord((perState) => !perState);
