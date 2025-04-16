@@ -9,14 +9,14 @@ import { FindId } from "../../Main/Main";
 import ModalDel from "../../Modal/ModalDel";
 import Camera from "../../../../svg/camera.svg";
 import ImgUpload from "../function/ImgUpload";
+import Add from "../../../../svg/add.svg";
 
 const OwnerTeam = () => {
   const fileInputImg = useRef(null);
   const [inputFont, setInputFont] = useState("");
   const [isOpenModal, setIsOpenModal] = useState(false);
   const { itemContent, itemId, image, setImage } = useContext(TeamDel);
-  const { targetId, setTargetId, teamImages } =
-    useContext(FindId);
+  const { targetId, setTargetId, teamImages } = useContext(FindId);
   const { setSetting } = useContext(UseStateContext);
   const nav = useNavigate();
 
@@ -66,7 +66,7 @@ const OwnerTeam = () => {
           {targetId === itemId ? (
             <img
               className="circle-main-img"
-              src={image}
+              src={Add}
               onClick={handleImage}
               alt="Team Space"
             />
