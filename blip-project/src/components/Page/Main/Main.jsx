@@ -56,6 +56,7 @@ const Main = () => {
 
   console.log("createTeamId", createTeamId);
   console.log("itemBackendId", itemBackendId);
+  console.log("content", content);
 
   // useCallback을 사용하여 함수 재생성 방지
   const addIdMappings = useCallback((clientId, backendId) => {
