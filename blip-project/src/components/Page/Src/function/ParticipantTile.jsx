@@ -68,7 +68,7 @@ const ParticipantTile = ({
   return (
     <>
       <div className={containerClassName}>
-        {isLastTile && (
+        {isLastTile ? (
           <div className="FullGrid-main-last-Div">
             {shouldShowVideo ? (
               <video
@@ -86,13 +86,7 @@ const ParticipantTile = ({
             )}
 
             <div className={footClassName}>
-              <p
-                style={
-                  isLastTile
-                    ? { ...typography.Title3, color: color.White }
-                    : typography.Title3
-                }
-              >
+              <p style={{ ...typography.Title3, color: color.White }}>
                 {participant.name}
               </p>
             </div>
@@ -116,6 +110,58 @@ const ParticipantTile = ({
               </div>
             )}
           </div>
+        ) : (
+          // 일반 타일 (마지막 타일이 아닌 경우)
+          <>
+            {shouldShowVideo ? (
+              <video
+                ref={participant.isLocal ? videoRef : remoteVideoRef}
+                playsInline
+                autoPlay
+                muted={participant.isLocal || isMuted}
+                className="participant-video"
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            ) : (
+              <div
+                className="FullGrid-main-circle"
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "80%",
+                }}
+              >
+                <div className={circleClassName}></div>
+              </div>
+            )}
+
+            <div className={footClassName}>
+              <p style={{ ...typography.Title3, color: color.White }}>
+                {participant.name}
+              </p>
+            </div>
+
+            {participant.isLocal && (
+              <div
+                className={`FullGrid-main-nofoot${isCamera ? "-video" : ""}`}
+              >
+                <img
+                  src={isMike ? Mike : NoMike}
+                  onClick={onMikeClick}
+                  style={{ width: "5%" }}
+                  alt={isMike ? "마이크 켜짐" : "마이크 꺼짐"}
+                />
+                <img
+                  src={isCamera ? Camera : NoCamera}
+                  onClick={onCameraClick}
+                  style={{ width: "5%" }}
+                  alt={isCamera ? "카메라 켜짐" : "카메라 꺼짐"}
+                />
+              </div>
+            )}
+          </>
         )}
       </div>
     </>
