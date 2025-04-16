@@ -7,13 +7,18 @@ import ParticipantsGrid from "./ParticipantsGrid";
 import ControlBar from "./ControlBar";
 
 const JitsiMeetMain = ({ setIsMettingStop }) => {
-  const { itemId, isTopic, inputName } = useContext(TeamDel);
-  const { isMike, setIsMike, isCamera, setIsCamera, meetingEnd } =
-    useContext(UseStateContext);
-  const { videoRef, stream, setStream, isListening, setIsListening } =
-    useContext(DiscordContext);
+  const { isTopic, inputName, meetingId, setMeetingId } = useContext(TeamDel);
+  const {
+    isMike,
+    setIsMike,
+    isCamera,
+    setIsCamera,
+    meetingEnd,
+    setMeetingEnd,
+  } = useContext(UseStateContext);
+  const { videoRef, setStream } = useContext(DiscordContext);
   const { recorder, setRecorder, setRecordedChunks } = useContext(Call);
-  const { createTeamId } = useContext(FindId);
+  const { createTeamId, itemBackendId } = useContext(FindId);
 
   // 상태 관리
   const [apiInitialized, setApiInitialized] = useState(false);
@@ -26,9 +31,16 @@ const JitsiMeetMain = ({ setIsMettingStop }) => {
       isVideoMuted: !isCamera,
     },
   ]);
-  const [localParticipantId, setLocalParticipantId] = useState(null);
   const [localStream, setLocalStream] = useState(null);
-  const [teamId, setTeamId] = useState(null);
+
+  const meetingConfig = {
+    meetingId,
+    setMeetingId,
+    meetingEnd,
+    setMeetingEnd,
+    createTeamId,
+    itemBackendId,
+  };
 
   // 사용자 이름 업데이트 감지
   useEffect(() => {
@@ -176,7 +188,8 @@ const JitsiMeetMain = ({ setIsMettingStop }) => {
         .getUserMedia({ video: true, audio: isMike })
         .then((newStream) => {
           if (videoRef.current) {
-            videoRef.current.srcObject = newStream;36
+            videoRef.current.srcObject = newStream;
+            36;
             setLocalStream(newStream);
             setStream(newStream);
             console.log("새 비디오 스트림 설정 성공");
@@ -193,23 +206,7 @@ const JitsiMeetMain = ({ setIsMettingStop }) => {
 
   return (
     <div className="FullGrid-grid">
-      <JitsiMeetAPI
-        isTopic={isTopic}
-        isMike={isMike}
-        isCamera={isCamera}
-        setApiInitialized={setApiInitialized}
-        setLocalParticipantId={setLocalParticipantId}
-        setParticipants={setParticipants}
-        videoRef={videoRef}
-        setIsMettingStop={setIsMettingStop}
-        recorder={recorder}
-        setRecorder={setRecorder}
-        setRecordedChunks={setRecordedChunks}
-        setStream={setStream}
-        setLocalStream={setLocalStream}
-        setTeamId={setTeamId}
-        meetingEnd={meetingEnd}
-      />
+      <JitsiMeetAPI meetingConfig={meetingConfig} />
       <ParticipantsGrid
         participants={participants}
         isCamera={isCamera}
