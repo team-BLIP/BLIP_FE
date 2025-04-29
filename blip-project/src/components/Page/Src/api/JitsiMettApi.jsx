@@ -130,18 +130,6 @@ const JitsiMeetAPI = ({ meetingConfig }) => {
     }
   }, [loadJitsiScript, meetingId, setMeetingEnd]);
 
-  // 초기화 효과
-  useEffect(() => {
-    initializeJitsi();
-
-    // 정리 함수
-    return () => {
-      if (apiRef.current) {
-        apiRef.current.dispose();
-      }
-    };
-  }, [initializeJitsi]);
-
   // meetingEnd 상태 변경 감지
   useEffect(() => {
     if (apiRef.current && meetingEnd === false) {
@@ -152,14 +140,30 @@ const JitsiMeetAPI = ({ meetingConfig }) => {
       if (meetingId) {
         console.log("meetingId 있음, MeetingEndApi 호출:", meetingId);
 
-        // 회의 종료 API 호출 활성화
+        // 회의 종료 전에 녹음 데이터 확인
+        const recordingBlob =
+          window.recordedChunks?.length > 0
+            ? new Blob(window.recordedChunks, { type: "audio/mpeg" })
+            : null;
+
+        if (!recordingBlob) {
+          console.warn(
+            "녹음 데이터가 없습니다. 회의 종료 API 호출을 건너뜁니다."
+          );
+          alert(
+            "녹음 데이터가 없어 회의 종료를 진행할 수 없습니다. 마이크 권한을 확인해주세요."
+          );
+          return;
+        }
+
+        // 녹음 데이터가 있을 때만 API 호출
         handleMeetingEnd(
           meetingId,
           null, // teamId
           setMeetingId,
           createTeamId,
           itemBackendId,
-          null // 녹음 데이터 없음
+          recordingBlob // 녹음 데이터 전달
         )
           .then((result) => {
             console.log("회의 종료 API 호출 성공:", result);
@@ -177,6 +181,7 @@ const JitsiMeetAPI = ({ meetingConfig }) => {
       }
     }
   }, [meetingEnd, meetingId, setMeetingId, createTeamId, itemBackendId]);
+
   return (
     <div
       id="jitsi-container"
