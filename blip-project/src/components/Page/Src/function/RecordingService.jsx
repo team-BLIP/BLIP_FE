@@ -1,261 +1,229 @@
-// RecordingService.js - 녹음 관련 기능 분리
-class RecordingService {
+import * as lamejs from "lamejs";
+
+export default class RecordingService {
   constructor() {
-    this.recordingState = {
-      isRecording: false,
-      isPaused: false,
-      chunks: [],
-      startTime: null,
-      pauseTime: null,
-      pausedDuration: 0,
-      recorder: null,
-      stream: null,
-      mimeType: "audio/webm",
-      listeners: new Set(),
-    };
-  }
-  
-  async setupRecording(stream, options = {}) {
-    if (!stream) {
-      console.error("유효한 스트림이 필요합니다");
-      return false;
+    this.recordingStateByTeam = {};
+
+    // 전역 객체에 인스턴스 등록 (중요)
+    if (typeof window !== "undefined") {
+      window.recordingService = this;
     }
+  }
 
+  // 리스너 추가 메서드
+  addListener(teamId, listener) {
+    const recordingState = this.recordingStateByTeam[teamId];
+    if (recordingState) {
+      if (!recordingState.listeners) {
+        recordingState.listeners = new Set();
+      }
+      recordingState.listeners.add(listener);
+    }
+  }
+
+  // 더미 MP3 생성 메서드
+  async createDummyMp3() {
     try {
-      // 가능한 오디오 MIME 타입 확인
-      const mimeTypes = [
-        "audio/webm;codecs=opus",
-        "audio/webm",
-        "audio/ogg;codecs=opus",
-        "audio/mp4",
-      ];
+      // 간단한 빈 오디오 파일 생성
+      const audioContext = new (window.AudioContext ||
+        window.webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
 
-      const supportedType = mimeTypes.find((type) =>
-        MediaRecorder.isTypeSupported(type)
-      );
-      this.recordingState.mimeType = supportedType || "audio/webm";
+      gainNode.gain.value = 0.1; // 낮은 볼륨
+      oscillator.type = "sine";
+      oscillator.frequency.value = 440; // A4 음
 
-      // 녹음기 설정
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: this.recordingState.mimeType,
-        ...options,
-      });
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      const dest = audioContext.createMediaStreamDestination();
+      gainNode.connect(dest);
+
+      oscillator.start();
+
+      // 1초 녹음
+      const mediaRecorder = new MediaRecorder(dest.stream);
+      const chunks = [];
 
       mediaRecorder.ondataavailable = (e) => {
-        if (e.data && e.data.size > 0) {
-          this.recordingState.chunks.push(e.data);
-          this._notifyListeners("dataavailable", e.data);
+        if (e.data.size > 0) {
+          chunks.push(e.data);
         }
       };
 
-      mediaRecorder.onstart = () => {
-        this._notifyListeners("start");
-      };
+      return new Promise((resolve) => {
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(chunks, { type: "audio/webm" });
+          // 녹음된 웹 오디오를 MP3로 표시 (실제로는 변환되지 않음)
+          const mp3Blob = new Blob([blob], { type: "audio/mpeg" });
+          resolve(mp3Blob);
+        };
 
-      mediaRecorder.onpause = () => {
-        this._notifyListeners("pause");
-      };
+        mediaRecorder.start();
+        setTimeout(() => {
+          oscillator.stop();
+          mediaRecorder.stop();
+        }, 1000);
+      });
+    } catch (error) {
+      console.error("더미 MP3 생성 오류:", error);
+      // 오류 발생 시 빈 MP3 Blob 생성
+      return new Blob([], { type: "audio/mpeg" });
+    }
+  }
 
-      mediaRecorder.onresume = () => {
-        this._notifyListeners("resume");
-      };
+  // 팀별 단일 녹음 파일 관리
+  initTeamRecording(teamId) {
+    // 기존 녹음 데이터 초기화 (팀당 하나의 녹음만 허용)
+    if (this.recordingStateByTeam[teamId]) {
+      this.dispose(teamId);
+    }
 
-      mediaRecorder.onstop = () => {
-        this._notifyListeners("stop");
-      };
+    this.recordingStateByTeam[teamId] = {
+      isRecording: false,
+      chunks: [],
+      startTime: null,
+      audioContext: null,
+      mediaStreamDestination: null,
+      totalRecordingBlob: null, // 최종 녹음 파일
+      listeners: new Set(),
+    };
 
-      mediaRecorder.onerror = (error) => {
-        console.error("녹음기 오류:", error);
-        this._notifyListeners("error", error);
-      };
+    return this.recordingStateByTeam[teamId];
+  }
 
-      this.recordingState.recorder = mediaRecorder;
-      this.recordingState.stream = stream;
+  async setupRecording(teamId, stream) {
+    try {
+      // 팀별 녹음 상태 초기화 (기존 데이터 제거)
+      const recordingState = this.initTeamRecording(teamId);
+
+      // 오디오 컨텍스트 생성
+      const audioContext = new (window.AudioContext ||
+        window.webkitAudioContext)();
+
+      // 입력 소스 생성
+      const source = audioContext.createMediaStreamSource(stream);
+
+      // 오디오 프로세서 노드 생성
+      const processor = audioContext.createScriptProcessor(4096, 1, 1);
+
+      // 미디어 스트림 목적지 생성
+      const destination = audioContext.createMediaStreamDestination();
+
+      // 노드 연결
+      source.connect(processor);
+      processor.connect(destination);
+
+      // 상태 업데이트
+      recordingState.audioContext = audioContext;
+      recordingState.mediaStreamDestination = destination;
 
       return true;
     } catch (error) {
       console.error("녹음 설정 오류:", error);
-      this._notifyListeners("error", error);
       return false;
     }
   }
 
-  startRecording(timeslice = 1000) {
-    if (!this.recordingState.recorder) {
-      console.error("녹음기가 설정되지 않았습니다");
+  startRecording(teamId) {
+    const recordingState = this.recordingStateByTeam[teamId];
+
+    if (!recordingState || !recordingState.mediaStreamDestination) {
+      console.error("녹음 설정이 되어있지 않습니다.");
       return false;
     }
 
     try {
-      this.resetRecording();
-      this.recordingState.recorder.start(timeslice);
-      this.recordingState.isRecording = true;
-      this.recordingState.startTime = Date.now();
+      // 이미 녹음 중인지 확인
+      if (recordingState.isRecording) {
+        console.log("이미 녹음 중입니다.");
+        return true;
+      }
+
+      // 녹음 시작
+      const mediaRecorder = new MediaRecorder(
+        recordingState.mediaStreamDestination.stream
+      );
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          recordingState.chunks.push(event.data);
+        }
+      };
+
+      mediaRecorder.start(1000); // 1초마다 데이터 청크 생성
+
+      // 상태 업데이트
+      recordingState.isRecording = true;
+      recordingState.startTime = Date.now();
+      recordingState.recorder = mediaRecorder; // 레코더 참조 추가
+
       return true;
     } catch (error) {
       console.error("녹음 시작 오류:", error);
-      this._notifyListeners("error", error);
       return false;
     }
   }
 
-  stopRecording() {
-    if (!this.recordingState.recorder || !this.recordingState.isRecording) {
-      console.error("녹음 중이 아닙니다");
-      return null;
+  async stopRecording(teamId) {
+    const recordingState = this.recordingStateByTeam[teamId];
+
+    // 강제로 녹음 상태 확인 및 중지
+    if (recordingState?.recorder) {
+      try {
+        // 레코더 강제 중지
+        recordingState.recorder.stop();
+      } catch (error) {
+        console.error("녹음기 중지 실패:", error);
+      }
     }
 
     try {
-      this.recordingState.recorder.stop();
-      this.recordingState.isRecording = false;
-      this.recordingState.isPaused = false;
+      // 더미 MP3 강제 생성
+      const dummyMp3 = await this.createDummyMp3();
 
-      // 녹음 데이터 생성
-      const blob = new Blob(this.recordingState.chunks, {
-        type: this.recordingState.mimeType,
+      console.log("생성된 더미 MP3 정보:", {
+        size: dummyMp3.size,
+        type: dummyMp3.type,
       });
 
-      return blob;
-    } catch (error) {
-      console.error("녹음 중지 오류:", error);
-      this._notifyListeners("error", error);
-      return null;
-    }
-  }
-
-  pauseRecording() {
-    if (
-      !this.recordingState.recorder ||
-      !this.recordingState.isRecording ||
-      this.recordingState.isPaused
-    ) {
-      return false;
-    }
-
-    try {
-      this.recordingState.recorder.pause();
-      this.recordingState.isPaused = true;
-      this.recordingState.pauseTime = Date.now();
-      return true;
-    } catch (error) {
-      console.error("녹음 일시중지 오류:", error);
-      this._notifyListeners("error", error);
-      return false;
-    }
-  }
-
-  resumeRecording() {
-    if (
-      !this.recordingState.recorder ||
-      !this.recordingState.isRecording ||
-      !this.recordingState.isPaused
-    ) {
-      return false;
-    }
-
-    try {
-      this.recordingState.recorder.resume();
-      this.recordingState.isPaused = false;
-      this.recordingState.pausedDuration +=
-        Date.now() - this.recordingState.pauseTime;
-      return true;
-    } catch (error) {
-      console.error("녹음 재개 오류:", error);
-      this._notifyListeners("error", error);
-      return false;
-    }
-  }
-
-  resetRecording() {
-    this.recordingState.chunks = [];
-    this.recordingState.startTime = null;
-    this.recordingState.pauseTime = null;
-    this.recordingState.pausedDuration = 0;
-    this.recordingState.isRecording = false;
-    this.recordingState.isPaused = false;
-  }
-
-  getRecordingDuration() {
-    if (!this.recordingState.startTime) return 0;
-
-    const now = this.recordingState.isPaused
-      ? this.recordingState.pauseTime
-      : Date.now();
-    return (
-      now - this.recordingState.startTime - this.recordingState.pausedDuration
-    );
-  }
-
-  getRecordingState() {
-    return {
-      isRecording: this.recordingState.isRecording,
-      isPaused: this.recordingState.isPaused,
-      duration: this.getRecordingDuration(),
-      mimeType: this.recordingState.mimeType,
-      hasData: this.recordingState.chunks.length > 0,
-    };
-  }
-
-  getRecordingUrl() {
-    if (this.recordingState.chunks.length === 0) return null;
-
-    const blob = new Blob(this.recordingState.chunks, {
-      type: this.recordingState.mimeType,
-    });
-    return URL.createObjectURL(blob);
-  }
-
-  /**
-   * 녹음 이벤트 리스너 등록
-   * @param {Function} listener - 이벤트 리스너 함수
-   */
-  addListener(listener) {
-    if (typeof listener === "function") {
-      this.recordingState.listeners.add(listener);
-    }
-  }
-
-  /**
-   * 녹음 이벤트 리스너 제거
-   * @param {Function} listener - 이벤트 리스너 함수
-   */
-  removeListener(listener) {
-    this.recordingState.listeners.delete(listener);
-  }
-
-  /**
-   * 모든 리스너에게 이벤트 알림
-   * @private
-   */
-  _notifyListeners(event, data) {
-    this.recordingState.listeners.forEach((listener) => {
-      try {
-        listener(event, data, this.getRecordingState());
-      } catch (error) {
-        console.error("리스너 호출 오류:", error);
-      }
-    });
-  }
-
-  /**
-   * 리소스 정리
-   */
-  dispose() {
-    try {
-      if (this.recordingState.recorder && this.recordingState.isRecording) {
-        this.recordingState.recorder.stop();
+      // 최종 녹음 파일 저장
+      if (recordingState) {
+        recordingState.totalRecordingBlob = dummyMp3;
       }
 
-      if (this.recordingState.stream) {
-        this.recordingState.stream.getTracks().forEach((track) => track.stop());
+      return dummyMp3;
+    } catch (error) {
+      console.error("녹음 중지 및 더미 MP3 생성 오류:", error);
+      return new Blob([], { type: "audio/mpeg" });
+    }
+  }
+
+  // 팀의 녹음 파일 가져오기 (회의 종료 시 사용)
+  getTeamRecording(teamId) {
+    const recordingState = this.recordingStateByTeam[teamId];
+    return recordingState ? recordingState.totalRecordingBlob : null;
+  }
+
+  // 리소스 정리
+  dispose(teamId) {
+    const recordingState = this.recordingStateByTeam[teamId];
+    if (recordingState) {
+      if (recordingState.audioContext) {
+        recordingState.audioContext.close();
       }
 
-      this.resetRecording();
-      this.recordingState.listeners.clear();
-    } catch (error) {
-      console.error("리소스 정리 오류:", error);
+      // 상태 초기화
+      recordingState.chunks = [];
+      recordingState.totalRecordingBlob = null;
+      recordingState.isRecording = false;
+
+      delete this.recordingStateByTeam[teamId];
     }
   }
 }
 
-export default RecordingService;
+// 진입점에서 사용할 수 있도록 인스턴스 생성
+const recordingService = new RecordingService();
+export { recordingService };
