@@ -13,14 +13,19 @@ const ModalMeeting = ({ onClose }) => {
   const [isCheckCamera, setIsCheckCamera] = useState(false);
   const [userEmail, setUserEmail] = useState("");
 
-  const { setIsMike, setIsCamera, discord, setDiscord } =
-    useContext(UseStateContext);
+  const {
+    setIsMike,
+    setIsCamera,
+    discord,
+    setDiscord,
+    meetingEnd,
+    setMeetingEnd,
+  } = useContext(UseStateContext);
 
   const { itemId, isTopic, setIsTopic, userName, meetingId, setMeetingId } =
     useContext(TeamDel);
 
-  const { content, targetId, itemBackendId, createTeamId } =
-    useContext(FindId);
+  const { content, targetId, itemBackendId, createTeamId } = useContext(FindId);
 
   // 컴포넌트 마운트 시 필요한 정보 로드
   useEffect(() => {
@@ -41,17 +46,18 @@ const ModalMeeting = ({ onClose }) => {
   // 팀 ID에 따른 리더 이메일 확인
   const getLeaderEmailForTeam = (teamId) => {
     // ID 정제
-    const cleanedId = typeof teamId === "string" 
-      ? Number(teamId.replace("create-", "")) 
-      : Number(teamId);
-    
+    const cleanedId =
+      typeof teamId === "string"
+        ? Number(teamId.replace("create-", ""))
+        : Number(teamId);
+
     // 팀 ID 기반 이메일 선택
     if (cleanedId === 1) {
       return "enhld00@gmail.com";
     } else if (cleanedId === 2) {
       return "enhld00@dsm.hs.kr";
     }
-    
+
     // 기본 이메일 반환
     return userEmail || "";
   };
@@ -101,13 +107,14 @@ const ModalMeeting = ({ onClose }) => {
           createTeamId,
           itemBackendId,
           setMeetingId,
-          userEmail: leaderEmail // 리더 이메일 전달
+          userEmail: leaderEmail, // 리더 이메일 전달
         });
 
         console.log("회의 시작 성공:", result);
 
         // 회의 시작 성공시에만 Discord 화면으로 이동
         setDiscord(true);
+        setMeetingEnd(false);
         onClose();
       } catch (error) {
         console.error("회의 시작 실패:", error);
