@@ -54,10 +54,6 @@ const Main = () => {
     return savedMappings ? JSON.parse(savedMappings) : {};
   });
 
-  console.log("createTeamId", createTeamId);
-  console.log("itemBackendId", itemBackendId);
-  console.log("content", content);
-
   // useCallback을 사용하여 함수 재생성 방지
   const addIdMappings = useCallback((clientId, backendId) => {
     setIdMappings((prevMappings) => {
@@ -152,6 +148,8 @@ const Main = () => {
       userName,
       setUserName,
       AddMember,
+      meetingId,
+      setMeetingId,
     ]
   );
 
