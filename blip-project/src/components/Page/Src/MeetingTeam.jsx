@@ -4,28 +4,33 @@ import { typography } from "../../../fonts/fonts";
 import { useState, useContext, useEffect, useCallback } from "react";
 import { UseStateContext, Call } from "../../../Router";
 import { TeamDel, FindId } from "../Main/Main";
-import { SidebarContext } from "../../../Router";
 import ModalMeeting from "../Modal/ModalMeeting";
 import MettingContent from "./page/MeetingContent";
 import { handleMeetingEnd as apiHandleMeetingEnd } from "./api/MeetingEndApi";
+import Feedback from "./page/Feedback"; // Feedback 컴포넌트 import
+import FeedBackApi from "./api/FeedBackApi"; // FeedBackApi import
 
 //팀 회의 관련 컴포넌트 (함수형 접근)
 //회의 시작/종료 및 관련 정보 표시 기능 제공
 const MeetingTeam = () => {
   // Context에서 필요한 상태 및 함수 가져오기
-  const { discord, setDiscord, meetingEnd, setMeetingEnd } =
+  const { discord, meetingEnd, setMeetingEnd, targetId } =
     useContext(UseStateContext);
   const { recordedChunks } = useContext(Call);
-  const { todos } = useContext(SidebarContext);
   const { itemId, meetingId = 1, setMeetingId } = useContext(TeamDel);
   const { createTeamId, itemBackendId } = useContext(FindId);
-  console.log("ADsfdghjsbiadSJ", meetingId);
+
   // 로컬 상태 (순수 함수형 접근)
   const [userEmail, setUserEmail] = useState("");
   const [lastApiResult, setLastApiResult] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [endTime, setEndTime] = useState(null);
+
+  // 피드백 관련 상태 추가
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
 
   // ID 정제 함수 - create-X 형식의 ID를 정수로 변환 (순수 함수)
   const cleanId = useCallback((id) => {
@@ -38,17 +43,31 @@ const MeetingTeam = () => {
 
   // 유효한 팀 ID를 결정하는 함수 (순수 함수)
   const getValidTeamId = useCallback(() => {
-    const id = itemBackendId || createTeamId || itemId || 1;
+    const id = itemBackendId || createTeamId || itemId || targetId || 1;
     return cleanId(id);
-  }, [itemBackendId, createTeamId, itemId, cleanId]);
+  }, [itemBackendId, createTeamId, itemId, targetId, cleanId]);
 
-  console.log("meetingId", meetingId);
   // 유효한 회의 ID를 결정하는 함수 (순수 함수)
   const getValidMeetingId = useCallback(
     () => (meetingId || {} ? meetingId : 1),
     [meetingId]
   );
-  console.log("meetingId", meetingId);
+
+  // 피드백 데이터 로드 함수
+  const loadFeedbacks = useCallback(async () => {
+    const teamId = getValidTeamId();
+    if (!teamId) return;
+
+    setIsLoadingFeedback(true);
+    try {
+      const feedbackData = await FeedBackApi(teamId);
+      setFeedbacks(feedbackData);
+    } catch (error) {
+      console.error("피드백 로딩 중 오류 발생:", error);
+    } finally {
+      setIsLoadingFeedback(false);
+    }
+  }, [getValidTeamId]);
 
   // 사용자 정보 로드 (부수 효과 분리)
   useEffect(() => {
@@ -65,6 +84,11 @@ const MeetingTeam = () => {
 
     loadUserEmail();
   }, []);
+
+  // 컴포넌트 마운트 시 피드백 로드
+  useEffect(() => {
+    loadFeedbacks();
+  }, [loadFeedbacks]);
 
   // API 결과 처리 (부수 효과 분리)
   useEffect(() => {
@@ -116,6 +140,48 @@ const MeetingTeam = () => {
       const validMeetingId = getValidMeetingId();
 
       try {
+        // 마이크 및 카메라 스트림 종료 처리
+        const stopMediaDevices = async () => {
+          try {
+            // 활성화된 모든 미디어 스트림 가져오기
+            const streams = await navigator.mediaDevices
+              .getUserMedia({
+                audio: true,
+                video: true,
+              })
+              .catch(() => null);
+
+            // 스트림이 있으면 모든 트랙 중지
+            if (streams) {
+              streams.getTracks().forEach((track) => {
+                track.stop();
+                console.log(`${track.kind} 트랙이 중지되었습니다.`);
+              });
+            }
+
+            // 추가로 모든 활성 미디어 스트림 검색 및 중지
+            if (
+              navigator.mediaDevices &&
+              navigator.mediaDevices.enumerateDevices
+            ) {
+              const devices = await navigator.mediaDevices.enumerateDevices();
+              devices.forEach((device) => {
+                if (
+                  device.kind === "audioinput" ||
+                  device.kind === "videoinput"
+                ) {
+                  console.log(`${device.kind} 장치 접근 해제: ${device.label}`);
+                }
+              });
+            }
+          } catch (mediaError) {
+            console.warn("미디어 장치 중지 중 오류:", mediaError);
+          }
+        };
+
+        // 미디어 장치 중지 실행
+        await stopMediaDevices();
+
         // 회의 상태 저장 (부수 효과)
         localStorage.setItem("lastMeetingTeamId", teamId);
         localStorage.setItem("lastMeetingId", validMeetingId);
@@ -153,12 +219,27 @@ const MeetingTeam = () => {
           setMeetingId,
           createTeamId,
           itemBackendId,
-          recordingBlob
+          recordingBlob,
+          endTime,
+          setEndTime
         );
         console.log("회의 종료 후 meetingId:", meetingId); // 호출 후
+        console.log("회의 종료 시각:", endTime);
 
         if (!result.success) {
           throw new Error(result.error || "회의 종료 중 오류가 발생했습니다.");
+        }
+
+        // API 호출 성공 후 피드백 데이터를 로드하는 부분
+        if (result.success) {
+          try {
+            // 피드백 데이터 로드 (약간의 지연을 주어 서버에서 데이터 준비 시간 확보)
+            setTimeout(async () => {
+              await loadFeedbacks();
+            }, 1000);
+          } catch (feedbackError) {
+            console.error("피드백 로드 중 오류:", feedbackError);
+          }
         }
 
         setLastApiResult(result);
@@ -167,6 +248,24 @@ const MeetingTeam = () => {
         return result;
       } catch (error) {
         console.error("💥 회의 종료 처리 실패:", error);
+
+        // 오류가 발생해도 미디어 장치 중지 시도
+        try {
+          const streams = await navigator.mediaDevices
+            .getUserMedia({
+              audio: true,
+              video: true,
+            })
+            .catch(() => null);
+
+          if (streams) {
+            streams.getTracks().forEach((track) => {
+              track.stop();
+            });
+          }
+        } catch (mediaError) {
+          console.warn("오류 처리 중 미디어 장치 중지 실패:", mediaError);
+        }
 
         // 인증 오류인 경우 로그인 화면으로 이동 제안
         if (
@@ -192,6 +291,7 @@ const MeetingTeam = () => {
       setMeetingId,
       createTeamId,
       itemBackendId,
+      loadFeedbacks,
     ]
   );
 
@@ -236,8 +336,15 @@ const MeetingTeam = () => {
   const renderButton = useCallback(() => {
     // Discord 연결된 경우
     if (discord) {
-      console.log("dsafafdsdddfsda", meetingId);
-      return (
+      return meetingEnd ? (
+        <button
+          className="MeetingTButton"
+          disabled={isLoading}
+          style={getButtonStyle()}
+        >
+          {getButtonText()}
+        </button>
+      ) : (
         <button
           className="MeetingTButton"
           onClick={() => handleMeetingEnd(meetingId)}
@@ -299,6 +406,21 @@ const MeetingTeam = () => {
           지난 회의 내용 요약
         </div>
         <MettingContent />
+
+        {/* 피드백 섹션 추가 */}
+        <div className="FeedbackSection" style={{ marginTop: "30px" }}>
+          <div
+            className="MeetingTFont"
+            style={{ ...typography.Body2, marginBottom: "16px" }}
+          >
+            회의 피드백
+          </div>
+          <Feedback
+            feedbacks={feedbacks}
+            isLoading={isLoadingFeedback}
+            endTime={endTime}
+          />
+        </div>
       </div>
       {renderButton()}
       {isModalOpen && <ModalMeeting onClose={modalClose} />}
