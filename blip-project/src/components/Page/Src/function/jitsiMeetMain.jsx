@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import "../../../CSS/Grid.css";
 import { TeamDel, FindId } from "../../Main/Main";
 import { UseStateContext, DiscordContext, Call } from "../../../../Router";
@@ -58,6 +58,87 @@ const JitsiMeetMain = ({ setIsMettingStop }) => {
   // 녹음 관련 상태
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+
+  // 컴포넌트 마운트 시 기본 상태 설정
+  useEffect(() => {
+    // 기본적으로 마이크와 카메라 비활성화
+    setIsMike(false);
+    setIsCamera(false);
+
+    // 브라우저에서 미디어 장치 권한 요청 시 기본적으로 꺼진 상태로 시작
+    const initializeMedia = async () => {
+      try {
+        // 권한만 요청하고 바로 트랙을 비활성화
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+          video: true,
+        });
+
+        // 모든 트랙 비활성화
+        stream.getTracks().forEach((track) => {
+          track.enabled = false;
+        });
+
+        // 로컬 스트림 저장
+        setLocalStream(stream);
+
+        // 비디오 요소에 스트림 설정
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+
+        // 다른 컴포넌트에서 사용할 수 있도록 설정
+        setStream(stream);
+
+        console.log("미디어 장치 초기화 완료 - 기본 상태: 비활성화");
+      } catch (error) {
+        console.error("미디어 장치 접근 실패:", error);
+      }
+    };
+
+    initializeMedia();
+  }, []);
+
+  // 컴포넌트 언마운트 시 미디어 장치 정리
+  useEffect(() => {
+    return () => {
+      // 마이크 및 카메라 스트림 정리
+      if (localStream) {
+        localStream.getTracks().forEach((track) => {
+          track.stop();
+        });
+      }
+
+      // 녹음기 정리
+      if (recorder && recorder.state !== "inactive") {
+        recorder.stop();
+      }
+
+      console.log("컴포넌트 언마운트: 모든 미디어 장치 정리 완료");
+    };
+  }, [localStream, recorder]);
+
+  // 마이크 상태 변경 감지
+  useEffect(() => {
+    if (localStream) {
+      const audioTracks = localStream.getAudioTracks();
+      audioTracks.forEach((track) => {
+        track.enabled = isMike;
+      });
+      console.log(`마이크 상태 변경: ${isMike ? "활성화" : "비활성화"}`);
+    }
+  }, [isMike, localStream]);
+
+  // 카메라 상태 변경 감지
+  useEffect(() => {
+    if (localStream) {
+      const videoTracks = localStream.getVideoTracks();
+      videoTracks.forEach((track) => {
+        track.enabled = isCamera;
+      });
+      console.log(`카메라 상태 변경: ${isCamera ? "활성화" : "비활성화"}`);
+    }
+  }, [isCamera, localStream]);
 
   // 회의 초기화 상태 로깅
   useEffect(() => {
@@ -189,7 +270,6 @@ const JitsiMeetMain = ({ setIsMettingStop }) => {
         .then((newStream) => {
           if (videoRef.current) {
             videoRef.current.srcObject = newStream;
-            36;
             setLocalStream(newStream);
             setStream(newStream);
             console.log("새 비디오 스트림 설정 성공");
@@ -204,6 +284,79 @@ const JitsiMeetMain = ({ setIsMettingStop }) => {
     setIsCamera((prev) => !prev);
   };
 
+  // 회의 종료 시 호출될 함수
+  const handleMeetingEnd = useCallback(() => {
+    console.log("회의 종료: 미디어 장치 종료 중...");
+
+    // 카메라가 켜져있으면 끄기
+    if (isCamera) {
+      // 카메라 끄기 로직
+      if (localStream) {
+        const videoTracks = localStream.getVideoTracks();
+        videoTracks.forEach((track) => {
+          track.enabled = false;
+          track.stop(); // 트랙 완전히 종료
+        });
+      }
+      setIsCamera(false);
+    }
+
+    // 마이크가 켜져있으면 끄기
+    if (isMike) {
+      // 마이크 끄기 로직
+      if (localStream) {
+        const audioTracks = localStream.getAudioTracks();
+        audioTracks.forEach((track) => {
+          track.enabled = false;
+          track.stop(); // 트랙 완전히 종료
+        });
+      }
+      setIsMike(false);
+    }
+
+    // 녹음 중이면 중지
+    if (isRecording) {
+      handleToggleRecording();
+    }
+
+    // 모든 미디어 스트림 해제
+    if (localStream) {
+      localStream.getTracks().forEach((track) => track.stop());
+      setLocalStream(null);
+    }
+
+    // 비디오 요소 초기화
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+
+    console.log("미디어 장치 종료 완료");
+
+    // 회의 종료 상태 업데이트
+    setMeetingEnd(true);
+
+    // 상위 컴포넌트에 회의 종료 알림
+    if (setIsMettingStop) {
+      setIsMettingStop(true);
+    }
+  }, [
+    isCamera,
+    isMike,
+    isRecording,
+    localStream,
+    videoRef,
+    setMeetingEnd,
+    setIsMettingStop,
+    handleToggleRecording,
+  ]);
+
+  // 회의 종료 상태 감시
+  useEffect(() => {
+    if (meetingEnd) {
+      handleMeetingEnd();
+    }
+  }, [meetingEnd, handleMeetingEnd]);
+
   return (
     <div className="FullGrid-grid">
       <JitsiMeetAPI meetingConfig={meetingConfig} />
@@ -214,13 +367,6 @@ const JitsiMeetMain = ({ setIsMettingStop }) => {
         videoRef={videoRef}
         handleMikeToggle={handleMikeToggle}
         handleCameraToggle={handleCameraToggle}
-      />
-      <ControlBar
-        isRecording={isRecording}
-        isPaused={isPaused}
-        onToggleRecording={handleToggleRecording}
-        onPauseRecording={handlePauseRecording}
-        onResumeRecording={handleResumeRecording}
       />
     </div>
   );
