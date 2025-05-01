@@ -2,21 +2,58 @@ import axios from "axios";
 
 const MeetingStartApi = async ({
   isTopic,
+  targetId,
+  createTeamId,
   setMeetingId,
   userEmail,
-  createTeamId
 }) => {
   // ID 변환 유틸리티 함수
   const getBackendId = (id) => {
     console.log("ID 변환 상세 디버그", {
-      originalId: createTeamId,
-      originalType: typeof createTeamId,
+      originalId: id,
+      originalType: typeof id,
     });
 
+    // 로컬 스토리지에서 매핑 정보 가져오기
+    try {
+      const teamsListJSON = localStorage.getItem("teamsList");
+      if (teamsListJSON) {
+        const teamsList = JSON.parse(teamsListJSON);
+
+        // ID와 일치하는 팀 찾기
+        // 1. 정확히 일치하는 경우
+        let matchingTeam = teamsList.find((team) => team && team.id === id);
+
+        // 2. create- 형식인 경우 (create-116 -> 116)
+        if (
+          !matchingTeam &&
+          typeof id === "string" &&
+          id.startsWith("create-")
+        ) {
+          const cleanId = id.replace("create-", "");
+          matchingTeam = teamsList.find((team) => team && team.id === cleanId);
+        }
+
+        if (matchingTeam) {
+          // team_id 또는 backendId 사용 (숫자 값)
+          const backendId =
+            matchingTeam.team_id ||
+            matchingTeam.backendId ||
+            matchingTeam._originalId;
+          if (backendId && !isNaN(Number(backendId))) {
+            console.log("로컬 스토리지에서 팀 ID 찾음:", backendId);
+            return Number(backendId);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("localStorage 검색 오류:", error);
+    }
+
     // 문자열 ID 처리
-    if (typeof createTeamId === "string") {
+    if (typeof id === "string") {
       // "create-" 접두어가 있으면 제거
-      const cleanId = createTeamId.replace("create-", "");
+      const cleanId = id.replace("create-", "");
       // 숫자로 변환 가능한지 확인
       const numericId = Number(cleanId);
       if (!isNaN(numericId) && numericId > 0) {
@@ -30,9 +67,9 @@ const MeetingStartApi = async ({
       return numericId;
     }
 
-    // 기본값으로 팀 ID 1 반환 (DB에 존재하는 ID)
-    console.warn("유효한 팀 ID를 찾을 수 없습니다. 기본값 1을 사용합니다.");
-    return 1;
+    // 기본값 (더 이상 1을 반환하지 않음)
+    console.warn("유효한 팀 ID를 찾을 수 없습니다:", id);
+    return null; // null을 반환하여 오류를 명확히 함
   };
 
   // API URL과 토큰 가져오기
