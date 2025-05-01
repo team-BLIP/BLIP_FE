@@ -66,8 +66,6 @@ const ModalName = ({ onClose }) => {
   };
 
   useEffect(() => {
-    console.log("현재 userName 상태:", userName);
-    console.log("AddMember 함수 타입:", typeof AddMember);
     console.log("현재 팀 ID:", itemId);
     
     // 저장된 사용자 이름이 있으면 자동으로 불러옴
