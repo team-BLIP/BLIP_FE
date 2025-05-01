@@ -8,10 +8,6 @@ import { useContext } from "react";
 import { UseStateContext } from "../../../Router";
 
 const MainTeam = () => {
-  const { discord } = useContext(UseStateContext);
-
-  // 디버깅을 위한
-  console.log("MTeamJoinNo - discord 상태:", discord);
   return (
     <>
       <HeaderTeam />
