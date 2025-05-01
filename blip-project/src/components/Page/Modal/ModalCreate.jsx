@@ -76,18 +76,19 @@ const ModalCreate = ({ onClose, parentOnClose }) => {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.keyCode === 27) {
-        handleCreateAndClose();
-      } else if (e.keyCode === 13) {
         onClose();
+      } else if (e.keyCode === 13) {
+        // Enter 키
+        if (content.trim().length > 0) {
+          handleCreateAndClose(); // 여기서 한 번 호출
+        }
       }
     };
-
     window.addEventListener("keydown", handleKeyDown);
-
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [onClose]);
+  }, [onClose, content, handleCreateAndClose]);
 
   return (
     <div className="modal-overlay">
@@ -119,7 +120,6 @@ const ModalCreate = ({ onClose, parentOnClose }) => {
             placeholder="팀스페이스의 이름을 작성해주세요."
             value={content}
             type="text"
-            onKeyDown={handleCreateAndClose}
             onChange={onChangeInput}
             ref={submitRef}
           ></input>
