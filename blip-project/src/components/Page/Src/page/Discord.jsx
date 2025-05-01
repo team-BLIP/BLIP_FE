@@ -225,12 +225,6 @@ const Discord = () => {
     }
   }, [isCamera]);
 
-  useEffect(() => {
-    console.log("Discord component mounted");
-    console.log("dasf", targetId);
-    console.log("aaaa", itemId);
-  }, []);
-
   const onClickMike = async () => {
     const teamId = getValidTeamId();
 
@@ -316,7 +310,6 @@ const Discord = () => {
         if (result.success) {
           // 성공적으로 회의 종료
           setMeetingEnd(true);
-          setDiscord(false);
         } else {
           // 오류 처리
           console.error("회의 종료 실패:", result.error);
