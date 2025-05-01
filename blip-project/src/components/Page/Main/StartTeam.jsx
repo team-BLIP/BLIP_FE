@@ -13,10 +13,6 @@ import MainJoin from "./MainTeam";
 const StartTeam = () => {
   const { setting, isAlarm, isLetter, discord, basic, join } =
     useContext(UseStateContext);
-
-  console.log("dsfghasd", discord);
-
-  console.log("현재 값", setting, isAlarm, isLetter, discord, basic, join);
   return (
     <div className="start-main">
       <Member />
