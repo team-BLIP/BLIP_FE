@@ -27,7 +27,9 @@ const handleMeetingEnd = async (
   setMeetingId,
   createTeamId,
   itemBackendId,
-  recordingBlob // 녹음 Blob을 직접 인자로 받음
+  recordingBlob,
+  endTime,
+  setEndTime
 ) => {
   console.log("meetingId", meetingId);
   try {
@@ -66,6 +68,8 @@ const handleMeetingEnd = async (
     // 3. 회의 종료 API 호출 (S3 URL 포함)
     const response = await callEndMeetingApi(cleanedMeetingId);
     console.log("회의 종료 성공", response);
+    // 종료 시각을 props로 부모 컴포넌트로 전달
+    setEndTime(new Date().toISOString()); // ISO 형식으로 저장
 
     return { success: true };
   } catch (error) {
