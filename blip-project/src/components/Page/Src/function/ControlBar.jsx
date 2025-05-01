@@ -24,7 +24,7 @@ const ControlButton = styled.button`
   padding: 8px 16px;
   border-radius: 4px;
   background-color: ${(props) =>
-    props.isActive ? color.Primary500 : color.Gray700};
+    props.$isActive ? color.Primary500 : color.Gray700};
   color: ${color.White};
   border: none;
   cursor: pointer;
@@ -36,7 +36,7 @@ const ControlButton = styled.button`
 
   &:hover {
     background-color: ${(props) =>
-      props.isActive ? color.Primary600 : color.Gray800};
+      props.$isActive ? color.Primary600 : color.Gray800};
   }
 
   &:disabled {
@@ -58,9 +58,21 @@ const RecordingIndicator = styled.div`
   height: 10px;
   border-radius: 50%;
   background-color: ${(props) =>
-    props.isPaused ? color.Yellow500 : color.Red500};
+    props.$isPaused ? color.Yellow500 : color.Red500};
   animation: ${(props) =>
-    props.isPaused ? "none" : "pulse 1.5s infinite ease-in-out"};
+    props.$isPaused ? "none" : "pulse 1.5s infinite ease-in-out"};
+
+  @keyframes pulse {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
 `;
 
 const ControlBar = ({
@@ -77,7 +89,7 @@ const ControlBar = ({
       {isTeamLeader ? (
         <>
           <ControlButton
-            isActive={isRecording}
+            $isActive={isRecording}
             onClick={onToggleRecording}
             aria-label={isRecording ? "녹음 중지" : "녹음 시작"}
           >
@@ -86,7 +98,7 @@ const ControlBar = ({
 
           {isRecording && (
             <ControlButton
-              isActive={!isPaused}
+              $isActive={!isPaused}
               onClick={isPaused ? onResumeRecording : onPauseRecording}
               aria-label={isPaused ? "녹음 재개" : "녹음 일시중지"}
             >
@@ -96,7 +108,7 @@ const ControlBar = ({
 
           {isRecording && (
             <RecordingStatus>
-              <RecordingIndicator isPaused={isPaused} />
+              <RecordingIndicator $isPaused={isPaused} />
               {isPaused ? "일시중지됨" : "녹음 중"}
             </RecordingStatus>
           )}
@@ -104,7 +116,7 @@ const ControlBar = ({
       ) : (
         isRecording && (
           <RecordingStatus>
-            <RecordingIndicator isPaused={isPaused} />
+            <RecordingIndicator $isPaused={isPaused} />
             {isPaused ? "녹음 일시중지됨" : "녹음 중"}
           </RecordingStatus>
         )
