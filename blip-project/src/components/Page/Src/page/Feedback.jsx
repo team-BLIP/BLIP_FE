@@ -8,34 +8,25 @@ const FEEDBACK_STORAGE_KEY = "meeting_feedbacks";
 const Feedback = ({ feedbacks = [], isLoading = false, endTime }) => {
   const [storedFeedbacks, setStoredFeedbacks] = useState([]);
   const containerRef = useRef(null);
+  // 이전 피드백 데이터 추적용 ref
+  const processedFeedbacksRef = useRef(null);
 
   // 디버깅을 위한 로그
   useEffect(() => {
     if (feedbacks?.length > 0) {
       console.log("Feedback 컴포넌트 - 받은 피드백 데이터:", feedbacks);
-      // 받은 데이터의 날짜 정보 확인
-      feedbacks.forEach((item, index) => {
-        console.log(`피드백 ${index} 날짜 정보:`, {
-          endTime: item.endTime,
-          created_at: item.created_at,
-          meeting_date: item.meeting_date,
-        });
-      });
     }
-
     if (endTime) {
       console.log("Feedback 컴포넌트 - 받은 endTime:", endTime);
     }
   }, [feedbacks, endTime]);
 
-  // 로컬 스토리지 데이터 로드
+  // 로컬 스토리지 데이터 로드 (마운트 시 한 번만)
   useEffect(() => {
     const loadStoredFeedbacks = () => {
       try {
         const storedData = localStorage.getItem(FEEDBACK_STORAGE_KEY);
-        const parsedData = storedData ? JSON.parse(storedData) : [];
-        console.log("로컬 스토리지에서 로드한 피드백 데이터:", parsedData);
-        return parsedData;
+        return storedData ? JSON.parse(storedData) : [];
       } catch (error) {
         console.error("로컬 스토리지에서 피드백 로드 중 오류:", error);
         return [];
@@ -47,37 +38,75 @@ const Feedback = ({ feedbacks = [], isLoading = false, endTime }) => {
 
   // 새로운 피드백 데이터 병합
   useEffect(() => {
-    if (!feedbacks || feedbacks.length === 0) return;
+    // 새 피드백이 없거나 이전과 동일한 데이터면 처리하지 않음
+    if (
+      !feedbacks ||
+      feedbacks.length === 0 ||
+      JSON.stringify(feedbacks) ===
+        JSON.stringify(processedFeedbacksRef.current)
+    ) {
+      return;
+    }
 
-    // 현재 시간을 ISO 문자열로 가져오기 (기본 날짜로 사용)
-    const currentTimeIso = new Date().toISOString();
+    // 현재 처리 중인 피드백 데이터 저장
+    processedFeedbacksRef.current = [...feedbacks];
 
-    const updatedFeedbacks = feedbacks.map((newFeedback) => {
-      const existingFeedback = storedFeedbacks.find(
-        (item) => item.meeting_id === newFeedback.meeting_id
-      );
+    // 로컬 스토리지에서 최신 데이터 직접 가져오기
+    try {
+      const storedData = localStorage.getItem(FEEDBACK_STORAGE_KEY);
+      const currentStored = storedData ? JSON.parse(storedData) : [];
 
-      // endTime을 feedbacks에 추가 (다양한 소스에서 날짜 정보 확보)
-      const meetingEndTime =
-        newFeedback.endTime ||
-        endTime ||
-        newFeedback.created_at ||
-        newFeedback.meeting_date ||
-        currentTimeIso;
+      // 새 데이터와 기존 데이터 병합
+      const updatedFeedbacks = [...currentStored];
+      let hasChanges = false;
 
-      return existingFeedback
-        ? { ...existingFeedback, ...newFeedback, endTime: meetingEndTime }
-        : { ...newFeedback, endTime: meetingEndTime };
-    });
+      feedbacks.forEach((newFeedback) => {
+        // endTime 추가
+        const meetingEndTime =
+          newFeedback.endTime || endTime || new Date().toISOString();
+        const updatedFeedback = { ...newFeedback, endTime: meetingEndTime };
 
-    console.log("병합된 피드백 데이터:", updatedFeedbacks);
+        // 기존 데이터에서 같은 meeting_id를 가진 항목 찾기
+        const existingIndex = updatedFeedbacks.findIndex(
+          (item) => item.meeting_id === newFeedback.meeting_id
+        );
 
-    localStorage.setItem(
-      FEEDBACK_STORAGE_KEY,
-      JSON.stringify(updatedFeedbacks)
-    );
-    setStoredFeedbacks(updatedFeedbacks);
-  }, [feedbacks, endTime, storedFeedbacks]);
+        if (existingIndex >= 0) {
+          // 기존 항목 업데이트 (변경된 경우에만)
+          if (
+            JSON.stringify(updatedFeedbacks[existingIndex]) !==
+            JSON.stringify(updatedFeedback)
+          ) {
+            updatedFeedbacks[existingIndex] = {
+              ...updatedFeedbacks[existingIndex],
+              ...updatedFeedback,
+            };
+            hasChanges = true;
+          }
+        } else {
+          // 새 항목 추가
+          updatedFeedbacks.push(updatedFeedback);
+          hasChanges = true;
+        }
+      });
+
+      // 변경사항이 있는 경우에만 로컬 스토리지 업데이트 및 상태 변경
+      if (hasChanges) {
+        localStorage.setItem(
+          FEEDBACK_STORAGE_KEY,
+          JSON.stringify(updatedFeedbacks)
+        );
+        console.log(
+          "피드백 데이터 저장 완료:",
+          updatedFeedbacks.length,
+          "항목"
+        );
+        setStoredFeedbacks(updatedFeedbacks);
+      }
+    } catch (error) {
+      console.error("피드백 데이터 병합 중 오류:", error);
+    }
+  }, [feedbacks, endTime]); // storedFeedbacks 의존성 제거
 
   // 로딩 상태 UI
   if (isLoading) {
@@ -109,56 +138,37 @@ const Feedback = ({ feedbacks = [], isLoading = false, endTime }) => {
     );
   }
 
-  // 개선된 날짜 포맷팅 함수
+  // 날짜 포맷팅 함수
   const formatDate = (dateString) => {
     try {
-      // 숫자(timestamp)인 경우 처리
-      if (typeof dateString === "number") {
-        return new Date(dateString).toISOString().split("T")[0];
-      }
-
-      // 문자열이 아닌 경우
       if (!dateString || typeof dateString !== "string") {
         return "날짜 정보 없음";
       }
 
-      // 날짜 형식인지 확인
-      if (dateString.includes("T") || dateString.includes("-")) {
-        // ISO 포맷 또는 날짜 포맷으로 보이는 경우
-        return dateString.split("T")[0];
+      // ISO 형식의 날짜 문자열에서 날짜 부분만 추출
+      const datePart = dateString.split("T")[0];
+
+      // yyyy-mm-dd 형식 확인
+      if (datePart && datePart.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        return datePart;
       }
 
-      // meeting_id가 타임스탬프인 경우 처리 시도
-      if (!isNaN(dateString) && dateString.length > 8) {
-        const timestamp = parseInt(dateString);
-        if (!isNaN(timestamp)) {
-          return new Date(timestamp).toISOString().split("T")[0];
-        }
-      }
-
-      return dateString; // 그외의 경우 원본 반환
+      return "날짜 정보 없음";
     } catch (error) {
-      console.error("날짜 포맷팅 오류:", error, "대상 문자열:", dateString);
+      console.error("날짜 포맷팅 오류:", error);
       return "날짜 정보 없음";
     }
   };
 
-  // UI 렌더링
+  // UI 렌더링 부분
   return (
     <div className="feedback-container">
       {displayFeedbacks.map((item, index) => {
         if (!item) return null;
 
-        // 날짜 정보 출력 (디버깅)
-        console.log(`렌더링 - 피드백 ${index} 날짜 정보:`, item.endTime);
-
-        // 여러 소스에서 날짜 정보 추출 시도
+        // 날짜 포맷팅
         const meetingDate =
-          (item.endTime && formatDate(item.endTime)) ||
-          (item.created_at && formatDate(item.created_at)) ||
-          (item.meeting_date && formatDate(item.meeting_date)) ||
-          formatDate(item.meeting_id) ||
-          "날짜 정보 없음";
+          (item.endTime && formatDate(item.endTime)) || "날짜 정보 없음";
 
         const feedback = item.feedback || "피드백 내용이 없습니다.";
 

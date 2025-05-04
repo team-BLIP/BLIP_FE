@@ -1,20 +1,21 @@
 .feedback-container {
   width: 85%;
-  height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: 3%;
   box-sizing: border-box;
   overflow-y: auto;
   scrollbar-width: thin;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .feedback-card {
   width: 100%;
   height: auto;
   border-radius: 1rem;
-  border: 1px solid #E0E0E0;
-  background-color: #FFFFFF;
+  border: 1px solid #e0e0e0;
+  background-color: #ffffff;
   padding: 3%;
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05);
   box-sizing: border-box;
@@ -31,7 +32,7 @@
 .feedback-header {
   margin-bottom: 3%;
   padding-bottom: 2%;
-  border-bottom: 1px solid #F0F0F0;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .feedback-content {
