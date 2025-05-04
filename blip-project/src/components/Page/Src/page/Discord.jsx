@@ -288,41 +288,41 @@ const Discord = () => {
   };
 
   const onClickEnd = async () => {
-    const teamId = getValidTeamId();
+    // const teamId = getValidTeamId();
 
-    if (recordingServiceRef.current && isRecording) {
-      try {
-        // 녹음 중지 및 MP3 변환
-        const recordingBlob = await recordingServiceRef.current.stopRecording(
-          teamId
-        );
+    // if (recordingServiceRef.current && isRecording) {
+    //   try {
+    //     // 녹음 중지 및 MP3 변환
+    //     const recordingBlob = await recordingServiceRef.current.stopRecording(
+    //       teamId
+    //     );
 
-        // 회의 종료 처리 함수 호출
-        const result = await handleMeetingEnd(
-          null, // meetingId
-          teamId,
-          null, // setMeetingId
-          createTeamId,
-          itemBackendId,
-          recordingBlob
-        );
+    //     // 회의 종료 처리 함수 호출
+    //     const result = await handleMeetingEnd(
+    //       null, // meetingId
+    //       teamId,
+    //       null, // setMeetingId
+    //       createTeamId,
+    //       itemBackendId,
+    //       recordingBlob
+    //     );
 
-        if (result.success) {
-          // 성공적으로 회의 종료
-          setMeetingEnd(true);
-        } else {
-          // 오류 처리
-          console.error("회의 종료 실패:", result.error);
-          alert(result.error);
-        }
-      } catch (error) {
-        console.error("회의 종료 처리 중 오류:", error);
-      }
-    } else {
-      // 녹음 중이 아닌 경우 바로 회의 종료
-      setMeetingEnd(true);
-      setDiscord(false);
-    }
+    //     if (result.success) {
+    //       // 성공적으로 회의 종료
+    //       setMeetingEnd(true);
+    //     } else {
+    //       // 오류 처리
+    //       console.error("회의 종료 실패:", result.error);
+    //       alert(result.error);
+    //     }
+    //   } catch (error) {
+    //     console.error("회의 종료 처리 중 오류:", error);
+    //   }
+    // } else {
+    //   // 녹음 중이 아닌 경우 바로 회의 종료
+    // }
+    setMeetingEnd(true);
+    setDiscord(false);
   };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
