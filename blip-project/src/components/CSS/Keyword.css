@@ -1,12 +1,13 @@
 .keyword-container {
   width: 85%;
-  height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: 3%;
   box-sizing: border-box;
   overflow-y: auto;
   scrollbar-width: thin;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .keyword-card {
