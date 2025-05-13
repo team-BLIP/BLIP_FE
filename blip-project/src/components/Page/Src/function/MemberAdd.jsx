@@ -3,7 +3,7 @@ import { TeamDel } from "../../Main/Main";
 import { typography } from "../../../../fonts/fonts";
 import { color } from "../../../../style/color";
 import styled from "styled-components";
-import { UseStateContext } from "../../../../Router";
+import { UseStateContext } from "../../../../contexts/AppContext";
 
 const MemberAdd = () => {
   const { userName, itemId } = useContext(TeamDel);

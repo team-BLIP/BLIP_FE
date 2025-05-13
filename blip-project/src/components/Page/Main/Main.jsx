@@ -3,7 +3,7 @@ import MainTeamOwner from "./MainTeamOwner";
 import MTeamJoinNo from "./MainTeamJoinNo";
 import FullScreenPage from "./FullScreen";
 import { useLocation } from "react-router-dom";
-import { UseStateContext } from "../../../Router";
+import { UseStateContext } from "../../../contexts/AppContext";
 import {
   useMemo,
   createContext,
@@ -33,16 +33,13 @@ const Main = () => {
     newTeamId,
   } = location.state || {};
 
-  const { FullScreen, targetId, setTargetId } = useContext(UseStateContext);
+  const { FullScreen, targetId, setTargetId, discord } = useContext(UseStateContext);
 
   const [filteredItem, setFilteredItem] = useState(null);
   const [Owner, setOwner] = useState(null);
   const [join, setJoin] = useState(null);
   const [image, setImage] = useState(null);
-  const [teamImages, setTeamImages] = useState(() => {
-    const savedImages = localStorage.getItem("teamImages");
-    return savedImages ? JSON.parse(savedImages) : {};
-  });
+  const [teamImages, setTeamImages] = useState(null);
   const [isTopic, setIsTopic] = useState("");
   const [userName, setUserName] = useState([]);
   const [inputName, setInputName] = useState("");
@@ -79,10 +76,20 @@ const Main = () => {
 
   // targetId 업데이트 로직 최적화
   useEffect(() => {
-    if (typeof setTargetId === "function" && targetId !== undefined) {
-      setTargetId((prevId) => (prevId !== targetId ? targetId : prevId));
+    const storedId = localStorage.getItem("currentTeamId");
+    
+    // 저장된 ID가 있고, 현재 targetId와 다른 경우에만 업데이트
+    if (storedId && storedId !== targetId) {
+      setTargetId(storedId);
     }
-  }, [targetId, setTargetId]);
+  }, []); // 마운트 시에만 실행
+
+  // 팀 ID가 변경될 때 로컬 스토리지 업데이트
+  useEffect(() => {
+    if (targetId) {
+      localStorage.setItem("currentTeamId", targetId);
+    }
+  }, [targetId]);
 
   // 메모이제이션된 Context 값
   const findIdValue = useMemo(
@@ -95,7 +102,7 @@ const Main = () => {
       createTeamUrl,
       idMappings,
       addIdMappings,
-      targetId, // targetId 추가하여 SidebarTeam에서 접근 가능하게 함
+      targetId,
       itemBackendId,
       newTeamId,
     }),

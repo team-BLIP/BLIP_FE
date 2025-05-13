@@ -13,7 +13,12 @@ const KeywordApi = async (targetId, meetingId = null) => {
   const keywordUrl = `${apiUrl}teams/${effectiveTeamId}`;
 
   // 로컬 스토리지에서 토큰 가져오기
-  const accessToken = import.meta.env.VITE_API_URL_URL_KEY;
+  const accessToken =
+    localStorage.getItem("accessToken") || import.meta.env.VITE_API_URL_URL_KEY;
+  if (!accessToken) {
+    console.error("인증 토큰이 없습니다.");
+    throw new Error("인증 토큰이 없습니다. 로그인이 필요합니다.");
+  }
 
   console.log("회의 요약 API 호출 정보:", {
     originalTargetId: targetId,
@@ -27,11 +32,12 @@ const KeywordApi = async (targetId, meetingId = null) => {
     const response = await axios.get(keywordUrl, {
       headers: {
         "Content-Type": "application/json",
-        Authorization: accessToken ? `Bearer ${accessToken.trim()}` : "",
+        Authorization: `Bearer ${accessToken.trim()}`,
       },
     });
 
     console.log("회의 요약 API 응답 성공:", response.data);
+    console.log("회의 요약 API", keywordUrl);
 
     // API 응답 구조 처리
     const responseData = response.data;
@@ -60,13 +66,22 @@ const KeywordApi = async (targetId, meetingId = null) => {
       }
     }
     console.log("meetingsData", meetingsData);
-    
+
     return meetingsData;
   } catch (error) {
     console.error(
       "회의 요약 API 요청 실패:",
       error.response?.data || error.message
     );
+
+    // 401 에러 처리
+    if (error.response?.status === 401) {
+      console.error("인증이 만료되었습니다. 다시 로그인해주세요.");
+      // 로컬 스토리지에서 토큰 제거
+      localStorage.removeItem("accessToken");
+      throw new Error("인증이 만료되었습니다. 다시 로그인해주세요.");
+    }
+
     return []; // 오류 발생 시 빈 배열 반환
   }
 };

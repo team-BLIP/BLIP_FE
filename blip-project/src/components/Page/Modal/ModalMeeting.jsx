@@ -3,7 +3,7 @@ import { typography } from "../../../fonts/fonts";
 import { color } from "../../../style/color";
 import { useState, useContext, useEffect } from "react";
 import ESC from "../../../svg/ESC.svg";
-import { UseStateContext } from "../../../Router";
+import { UseStateContext, useAppState } from "../../../contexts/AppContext";
 import { TeamDel } from "../Main/Main";
 import { FindId } from "../Main/Main";
 import MeetingStartApi from "../Src/api/MeetingStartApi";
@@ -12,6 +12,7 @@ const ModalMeeting = ({ onClose }) => {
   const [isCheckMike, setIsCheckMike] = useState(false);
   const [isCheckCamera, setIsCheckCamera] = useState(false);
   const [userEmail, setUserEmail] = useState("");
+  const { setFullScreen } = useAppState();
 
   const {
     setIsMike,
@@ -78,14 +79,6 @@ const ModalMeeting = ({ onClose }) => {
 
   const onClickStartMeeting = async () => {
     console.log("회의 시작 시도");
-    console.log(
-      "itemBackendId:",
-      itemBackendId,
-      "targetId:",
-      targetId,
-      "itemId:",
-      itemId
-    );
 
     // 백엔드 ID 확인
     const validTeamId = itemBackendId || targetId || itemId;
@@ -99,79 +92,79 @@ const ModalMeeting = ({ onClose }) => {
     const leaderEmail = getLeaderEmailForTeam(validTeamId);
     console.log("회의 시작에 사용할 리더 이메일:", leaderEmail);
 
-    if (typeof setDiscord === "function") {
-      try {
-        const result = await MeetingStartApi({
-          isTopic,
-          targetId: validTeamId,
-          createTeamId,
-          itemBackendId,
-          setMeetingId,
-          userEmail: leaderEmail, // 리더 이메일 전달
-        });
-
-        console.log("회의 시작 성공:", result);
-
-        // 회의 시작 성공시에만 Discord 화면으로 이동
-        setDiscord(true);
-        setMeetingEnd(false);
-        onClose();
-      } catch (error) {
-        console.error("회의 시작 실패:", error);
-        let errorMsg = "회의 시작에 실패했습니다.";
-
-        if (error.response) {
-          // 서버 응답에 따른 에러 메시지 설정
-          if (error.response.data && typeof error.response.data === "string") {
-            errorMsg = error.response.data;
-          } else {
-            switch (error.response.status) {
-              case 403:
-                errorMsg = "권한이 없습니다. 로그인 상태를 확인해주세요.";
-                break;
-              case 404:
-                errorMsg = "리소스를 찾을 수 없습니다.";
-                break;
-              case 400:
-                errorMsg = "잘못된 요청입니다. 입력 정보를 확인해주세요.";
-                break;
-              case 500:
-                errorMsg =
-                  "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
-                break;
-            }
-          }
-        }
-
-        alert(errorMsg);
-        // 에러 발생 시 Discord 화면으로 이동하지 않고 모달만 닫음
-        onClose();
-      }
-    } else {
-      console.log("setDiscord 함수가 정의되지 않았습니다");
+    if (typeof setDiscord !== "function") {
+      console.error("setDiscord 함수가 정의되지 않았습니다");
       alert("회의 시작 기능을 사용할 수 없습니다.");
       onClose();
+      return;
+    }
+
+    try {
+      // 로딩 상태 표시 (필요한 경우 여기에 추가)
+
+      const result = await MeetingStartApi({
+        isTopic,
+        targetId: validTeamId,
+        createTeamId,
+        itemBackendId,
+        setMeetingId,
+        userEmail: leaderEmail,
+      });
+
+      console.log("회의 시작 성공:", result);
+
+      // 중요: room_url을 localStorage에 저장
+      if (result && result.room_url) {
+        localStorage.setItem("currentRoomUrl", result.room_url);
+        console.log("회의실 URL 저장됨:", result.room_url);
+      }
+
+      // meeting_id도 저장
+      if (result && result.meeting_id) {
+        localStorage.setItem("currentMeetingId", String(result.meeting_id));
+        if (typeof setMeetingId === "function") {
+          setMeetingId(result.meeting_id);
+        }
+      }
+
+      // 다른 필요한 데이터 저장
+      localStorage.setItem("discordActive", "true");
+
+      // 상태 변경 전에 모달 닫기
+      onClose();
+      setFullScreen(false);
+
+      // 약간의 지연 후 상태 업데이트
+      setTimeout(() => {
+        try {
+          setDiscord(true);
+          setMeetingEnd(false);
+          console.log("Discord 활성화 상태 설정 완료");
+        } catch (err) {
+          console.error("상태 업데이트 중 오류:", err);
+          // 오류 발생 시 수동으로 페이지 새로고침하여 복구 시도
+          alert(
+            "회의 화면으로 전환 중 문제가 발생했습니다. 페이지를 새로고침합니다."
+          );
+          window.location.reload();
+        }
+      }, 100);
+    } catch (error) {
+      console.error("회의 시작 실패:", error);
+      alert("회의 시작에 실패했습니다. 다시 시도해주세요.");
+
+      // 버튼 상태 복원
+      const button = document.querySelector(".modalMeeting-button");
+      if (button) {
+        button.textContent = "회의 시작하기";
+        button.disabled = false;
+      }
     }
   };
-  // setDiscord((perState) => !perState);
-  // onClose();
-  // if (isLetter) {
-  //   setIsLetter((preState) => !preState);
-  // } else if (isAlarm) {
-  //   setIsAlarm((preState) => !preState);
-  // } else if (setting) {
-  //   setSetting((preState) => !preState);
-  // } else if (isFeedback) {
-  //   setIsFeedback((preState) => !preState);
-  // } else if (isKeyword) {
-  //   setIsKeyword((preState) => !preState);
-  // } else if (Owner) {
-  //   setOwner((perState) => !perState);
-  // } else if (join) {
-  //   setJoin((perState) => !perState);
-  // } else if (basic) {
-  //   setBasic((perState) => !perState);
-  // }
+
+  useEffect(() => {
+    console.log("discord 상태 변경됨:", discord);
+  }, [discord]);
 
   return (
     <div className="modalMeeting-overlay">

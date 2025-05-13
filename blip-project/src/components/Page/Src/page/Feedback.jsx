@@ -2,111 +2,147 @@ import "../../../CSS/Feedback.css";
 import { typography } from "../../../../fonts/fonts";
 import { color } from "../../../../style/color";
 import { useEffect, useState, useRef } from "react";
+import FeedBackApi from "../api/FeedBackApi";
 
 const FEEDBACK_STORAGE_KEY = "meeting_feedbacks";
 
-const Feedback = ({ feedbacks = [], isLoading = false, endTime }) => {
+const Feedback = ({ isLoading: initialLoading = false, endTime }) => {
   const [storedFeedbacks, setStoredFeedbacks] = useState([]);
+  const [isLoading, setIsLoading] = useState(initialLoading);
+  const [error, setError] = useState(null);
   const containerRef = useRef(null);
-  // 이전 피드백 데이터 추적용 ref
-  const processedFeedbacksRef = useRef(null);
 
-  // 디버깅을 위한 로그
-  useEffect(() => {
-    if (feedbacks?.length > 0) {
-      console.log("Feedback 컴포넌트 - 받은 피드백 데이터:", feedbacks);
-    }
-    if (endTime) {
-      console.log("Feedback 컴포넌트 - 받은 endTime:", endTime);
-    }
-  }, [feedbacks, endTime]);
-
-  // 로컬 스토리지 데이터 로드 (마운트 시 한 번만)
-  useEffect(() => {
-    const loadStoredFeedbacks = () => {
-      try {
-        const storedData = localStorage.getItem(FEEDBACK_STORAGE_KEY);
-        return storedData ? JSON.parse(storedData) : [];
-      } catch (error) {
-        console.error("로컬 스토리지에서 피드백 로드 중 오류:", error);
-        return [];
-      }
-    };
-
-    setStoredFeedbacks(loadStoredFeedbacks());
-  }, []);
-
-  // 새로운 피드백 데이터 병합
-  useEffect(() => {
-    // 새 피드백이 없거나 이전과 동일한 데이터면 처리하지 않음
-    if (
-      !feedbacks ||
-      feedbacks.length === 0 ||
-      JSON.stringify(feedbacks) ===
-        JSON.stringify(processedFeedbacksRef.current)
-    ) {
-      return;
-    }
-
-    // 현재 처리 중인 피드백 데이터 저장
-    processedFeedbacksRef.current = [...feedbacks];
-
-    // 로컬 스토리지에서 최신 데이터 직접 가져오기
+  // 피드백 데이터 가져오기
+  const fetchFeedbacks = async () => {
     try {
-      const storedData = localStorage.getItem(FEEDBACK_STORAGE_KEY);
-      const currentStored = storedData ? JSON.parse(storedData) : [];
+      setIsLoading(true);
+      setError(null);
 
-      // 새 데이터와 기존 데이터 병합
-      const updatedFeedbacks = [...currentStored];
-      let hasChanges = false;
+      // 현재 팀 ID 가져오기
+      const currentTeamId = localStorage.getItem("currentTeamId");
+      if (!currentTeamId) {
+        console.warn("현재 팀 ID를 찾을 수 없습니다.");
+        setIsLoading(false);
+        return;
+      }
 
-      feedbacks.forEach((newFeedback) => {
-        // endTime 추가
-        const meetingEndTime =
-          newFeedback.endTime || endTime || new Date().toISOString();
-        const updatedFeedback = { ...newFeedback, endTime: meetingEndTime };
+      console.log("피드백 데이터 가져오기 시작 - 팀 ID:", currentTeamId);
 
-        // 기존 데이터에서 같은 meeting_id를 가진 항목 찾기
-        const existingIndex = updatedFeedbacks.findIndex(
-          (item) => item.meeting_id === newFeedback.meeting_id
-        );
+      // 1. API 호출
+      const feedbacksData = await FeedBackApi(currentTeamId);
+      console.log("API 응답 데이터:", feedbacksData);
 
-        if (existingIndex >= 0) {
-          // 기존 항목 업데이트 (변경된 경우에만)
-          if (
-            JSON.stringify(updatedFeedbacks[existingIndex]) !==
-            JSON.stringify(updatedFeedback)
-          ) {
-            updatedFeedbacks[existingIndex] = {
-              ...updatedFeedbacks[existingIndex],
-              ...updatedFeedback,
-            };
-            hasChanges = true;
+      // 2. 데이터가 있으면 로컬 스토리지에 저장
+      if (Array.isArray(feedbacksData) && feedbacksData.length > 0) {
+        // 기존 데이터 로드
+        const existingData = [];
+        try {
+          const storedData = localStorage.getItem(FEEDBACK_STORAGE_KEY);
+          if (storedData) {
+            const parsedData = JSON.parse(storedData);
+            if (Array.isArray(parsedData)) {
+              existingData.push(...parsedData);
+            }
           }
-        } else {
-          // 새 항목 추가
-          updatedFeedbacks.push(updatedFeedback);
-          hasChanges = true;
+        } catch (e) {
+          console.error("기존 데이터 로드 오류:", e);
         }
-      });
 
-      // 변경사항이 있는 경우에만 로컬 스토리지 업데이트 및 상태 변경
-      if (hasChanges) {
-        localStorage.setItem(
-          FEEDBACK_STORAGE_KEY,
-          JSON.stringify(updatedFeedbacks)
-        );
-        console.log(
-          "피드백 데이터 저장 완료:",
-          updatedFeedbacks.length,
-          "항목"
-        );
-        setStoredFeedbacks(updatedFeedbacks);
+        // 새 데이터와 기존 데이터 병합 (중복 방지)
+        const mergedData = [...existingData];
+
+        feedbacksData.forEach((newItem) => {
+          // 기존 항목과 중복 체크
+          const existingIndex = mergedData.findIndex(
+            (item) => item && item.meeting_id === newItem.meeting_id
+          );
+
+          if (existingIndex >= 0) {
+            // 업데이트
+            mergedData[existingIndex] = {
+              ...mergedData[existingIndex],
+              ...newItem,
+            };
+          } else {
+            // 추가
+            mergedData.push(newItem);
+          }
+        });
+
+        // 3. 로컬 스토리지에 저장 (explicit)
+        try {
+          const jsonData = JSON.stringify(mergedData);
+          localStorage.setItem(FEEDBACK_STORAGE_KEY, jsonData);
+          console.log(
+            `로컬 스토리지에 ${mergedData.length}개 항목 저장됨:`,
+            FEEDBACK_STORAGE_KEY
+          );
+
+          // 4. 상태 업데이트
+          setStoredFeedbacks(mergedData);
+        } catch (storageError) {
+          console.error("로컬 스토리지 저장 오류:", storageError);
+          setError("데이터를 저장하는 중 오류가 발생했습니다.");
+        }
+      } else {
+        // 데이터가 없는 경우 기존 데이터 로드
+        try {
+          const storedData = localStorage.getItem(FEEDBACK_STORAGE_KEY);
+          if (storedData) {
+            const parsedData = JSON.parse(storedData);
+            if (Array.isArray(parsedData)) {
+              setStoredFeedbacks(parsedData);
+              console.log("기존 로컬 스토리지 데이터 로드:", parsedData.length);
+            }
+          }
+        } catch (e) {
+          console.error("로컬 스토리지 로드 오류:", e);
+        }
       }
     } catch (error) {
-      console.error("피드백 데이터 병합 중 오류:", error);
+      console.error("피드백 데이터 가져오기 실패:", error);
+      setError(error.message || "피드백 정보를 가져오는데 실패했습니다.");
+
+      // 오류 발생 시 기존 로컬 스토리지 데이터 로드
+      try {
+        const storedData = localStorage.getItem(FEEDBACK_STORAGE_KEY);
+        if (storedData) {
+          const parsedData = JSON.parse(storedData);
+          if (Array.isArray(parsedData)) {
+            setStoredFeedbacks(parsedData);
+            console.log("오류 발생 시 기존 데이터 로드:", parsedData.length);
+          }
+        }
+      } catch (e) {
+        console.error("오류 후 로컬 스토리지 로드 실패:", e);
+      }
+    } finally {
+      setIsLoading(false);
     }
-  }, [feedbacks, endTime]); // storedFeedbacks 의존성 제거
+  };
+
+  // 컴포넌트 마운트 시 데이터 가져오기
+  useEffect(() => {
+    fetchFeedbacks();
+  }, []);
+
+  // 로컬 스토리지에서 현재 팀 ID 가져오기
+  let currentTeamId = null;
+  try {
+    currentTeamId = localStorage.getItem("currentTeamId");
+  } catch (error) {
+    console.warn("팀 ID 로드 실패:", error);
+  }
+
+  // 표시할 데이터 결정
+  const filteredFeedbacks = currentTeamId
+    ? storedFeedbacks.filter(
+        (item) =>
+          item &&
+          item.meeting_id &&
+          String(item.team_id) === String(currentTeamId)
+      )
+    : storedFeedbacks;
 
   // 로딩 상태 UI
   if (isLoading) {
@@ -121,14 +157,23 @@ const Feedback = ({ feedbacks = [], isLoading = false, endTime }) => {
     );
   }
 
-  // 표시할 데이터 결정
-  const displayFeedbacks =
-    storedFeedbacks.length > 0 ? storedFeedbacks : feedbacks;
-
-  // 데이터가 없는 경우 UI
-  if (!Array.isArray(displayFeedbacks) || displayFeedbacks.length === 0) {
+  // 에러 상태 UI
+  if (error) {
     return (
       <div className="feedback-container">
+        <div className="feedback-error">
+          <p style={{ ...typography.Header3, color: color.Error[0] }}>
+            {error}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // 데이터가 없는 경우 UI
+  if (!Array.isArray(filteredFeedbacks) || filteredFeedbacks.length === 0) {
+    return (
+      <div className="no-feedback-container">
         <div className="feedback-empty">
           <p style={{ ...typography.Header3, color: color.GrayScale[4] }}>
             피드백이 없습니다.
@@ -145,32 +190,31 @@ const Feedback = ({ feedbacks = [], isLoading = false, endTime }) => {
         return "날짜 정보 없음";
       }
 
-      // ISO 형식의 날짜 문자열에서 날짜 부분만 추출
-      const datePart = dateString.split("T")[0];
-
-      // yyyy-mm-dd 형식 확인
-      if (datePart && datePart.match(/^\d{4}-\d{2}-\d{2}$/)) {
-        return datePart;
-      }
-
-      return "날짜 정보 없음";
+      const date = new Date(dateString);
+      return date.toLocaleDateString("ko-KR", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
     } catch (error) {
       console.error("날짜 포맷팅 오류:", error);
       return "날짜 정보 없음";
     }
   };
 
-  // UI 렌더링 부분
+  // UI 렌더링
   return (
-    <div className="feedback-container">
-      {displayFeedbacks.map((item, index) => {
+    <div className="feedback-container" ref={containerRef}>
+      {filteredFeedbacks.map((item, index) => {
         if (!item) return null;
 
-        // 날짜 포맷팅
         const meetingDate =
-          (item.endTime && formatDate(item.endTime)) || "날짜 정보 없음";
+          (item.endTime && formatDate(item.endTime)) ||
+          (endTime && formatDate(endTime)) ||
+          formatDate(item.created_at) ||
+          "날짜 정보 없음";
 
-        const feedback = item.feedback || "피드백 내용이 없습니다.";
+        const feedbackContent = item.feedback || "피드백 내용이 없습니다.";
 
         return (
           <div
@@ -181,14 +225,20 @@ const Feedback = ({ feedbacks = [], isLoading = false, endTime }) => {
               <h3 style={{ ...typography.Header3 }}>{meetingDate} 회의</h3>
             </div>
             <div className="feedback-content">
-              {feedback.split("\n").map((line, lineIdx) => (
-                <p
-                  key={`line-${index}-${lineIdx}`}
-                  style={{ ...typography.Body1, color: color.GrayScale[4] }}
-                >
-                  {line}
-                </p>
-              ))}
+              <div
+                style={{ ...typography.Body1, color: color.GrayScale[4] }}
+                className="markdown-content"
+              >
+                {typeof feedbackContent === "string" ? (
+                  feedbackContent
+                    .split("\n")
+                    .map((line, lineIdx) => (
+                      <p key={`line-${index}-${lineIdx}`}>{line}</p>
+                    ))
+                ) : (
+                  <p>피드백 내용이 없습니다.</p>
+                )}
+              </div>
             </div>
           </div>
         );

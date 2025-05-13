@@ -5,7 +5,7 @@ import SidebarTeam from "../Src/sidebarTeam";
 import StartTeam from "./StartTeam";
 import MeetingTeam from "../Src/MeetingTeam";
 import { useContext } from "react";
-import { UseStateContext } from "../../../Router";
+import { UseStateContext } from "../../../contexts/AppContext";
 
 const MTeamJoinNo = () => {
   const { discord } = useContext(UseStateContext);

@@ -1,12 +1,16 @@
-import { useState, useEffect, useContext } from "react";
-import { UseStateContext, Call } from "../../../../Router";
+import { useEffect } from 'react';
+import { useAppState } from "../../../../contexts/AppContext";
 
-const UseMike = (stream) => {
-  const { isMike, setIsMike } = useContext(UseStateContext);
-
-  const { recorder, setRecorder } = useContext(Call);
-
-  const [recordedChunks, setRecordedChunks] = useState([]);
+const useMike = () => {
+  const {
+    isMike,
+    setIsMike,
+    stream,
+    recorder,
+    setRecorder,
+    recordedChunks,
+    setRecordedChunks,
+  } = useAppState();
 
   useEffect(() => {
     if (isMike && !recorder) {
@@ -14,7 +18,7 @@ const UseMike = (stream) => {
     } else if (!isMike && recorder) {
       stopRecording();
     }
-  }, [isMike]);
+  }, [isMike, recorder]);
 
   const startRecording = () => {
     if (!stream) return;
@@ -52,4 +56,4 @@ const UseMike = (stream) => {
   return { isMike, toggleMike, recordedChunks };
 };
 
-export default UseMike;
+export default useMike;

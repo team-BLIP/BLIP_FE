@@ -63,76 +63,81 @@ const listApi = async (forceRefresh = false) => {
   }
 
   // API 환경 변수 가져오기
-  const apiUrl = import.meta.env.VITE_API_URL_BASE.trim();
-  const accessToken = import.meta.env.VITE_API_URL_URL_KEY?.trim();
+  const apiUrl = import.meta.env.VITE_API_URL_URL_LIST_TEAM;
+  const accessToken = import.meta.env.VITE_API_URL_URL_KEY;
 
-  // URL 슬래시 처리
-  const listUrl = apiUrl.endsWith("/") ? `${apiUrl}teams` : `${apiUrl}/teams`;
+  // 현재 팀 ID 가져오기
+  const currentTeamId = localStorage.getItem("currentTeamId");
+  if (!currentTeamId) {
+    console.error("현재 팀 ID를 찾을 수 없습니다.");
+    return [defaultTeam];
+  }
+
+  // URL 구성
+  const listUrl = `${apiUrl}teams/${currentTeamId}`;
   console.log("API 요청 URL:", listUrl);
 
   try {
     const headers = {
       "Content-Type": "application/json",
+      Authorization: accessToken ? `Bearer ${accessToken.trim()}` : "",
     };
 
-    if (accessToken) {
-      headers.Authorization = `Bearer ${accessToken}`;
-      console.log("인증 토큰 사용 중");
-    } else {
-      console.warn("인증 토큰이 없습니다");
-    }
-
+    console.log("API 요청 시작 - URL:", listUrl);
     const response = await axios.get(listUrl, { headers });
     console.log("API 응답 성공:", response.status);
 
-    // 응답 데이터 처리
-    const teamsData =
-      response.data.teams || response.data.items || response.data;
+    // API 응답 데이터 정규화
+    const teams = response.data.map(team => ({
+      id: `create-${team.team_id}`,
+      team_id: team.team_id,
+      backendId: team.team_id,
+      _originalId: team.team_id,
+      _orginalId: team.team_id,
+      content: team.team_name,
+      team_name: team.team_name,
+      name: team.team_name,
+      itemContent: team.team_name,
+      TeamUrl: team.invite_link || team.TeamUrl || "",
+      invite_link: team.invite_link || team.TeamUrl || "",
+      createTeamUrl: team.invite_link || team.TeamUrl || "",
+      isPlus: false,
+      meetings: team.meetings || []
+    }));
 
-    if (Array.isArray(teamsData)) {
-      console.log(`${teamsData.length}개의 팀 데이터 로드됨`);
+    console.log("정규화된 팀 데이터:", teams);
 
-      // '새 스페이스 만들기' 항목 포함 여부 확인 및 추가
-      const teamsWithDefault = ensureDefaultTeam(teamsData, defaultTeam);
+    // 기본 팀 추가
+    const teamsWithDefault = [...teams, defaultTeam];
 
-      // 로컬 스토리지에 저장
-      localStorage.setItem("teamsList", JSON.stringify(teamsWithDefault));
-      localStorage.setItem("teamsLastFetched", new Date().toISOString());
+    // 캐시 업데이트
+    localStorage.setItem("teamsList", JSON.stringify(teamsWithDefault));
+    localStorage.setItem("teamsLastFetched", new Date().toISOString());
 
-      // 삭제된 팀 ID 정보 제거 (새로운 데이터를 가져왔으므로)
-      localStorage.removeItem("recentlyDeletedTeamId");
-
-      return teamsWithDefault;
-    } else {
-      console.warn("API 응답이 예상 형식과 다릅니다:", response.data);
-
-      const defaultTeamArray = [defaultTeam];
-      localStorage.setItem("teamsList", JSON.stringify(defaultTeamArray));
-
-      return defaultTeamArray;
-    }
+    return teamsWithDefault;
   } catch (error) {
     console.error("팀 목록 가져오기 실패:", error.message);
 
     if (error.response) {
       console.error("상태 코드:", error.response.status);
       console.error("응답 헤더:", error.response.headers);
+      console.error("응답 데이터:", error.response.data);
 
-      if (error.response.status === 403) {
-        console.error("인증 오류: 권한이 없거나 토큰이 잘못되었습니다.");
-        localStorage.setItem(
-          "teamsApiError",
-          JSON.stringify({
-            status: 403,
-            time: new Date().toISOString(),
-            message: "인증 오류가 발생했습니다.",
-          })
-        );
+      // 401 또는 403 에러 처리
+      if (error.response.status === 401 || error.response.status === 403) {
+        console.error("인증이 만료되었거나 권한이 없습니다. 다시 로그인해주세요.");
+        // 토큰 제거
+        localStorage.removeItem("accessToken");
+        // 다른 관련 데이터도 제거
+        localStorage.removeItem("userEmail");
+        localStorage.removeItem("userName");
+        
+        // 로그인 페이지로 리디렉션하기 위한 이벤트 발생
+        window.dispatchEvent(new CustomEvent("auth:required"));
+        
+        throw new Error("인증이 만료되었습니다. 다시 로그인해주세요.");
       }
 
-      if (error.response.data) {
-        console.error("서버 응답 데이터:", error.response.data);
-      }
     } else if (error.request) {
       console.error("서버 응답 없음:", error.request);
     } else {
@@ -145,55 +150,34 @@ const listApi = async (forceRefresh = false) => {
       console.log("API 오류로 인해 캐시된 팀 목록 사용");
       try {
         const parsedTeams = JSON.parse(cachedTeams);
-
-        // 최근 삭제된 팀 확인 및 제거
-        const recentlyDeletedTeamId = localStorage.getItem(
-          "recentlyDeletedTeamId"
-        );
-        if (recentlyDeletedTeamId) {
-          const teamIdStr = String(recentlyDeletedTeamId);
-          const filteredTeams = parsedTeams.filter(
-            (team) =>
-              String(team.id) !== teamIdStr &&
-              String(team.team_id || "") !== teamIdStr &&
-              String(team.backendId || "") !== teamIdStr &&
-              String(team._originalId || "") !== teamIdStr
-          );
-
-          localStorage.setItem("teamsList", JSON.stringify(filteredTeams));
-          localStorage.removeItem("recentlyDeletedTeamId");
-
-          return ensureDefaultTeam(filteredTeams, defaultTeam);
-        }
-
         return ensureDefaultTeam(parsedTeams, defaultTeam);
-      } catch (error) {
-        console.error("캐시된 팀 목록 파싱 오류:", error);
+      } catch (parseError) {
+        console.error("캐시 데이터 파싱 오류:", parseError);
       }
     }
 
-    // 캐시도 없는 경우 기본 팀만 반환
-    const defaultTeamArray = [defaultTeam];
-    localStorage.setItem("teamsList", JSON.stringify(defaultTeamArray));
-
-    return defaultTeamArray;
+    // 모든 시도 실패 시 기본 팀만 반환
+    return [defaultTeam];
   }
 };
 
-function ensureDefaultTeam(teams, defaultTeam) {
+// 팀 목록에 '새 스페이스 만들기' 항목이 있는지 확인하고 없으면 추가하는 함수
+const ensureDefaultTeam = (teams, defaultTeam) => {
   if (!Array.isArray(teams)) {
+    console.warn("teams가 배열이 아닙니다. 기본 팀만 반환합니다.");
     return [defaultTeam];
   }
 
-  const hasPlusTeam = teams.some(
+  // 기본 팀이 이미 있는지 확인
+  const hasDefaultTeam = teams.some(
     (team) =>
-      team.isPlus === true ||
-      team.id === defaultTeam.id ||
-      team.team_id === defaultTeam.team_id ||
-      team.team_name === defaultTeam.team_name
+      team.isDefault ||
+      team.id === "default-team" ||
+      team.team_id === "default-team"
   );
 
-  return hasPlusTeam ? teams : [...teams, defaultTeam];
-}
+  // 없으면 추가
+  return hasDefaultTeam ? teams : [...teams, defaultTeam];
+};
 
 export default listApi;

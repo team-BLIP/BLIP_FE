@@ -4,7 +4,7 @@ import { typography } from "../../../fonts/fonts";
 import { useContext, useState } from "react";
 import { TeamDel } from "../Main/Main";
 import { FindId } from "../Main/Main";
-import { UseStateContext } from "../../../Router";
+import { useAppState } from "../../../contexts/AppContext";
 import ModalMember from "../Modal/modalMember";
 import MemberSVG from "../../../svg/member.svg";
 import Setting from "../../../svg/setting.svg";
@@ -27,7 +27,24 @@ const Member = () => {
     basic,
     discord,
     join,
-  } = useContext(UseStateContext);
+  } = useAppState();
+
+  console.log("dasdadsaasd",{
+    setSetting,
+    setting,
+    isAlarm,
+    setIsAlarm,
+    isLetter,
+    setIsLetter,
+    isFeedback,
+    setIsFeedback,
+    isKeyword,
+    setIsKeyword,
+    basic,
+    discord,
+    join,
+  });
+
   const { targetId, setTargetId, createTeamId } = useContext(FindId);
   const [isModalOpen, setIsModalOpen] = useState(false);
 

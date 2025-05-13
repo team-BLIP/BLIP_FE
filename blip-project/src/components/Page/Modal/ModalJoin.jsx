@@ -5,22 +5,25 @@ import ESC from "../../../svg/ESC.svg";
 import { useState, useContext, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TeamDel } from "../Main/Main";
-import { UseStateContext } from "../../../Router";
-import { SidebarContext } from "../../../Router";
+import { UseStateContext } from "../../../contexts/AppContext";
 import { FindId } from "../Main/Main";
 import JoinApi from "../Src/api/JoinApi";
 import UrlCheck from "../Src/function/UrlCheck";
+import { useSidebar } from "../../../contexts/AppContext";
 
 const ModalJoin = ({ onClose, parentOnClose }) => {
   const [isInput, setIsInput] = useState("");
   const [isValidURL, setIsValidURL] = useState(true);
   const { setOwner, setJoin, Owner } = useContext(TeamDel);
   const { targetId, setTargetId } = useContext(UseStateContext);
-  const { dispatch } = useContext(SidebarContext);
+  const { dispatch } = useSidebar();
   const { content, TeamUrl } = useContext(FindId);
   const [JoinUrl, setJoinUrl] = useState("");
   const submitRef = useRef();
   const nav = useNavigate();
+  const [inputFont, setInputFont] = useState("");
+  const [isJoining, setIsJoining] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const onClickUrl = async () => {
     if (!isInput) {

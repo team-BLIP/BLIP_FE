@@ -4,49 +4,93 @@ import { color } from "../../../style/color";
 import ESC from "../../../svg/ESC.svg";
 import CopySvg from "../../../svg/copy.svg";
 import okCopy from "../../../svg/okCopy.svg";
-import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useState, useEffect, useContext } from "react";
+import { FindId } from "../Main/Main";
+import PropTypes from "prop-types";
 
-const ModalMember = ({ onClose }) => {
-  const location = useLocation();
-  const [teamUrl, setTeamUrl] = useState("");
+const ModalMember = ({ onClose = () => {} }) => {
+  const [inviteLink, setInviteLink] = useState("");
   const [copyImg, setCopyImg] = useState(CopySvg);
+  const [isLoading, setIsLoading] = useState(true);
+  const { createTeamId } = useContext(FindId);
 
   useEffect(() => {
-    try {
-      const storedTeams = JSON.parse(localStorage.getItem("teams") || "[]");
-      if (storedTeams.length > 0) {
-        const latestTeam = storedTeams[storedTeams.length - 1];
-        if (latestTeam && latestTeam.createTeamUrl) {
-          console.log(
-            "로컬 스토리지에서 TeamUrl 발견:",
-            latestTeam.createTeamUrl
-          );
-          setTeamUrl(latestTeam.createTeamUrl);
-          return;
-        }
-      }
-    } catch (error) {
-      console.error("로컬 스토리지 접근 오류:", error);
-    }
-  }, [location.state]);
+    setIsLoading(true);
+    console.log("ModalMember - createTeamId:", createTeamId);
 
-  const handleCopy = (urlToCopy) => {
-    if (!urlToCopy) {
-      alert("복사할 url이 없습니다.");
+    if (!createTeamId) {
+      console.error("createTeamId가 없습니다.");
+      setIsLoading(false);
       return;
     }
 
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard
-        .writeText(urlToCopy)
-        .then(() => {
-          alert("초대 링크가 복사되었습니다.");
-          setCopyImg(okCopy);
-        })
-        .catch((error) => {
-          alert("초대 코드 복사를 실패했습니다");
-        });
+    try {
+      // localStorage에서 팀 정보 확인
+      const storedTeams = JSON.parse(localStorage.getItem("teamsList") || "[]");
+      console.log("저장된 팀 목록:", storedTeams);
+
+      // ID 정규화 함수
+      const normalizeId = (id) => {
+        if (typeof id === 'string' && id.startsWith('create-')) {
+          return id.replace('create-', '');
+        }
+        return String(id);
+      };
+
+      const normalizedCreateTeamId = normalizeId(createTeamId);
+      console.log("정규화된 createTeamId:", normalizedCreateTeamId);
+
+      // 팀 찾기
+      const currentTeam = storedTeams.find(team => {
+        if (!team) return false;
+        
+        const teamIdMatch = normalizeId(team.team_id) === normalizedCreateTeamId;
+        const idMatch = normalizeId(team.id) === normalizedCreateTeamId;
+        const backendIdMatch = normalizeId(team.backendId) === normalizedCreateTeamId;
+        const originalIdMatch = normalizeId(team._originalId) === normalizedCreateTeamId;
+
+        return teamIdMatch || idMatch || backendIdMatch || originalIdMatch;
+      });
+
+      console.log("찾은 팀 정보:", currentTeam);
+
+      if (currentTeam) {
+        // invite_link를 직접 표시
+        const link = currentTeam.invite_link;
+        
+        if (link) {
+          console.log("초대 링크 발견:", link);
+          setInviteLink(link);
+        } else {
+          console.warn("팀은 찾았으나 초대 링크가 없습니다:", currentTeam);
+          setInviteLink("");
+        }
+      } else {
+        console.warn("해당하는 팀을 찾을 수 없습니다. createTeamId:", createTeamId);
+        setInviteLink("");
+      }
+    } catch (error) {
+      console.error("초대 링크 로드 중 오류 발생:", error);
+      setInviteLink("");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [createTeamId]);
+
+  const handleCopy = async (linkToCopy) => {
+    if (!linkToCopy) {
+      alert("복사할 초대 링크가 없습니다.");
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(linkToCopy);
+      alert("초대 링크가 복사되었습니다.");
+      setCopyImg(okCopy);
+      setTimeout(() => setCopyImg(CopySvg), 2000);
+    } catch (error) {
+      console.error("클립보드 복사 실패:", error);
+      alert("초대 링크 복사를 실패했습니다");
     }
   };
 
@@ -77,15 +121,26 @@ const ModalMember = ({ onClose }) => {
           </p>
           <div className="modal-member-main-url-main">
             <div className="modal-member-main-url">
-              {teamUrl || "팀 url 정보를 불러오는중입니다."}
+              {isLoading 
+                ? "초대 링크를 불러오는 중입니다..." 
+                : inviteLink || "초대 링크를 찾을 수 없습니다."}
             </div>
-            <img src={copyImg} onClick={() => handleCopy(teamUrl)} />
+            <img 
+              src={copyImg} 
+              onClick={() => handleCopy(inviteLink)}
+              style={{ cursor: inviteLink ? "pointer" : "not-allowed" }}
+              alt="복사하기"
+            />
           </div>
         </div>
         <div className="modal-member-button"></div>
       </div>
     </div>
   );
+};
+
+ModalMember.propTypes = {
+  onClose: PropTypes.func
 };
 
 export default ModalMember;

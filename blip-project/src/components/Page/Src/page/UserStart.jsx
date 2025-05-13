@@ -3,11 +3,11 @@ import { typography } from "../../../../fonts/fonts";
 import { color } from "../../../../style/color";
 import FeedbackSvg from "../../../../svg/feedback.svg";
 import { useContext, useEffect, useState } from "react";
-import { UseStateContext } from "../../../../Router";
 import { TeamDel } from "../../Main/Main";
 import Feedback from "./Feedback";
 import Keyword from "./Keyword";
 import ModalName from "../../Modal/ModalName"
+import { useAppState } from "../../../../contexts/AppContext";
 
 const UserStart = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,7 +19,7 @@ const UserStart = () => {
     setIsFeedback,
     isKeyword,
     setIsKeyword,
-  } = useContext(UseStateContext);
+  } = useAppState();
   
   const { itemId } = useContext(TeamDel);
 
@@ -90,14 +90,14 @@ const UserStart = () => {
         <div className="council">
           <div className="council-keyword">
             <div className="council-keyword-main">
-              <div style={{ ...typography.Body2 }}>키워드 요약 확인하기</div>
+              <div style={{ ...typography.Body2 }}>회의 요약 확인하기</div>
               <p
                 style={{
                   ...typography.Body3Regular,
                   color: color.GrayScale[6],
                 }}
               >
-                진행한 회의를 바탕으로 키워드를 요약했어요!
+                진행한 회의를 요약했어요!
               </p>
               <button
                 onClick={onClickKeyword}

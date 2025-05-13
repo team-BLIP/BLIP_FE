@@ -186,7 +186,7 @@ const JitsiMeetAPI = ({ meetingConfig }) => {
     <div
       id="jitsi-container"
       style={{
-        height: "500px",
+        height: "100%",
         width: "100%",
         borderRadius: "8px",
         overflow: "hidden",

@@ -4,7 +4,6 @@ const getSummaryApi = async (teamId) => {
   console.log("getSummaryApi 호출 - teamId:", teamId);
 
   try {
-    alert(`팀 ID ${teamId}의 요약 정보 요청 성공!`);
     const apiUrl = import.meta.env.VITE_API_URL_BASE;
     if (!apiUrl) {
       throw new Error("API URL이 설정되지 않았습니다");
@@ -13,9 +12,10 @@ const getSummaryApi = async (teamId) => {
     const requestUrl = `${apiUrl}teams/${teamId}`;
     console.log("요청 URL:", requestUrl);
 
-    const accessToken = import.meta.env.VITE_API_URL_URL_KEY;
+    // 로컬 스토리지에서 토큰 가져오기
+    const accessToken = localStorage.getItem("accessToken");
     if (!accessToken) {
-      throw new Error("인증 토큰이 설정되지 않았습니다");
+      throw new Error("인증 토큰이 없습니다. 로그인이 필요합니다.");
     }
 
     // axios 요청 설정 - JSON 형식 명시
@@ -23,7 +23,7 @@ const getSummaryApi = async (teamId) => {
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken.trim()}`,
       },
       responseType: "json",
     };
@@ -37,7 +37,7 @@ const getSummaryApi = async (teamId) => {
       try {
         data = JSON.parse(data);
       } catch (e) {
-        console.warn("응답 데이터 JSON 파싱 실패. 원본 응답 사용:", e);
+        console.warn("응답 데이터 JSON 파싱 실패. 원본 응답 사용");
       }
     }
 
@@ -74,9 +74,10 @@ const getMeetingSummaryApi = async (teamId, meetingId) => {
     const requestUrl = `${apiUrl}teams/${teamId}/meetings/${meetingId}`;
     console.log("요청 URL:", requestUrl);
 
-    const accessToken = import.meta.env.VITE_API_URL_URL_KEY;
+    // 로컬 스토리지에서 토큰 가져오기
+    const accessToken = localStorage.getItem("accessToken");
     if (!accessToken) {
-      throw new Error("인증 토큰이 설정되지 않았습니다");
+      throw new Error("인증 토큰이 없습니다. 로그인이 필요합니다.");
     }
 
     // axios 요청 설정 - JSON 형식 명시
@@ -84,7 +85,7 @@ const getMeetingSummaryApi = async (teamId, meetingId) => {
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken.trim()}`,
       },
       responseType: "json",
     };
@@ -98,7 +99,7 @@ const getMeetingSummaryApi = async (teamId, meetingId) => {
       try {
         data = JSON.parse(data);
       } catch (e) {
-        console.warn("응답 데이터 JSON 파싱 실패. 원본 응답 사용:", e);
+        console.warn("응답 데이터 JSON 파싱 실패. 원본 응답 사용");
       }
     }
 
@@ -131,9 +132,10 @@ const createUpdateSummaryApi = async (teamId, summaryData) => {
     const requestUrl = `${apiUrl}teams/${teamId}/summary`;
     console.log("요청 URL:", requestUrl);
 
-    const accessToken = import.meta.env.VITE_API_URL_URL_KEY;
+    // 로컬 스토리지에서 토큰 가져오기
+    const accessToken = localStorage.getItem("accessToken");
     if (!accessToken) {
-      throw new Error("인증 토큰이 설정되지 않았습니다");
+      throw new Error("인증 토큰이 없습니다. 로그인이 필요합니다.");
     }
 
     // axios 요청 설정 - JSON 형식 명시
@@ -141,7 +143,7 @@ const createUpdateSummaryApi = async (teamId, summaryData) => {
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken.trim()}`,
       },
     };
 
@@ -158,7 +160,7 @@ const createUpdateSummaryApi = async (teamId, summaryData) => {
       try {
         data = JSON.parse(data);
       } catch (e) {
-        console.warn("응답 데이터 JSON 파싱 실패. 원본 응답 사용:", e);
+        console.warn("응답 데이터 JSON 파싱 실패. 원본 응답 사용");
       }
     }
 

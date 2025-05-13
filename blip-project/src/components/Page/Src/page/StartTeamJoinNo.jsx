@@ -2,9 +2,8 @@ import "../../../CSS/StartTeamJoinNo.css";
 import { typography } from "../../../../fonts/fonts";
 import { color } from "../../../../style/color";
 import Modal from "../../Modal/Modal";
-import { useState, useContext, useRef } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { SidebarContext } from "../../../../Router";
 import JoinApi from "../api/JoinApi";
 import UrlCheck from "../function/UrlCheck";
 

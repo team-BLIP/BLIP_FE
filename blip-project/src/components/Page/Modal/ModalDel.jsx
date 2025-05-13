@@ -3,17 +3,16 @@ import { typography } from "../../../fonts/fonts";
 import { color } from "../../../style/color";
 import ESC from "../../../svg/ESC.svg";
 import { useContext, useState, useEffect } from "react";
-import { SidebarContext } from "../../../Router";
 import { TeamDel } from "../Main/Main";
 import { FindId } from "../Main/Main";
-import { UseStateContext } from "../../../Router";
 import { useNavigate } from "react-router-dom";
 import listDel from "../Src/api/listDel";
+import { useAppState, useSidebar } from "../../../contexts/AppContext";
 
 const ModalDel = ({ onClose }) => {
-  const { dispatch } = useContext(SidebarContext);
+  const { dispatch } = useSidebar();
   const { itemId, setOwner, setJoin, createTeamId } = useContext(TeamDel);
-  const { setSetting, setBasic } = useContext(UseStateContext);
+  const { setSetting, setBasic } = useAppState();
   const nav = useNavigate();
   const { itemBackendId } = useContext(FindId);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -79,15 +78,15 @@ const ModalDel = ({ onClose }) => {
         // 커스텀 이벤트 발생 - 다른 컴포넌트에게 알림
         window.dispatchEvent(
           new CustomEvent("teamDeleted", {
-            detail: { teamId: deletedId },
+            detail: { 
+              teamId: deletedId,
+              forceUpdate: true  // 강제 업데이트 플래그 추가
+            },
           })
         );
 
         // 로컬 스토리지에서 현재 선택된 팀 ID 제거
         localStorage.removeItem("currentTeamId");
-
-        // 홈으로 리디렉션
-        nav("/", { state: {} });
 
         // 상태 초기화
         setOwner(false);
@@ -95,8 +94,11 @@ const ModalDel = ({ onClose }) => {
         setSetting(false);
         setBasic(false);
 
-        // 모달 닫기
+        // 홈으로 리디렉션하기 전에 약간의 지연을 줘서 UI 업데이트가 완료되도록 함
+        setTimeout(() => {
+          nav("/", { state: { forceRefresh: true } });
         onClose();
+        }, 100);
       };
 
       // 백엔드 API 호출하여 팀 삭제 (콜백 함수 전달)
@@ -105,33 +107,10 @@ const ModalDel = ({ onClose }) => {
       if (!success) {
         console.error("팀 삭제 실패");
         setErrorMessage("권한이 없거나 서버 오류가 발생했습니다.");
-
-        // 사용자에게 로컬에서만 삭제할지 물어보기 (선택적)
-        const forceLocalDelete = window.confirm(
-          "서버에서 팀을 삭제하는데 문제가 발생했습니다. 로컬에서만 팀을 삭제하시겠습니까? (다음 로그인 시 팀이 다시 나타날 수 있습니다)"
-        );
-
-        if (forceLocalDelete) {
-          // 로컬에서만 삭제 처리
-          onSuccessfulDelete(idToDelete);
-        }
       }
     } catch (error) {
       console.error("팀 삭제 중 오류 발생:", error);
-
-      let errorMsg = "오류가 발생했습니다. 다시 시도해주세요.";
-
-      if (error.response) {
-        if (error.response.status === 403) {
-          errorMsg = "권한이 없습니다. 팀 소유자만 삭제할 수 있습니다.";
-        } else if (error.response.status === 500) {
-          errorMsg = "서버 오류가 발생했습니다. 나중에 다시 시도해주세요.";
-        } else if (error.response.status === 404) {
-          errorMsg = "팀을 찾을 수 없습니다.";
-        }
-      }
-
-      setErrorMessage(errorMsg);
+      setErrorMessage("오류가 발생했습니다. 다시 시도해주세요.");
     } finally {
       setIsDeleting(false);
     }

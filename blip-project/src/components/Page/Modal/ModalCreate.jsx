@@ -3,15 +3,15 @@ import { typography } from "../../../fonts/fonts";
 import { color } from "../../../style/color";
 import ESC from "../../../svg/ESC.svg";
 import { useState, useRef, useContext, useEffect } from "react";
-import { SidebarContext } from "../../../Router";
-import { UseStateContext } from "../../../Router";
+import { useSidebar, useAppState } from "../../../contexts/AppContext";
 import { FindId } from "../Main/Main";
 import { useNavigate } from "react-router-dom";
 import CreateApi from "../Src/api/CreateApi";
+import PropTypes from 'prop-types';
 
 const ModalCreate = ({ onClose, parentOnClose }) => {
-  const { dispatch } = useContext(SidebarContext);
-  const { targetId, setTargetId } = useContext(UseStateContext);
+  const { dispatch } = useSidebar();
+  const { targetId, setTargetId } = useAppState();
   const { idMappings } = useContext(FindId);
   const [content, setContent] = useState("");
   const [teamNames, setTeamName] = useState([]);
@@ -36,6 +36,14 @@ const ModalCreate = ({ onClose, parentOnClose }) => {
     console.log(e.target.value);
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleCreateAndClose();
+    } else if (e.key === "Escape") {
+      onClose();
+    }
+  };
+
   const addTeams = () => {
     if (content.trim()) {
       const updataLocal = [...teamNames, content];
@@ -51,44 +59,46 @@ const ModalCreate = ({ onClose, parentOnClose }) => {
   };
 
   const handleCreateAndClose = async () => {
-    if (content.trim().length > 0) {
-      try {
-        await CreateApi(
-          content,
-          nav,
-          submitRef,
-          onClose,
-          dispatch || {},
-          targetId,
-          setTargetId,
-          parentOnClose,
-          idMappings,
-          teamNames
-        );
-        addTeams();
-      } catch (error) {
-        console.log("팀 생성 중 오류 발생", error);
-        alert("팀 생성 중 오류 발생");
+    try {
+      if (!content.trim()) {
+        alert("팀 이름을 입력해주세요.");
+        return;
       }
+
+      await CreateApi(
+        content,
+        nav,
+        submitRef,
+        onClose,
+        dispatch || {},
+        targetId,
+        setTargetId,
+        parentOnClose,
+        idMappings,
+        teamNames
+      );
+      addTeams();
+    } catch (error) {
+      console.log("팀 생성 중 오류 발생", error);
+      alert("팀 생성 중 오류 발생");
     }
   };
 
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.keyCode === 27) {
-        onClose();
+        handleCreateAndClose();
       } else if (e.keyCode === 13) {
-        // Enter 키
-        if (content.trim().length > 0) {
-          handleCreateAndClose(); // 여기서 한 번 호출
-        }
+        onClose();
       }
     };
+
     window.addEventListener("keydown", handleKeyDown);
+
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [onClose, content, handleCreateAndClose]);
+  }, [onClose]);
 
   return (
     <div className="modal-overlay">
@@ -120,6 +130,7 @@ const ModalCreate = ({ onClose, parentOnClose }) => {
             placeholder="팀스페이스의 이름을 작성해주세요."
             value={content}
             type="text"
+            onKeyDown={handleKeyDown}
             onChange={onChangeInput}
             ref={submitRef}
           ></input>
@@ -145,6 +156,11 @@ const ModalCreate = ({ onClose, parentOnClose }) => {
       </div>
     </div>
   );
+};
+
+ModalCreate.propTypes = {
+  onClose: PropTypes.func.isRequired,
+  parentOnClose: PropTypes.func.isRequired
 };
 
 export default ModalCreate;

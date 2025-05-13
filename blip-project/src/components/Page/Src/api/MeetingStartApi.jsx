@@ -153,6 +153,14 @@ const MeetingStartApi = async ({
         if (error.response.data && typeof error.response.data === "string") {
           console.error("서버 응답 메시지:", error.response.data);
         }
+      } else if (error.response.status === 401) {
+        console.error(
+          "인증이 만료되었거나 유효하지 않습니다. 다시 로그인해주세요."
+        );
+        // 토큰 만료 처리
+        localStorage.removeItem("authToken");
+        // 로그인 페이지로 리디렉션 또는 이벤트 발생
+        window.dispatchEvent(new CustomEvent("auth:required"));
       }
     } else if (error.request) {
       // 요청은 보냈지만 응답을 받지 못한 경우

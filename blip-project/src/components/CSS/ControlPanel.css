@@ -1,0 +1,17 @@
+/* src/components/Discord/ControlPanel.css */
+.control-panel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background-color: #2f3136;
+  box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+  .control-panel {
+    padding: 10px;
+    gap: 10px;
+  }
+}

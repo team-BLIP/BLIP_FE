@@ -4,7 +4,7 @@ import blackLogo from "../../../../svg/blackLogo.svg";
 import Letter from "../../../../svg/letter.svg";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
-import { UseStateContext } from "../../../../Router";
+import { UseStateContext } from "../../../../contexts/AppContext";
 
 const HeaderTeam = () => {
   const nav = useNavigate();
