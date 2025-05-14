@@ -99,7 +99,7 @@ const MemberItem = styled.div`
 `;
 
 const MemberImg = styled.img`
-  width: 15%;
+  width: 15%; 
   aspect-ratio: 1/1;
   border-radius: 50%;
   background-color: aqua;
