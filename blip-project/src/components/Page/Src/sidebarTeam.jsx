@@ -776,7 +776,7 @@ const SidebarTeam = () => {
         if (join) {
           setJoin((prev) => !prev);
         }
-        nav("/", { state: { createTeamId, content, itemId } });
+        nav("/mainPage", { state: { createTeamId, content, itemId } });
       } else {
         const currentTeamId = `create-${cleanBackendId}`;
 
@@ -790,7 +790,7 @@ const SidebarTeam = () => {
           if (Owner) setOwner(false);
         }
 
-        nav("/", {
+        nav("/mainPage", {
           state: {
             createTeamId: currentTeamId,
             content: itemContent,
