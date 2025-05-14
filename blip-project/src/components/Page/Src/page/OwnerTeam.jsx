@@ -200,7 +200,7 @@ const OwnerTeam = () => {
       console.log(`로컬 업데이트 완료: ${localUpdates.join(", ")}`);
 
       // 메인 페이지로 이동 - 상태 전달로 새로고침 유도
-      navigate("/", {
+      navigate("/mainPage", {
         state: {
           itemId,
           updatedTeamName: teamName || null,

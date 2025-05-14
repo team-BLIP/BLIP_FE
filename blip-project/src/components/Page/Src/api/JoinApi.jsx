@@ -69,7 +69,7 @@ const JoinApi = async (
     );
 
     if (createTeamUrl) {
-      nav("/", {
+      nav("/mainPage", {
         state: {
           content: String(content),
           TeamJoinId,

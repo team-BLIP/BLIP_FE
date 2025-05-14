@@ -22,7 +22,7 @@ const StartTeamJoinNo = () => {
         const result = await JoinApi(teamId);
 
         if (result) {
-          nav("/", { state: { isInput } });
+          nav("/mainPage", { state: { isInput } });
           onCreatedouble(content);
           setContent("");
           setJoin((prev) => !prev);

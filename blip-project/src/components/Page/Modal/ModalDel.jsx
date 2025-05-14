@@ -96,7 +96,7 @@ const ModalDel = ({ onClose }) => {
 
         // 홈으로 리디렉션하기 전에 약간의 지연을 줘서 UI 업데이트가 완료되도록 함
         setTimeout(() => {
-          nav("/", { state: { forceRefresh: true } });
+          nav("/mainPage", { state: { forceRefresh: true } });
         onClose();
         }, 100);
       };

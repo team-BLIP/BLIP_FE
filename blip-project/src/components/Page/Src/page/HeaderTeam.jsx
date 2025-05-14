@@ -54,7 +54,7 @@ const HeaderTeam = () => {
         <img onClick={onClickLetter} src={Letter} style={{ width: "32px" }} />
         <img
           onClick={() => {
-            nav("/", { state: {} });
+            nav("/mainPage", { state: {} });
           }}
           src={blackLogo}
           style={{ width: "52px" }}

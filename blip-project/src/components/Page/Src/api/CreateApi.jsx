@@ -102,7 +102,7 @@ const CreateApi = async (
     }
 
     // 네비게이션 처리
-    nav("/", {
+    nav("/mainPage", {
       state: {
         content: String(content),
         createTeamId,

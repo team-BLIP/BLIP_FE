@@ -51,7 +51,7 @@ const ModalJoin = ({ onClose, parentOnClose }) => {
 
         if (rusult) {
           console.log("팀 참가 성공", rusult);
-          nav("/", { state: { isInput } });
+          nav("/mainPage", { state: { isInput } });
           setJoin((prev) => !prev);
           if (Owner) {
             setOwner((prev) => !prev);
