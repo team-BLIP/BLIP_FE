@@ -11,8 +11,9 @@ import Email from "../SignUpLoginComponent/email.jsx";
 import { instance } from "../../../apis/instance.jsx";
 
 const Login = () => {
-  const passwordRegEx = /^(?=.*[!@#$%^&*])(?=.{8,20}$).*/;
+  const passwordRegEx = /^(?=.* [!@#$%^&*])(?=.{8,20}$).*/;
   const navigate = useNavigate();
+  console.log(import.meta.env.VITE_USER_BASE_URL);
 
   const passwordChecking = (password) => {
     if (!password.match(passwordRegEx)) {
