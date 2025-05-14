@@ -1,0 +1,13 @@
+.MHTeamJoinNo{
+  width: 1  00%;
+  height: 64px;
+  display: flex;
+  justify-content: end;
+  padding: 5px 0;
+}
+
+.HTeamJoinNo{
+  width: 184px;
+  display: flex;
+  justify-content: space-around;
+}
