@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { color } from "../../style/color";
+import { color } from "../../../style/color";
 
 const StyledButton = styled.button`
   width: ${(props) => props.width || "408px"};

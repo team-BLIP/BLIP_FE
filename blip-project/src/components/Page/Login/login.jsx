@@ -1,14 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import Logo from "../../svg/logo.svg";
-import { typography } from "../../fonts/fonts";
+import Logo from "../../../svg/logo.svg";
+import { typography } from "../../../fonts/fonts";
 import * as S from "./loginStyle.jsx";
-import Input from "../../components/SignUpLogin/input.jsx";
-import background from "../../svg/background.svg";
-import { color } from "../../style/color.jsx";
-import { PassWord } from "../../components/SignUpLogin/password.jsx";
-import Email from "../../components/SignUpLogin/email.jsx";
-import { instance } from "../../apis/instance.jsx";
+import Input from "../SignUpLoginComponent/input.jsx";
+import background from "../../../svg/background.svg";
+import { color } from "../../../style/color.jsx";
+import { PassWord } from "../SignUpLoginComponent/password.jsx";
+import Email from "../SignUpLoginComponent/email.jsx";
+import { instance } from "../../../apis/instance.jsx";
 
 const Login = () => {
   const passwordRegEx = /^(?=.*[!@#$%^&*])(?=.{8,20}$).*/;

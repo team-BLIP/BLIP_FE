@@ -1,8 +1,8 @@
 import { useState } from "react";
 import styled from "styled-components";
 import Input from "./input";
-import eyeOpen from "../../svg/eyeOpen.svg";
-import eyeOff from "../../svg/eyeOff.svg";
+import eyeOpen from "../../../svg/eyeOpen.svg";
+import eyeOff from "../../../svg/eyeOff.svg";
 
 export const PassWord = ({
   value,

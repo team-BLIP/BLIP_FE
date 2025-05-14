@@ -1,5 +1,5 @@
 import Input from "./input";
-import X from "../../svg/X.svg";
+import X from "../../../svg/X.svg";
 import styled from "styled-components";
 
 export const Id = ({ value, onChange, placeholder, name }) => {

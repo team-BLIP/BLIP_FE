@@ -1,7 +1,7 @@
 import { useState } from "react";
 import styled from "styled-components";
 import Input from "./input";
-import colorCheck from "../../svg/colorCheck.png";
+import colorCheck from "../../../svg/colorCheck.png";
 
 export const NumberInput = ({
   value,

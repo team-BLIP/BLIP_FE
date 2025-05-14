@@ -1,6 +1,6 @@
 import React, { forwardRef } from "react";
 import styled from "styled-components";
-import { color } from "../../style/color";
+import { color } from "../../../style/color";
 
 const StyledInput = styled.input`
   width: ${(props) => props.width || "400px"};

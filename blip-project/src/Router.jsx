@@ -1,7 +1,7 @@
 import { Route, Routes, Navigate } from "react-router-dom";
-import Login from "./pages/Login/login";
-import Signup from "./pages/Signup/signup";
-import SignupSuccess from "./pages/Signup/signupSuccess";
+import Login from "./components/Page/Login/login";
+import Signup from "./components/Page/Signup/signup";
+import SignupSuccess from "./components/Page/Signup/signupSuccess";
 
 export const AppRouter = () => {
   return (

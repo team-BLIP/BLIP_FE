@@ -1,7 +1,7 @@
 import styled from "styled-components";
-import Button from "../../components/SignUpLogin/button";
-import { color } from "../../style/color";
-import { typography } from "../../fonts/fonts";
+import Button from "../SignUpLoginComponent/button";
+import { color } from "../../../style/color";
+import { typography } from "../../../fonts/fonts";
 
 export const Main = styled.div`
   display: flex;

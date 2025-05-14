@@ -1,22 +1,22 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef, useCallback } from "react";
-import Logo from "../../svg/logo.svg";
-import { typography } from "../../fonts/fonts.jsx";
+import Logo from "../../../svg/logo.svg";
+import { typography } from "../../../fonts/fonts.jsx";
 import * as S from "./signupStyle.jsx";
-import Input from "../../components/SignUpLogin/input.jsx";
-import { color } from "../../style/color.jsx";
-import { PassWord } from "../../components/SignUpLogin/password.jsx";
-import { Email } from "../../components/SignUpLogin/email.jsx";
-import Id from "../../components/SignUpLogin/id.jsx";
-import { PasswordCheck } from "../../components/SignUpLogin/passwordCheck.jsx";
-import modalX from "../../svg/modalX.svg";
+import Input from "../SignUpLoginComponent/input.jsx";
+import { color } from "../../../style/color.jsx";
+import { PassWord } from "../SignUpLoginComponent/password.jsx";
+import { Email } from "../SignUpLoginComponent/email.jsx";
+import Id from "../SignUpLoginComponent/id.jsx";
+import { PasswordCheck } from "../SignUpLoginComponent/passwordCheck.jsx";
+import modalX from "../../../svg/modalX.svg";
 import axios from "axios";
-import sends from "../../svg/send.svg";
-import Number from "../../components/SignUpLogin/number.jsx";
-import background from "../../svg/background.svg";
-import Timer from "../../components/SignUpLogin/timer.jsx";
-import { instance } from "../../apis/instance.jsx";
-import colorCheck from "../../svg/colorCheck.png";
+import sends from "../../../svg/send.svg";
+import Number from "../SignUpLoginComponent/number.jsx";
+import background from "../../../svg/background.svg";
+import Timer from "../SignUpLoginComponent/timer.jsx";
+import { instance } from "../../../apis/instance.jsx";
+import colorCheck from "../../../svg/colorCheck.png";
 
 const Signup = (props) => {
   const passwordRegEx = /^(?=.*[!@#$%^&*])(?=.{8,20}$).*/;
