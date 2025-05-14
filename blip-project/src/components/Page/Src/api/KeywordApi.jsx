@@ -5,7 +5,7 @@ const KeywordApi = async (targetId, meetingId = null) => {
   const apiUrl = import.meta.env.VITE_API_URL_BASE;
 
   // 로컬 스토리지에서 lastMeetingTeamId 가져오기
-  const lastTeamId = localStorage.getItem("lastMeetingTeamId");
+  const lastTeamId = localStorage.getItem("currentTeamId");
 
   // targetId가 유효하지 않으면 lastMeetingTeamId 사용
   const effectiveTeamId = lastTeamId || targetId;

@@ -2,6 +2,7 @@ import axios from "axios";
 
 const FeedBackApi = async (teamId) => {
   console.log("FeedBackApi 호출 - teamId:", teamId);
+  const lastTeamId = localStorage.getItem("currentTeamId");
 
   try {
     // API URL 구성
@@ -15,7 +16,7 @@ const FeedBackApi = async (teamId) => {
       apiUrl += "/";
     }
 
-    const feedbackUrl = `${apiUrl}teams/${teamId}/feedbacks`;
+    const feedbackUrl = `${apiUrl}teams/${lastTeamId}/feedbacks`;
     console.log("요청 URL:", feedbackUrl);
 
     // 인증 토큰 가져오기 - 여러 소스 확인
