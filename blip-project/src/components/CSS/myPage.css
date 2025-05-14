@@ -1,0 +1,4 @@
+.STJoinNoLink,
+.STJoinNoButton {
+  display: none !important;
+}

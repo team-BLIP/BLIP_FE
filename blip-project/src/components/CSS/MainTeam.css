@@ -1,8 +1,7 @@
-*{
+* {
   margin: 0;
   padding: 0;
   overflow: hidden;
-
 }
 
 .Main-Team {
@@ -17,4 +16,38 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+}
+
+.Line {
+  border: 1px solid #cacaca;
+  border-radius: 12px;
+  width: 1290px;
+  height: 952px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.NoFeedBack {
+  position: absolute;
+  bottom: 100px;
+  width: 1146px;
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.FeedBackTitle {
+  margin-right: 1000px;
+}
+
+.Feedback-p-font {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }

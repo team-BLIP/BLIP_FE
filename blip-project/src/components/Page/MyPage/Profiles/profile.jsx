@@ -44,6 +44,7 @@ const Profiles = () => {
   };
   const handleChangePassword = () => {
     console.log("비밀번호 바꾸기용용용");
+    setPasswordChangeModal(false);
   };
   const handleChangeImage = () => {
     if (!selectedImageFile) return;

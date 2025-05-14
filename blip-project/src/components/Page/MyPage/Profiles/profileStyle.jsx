@@ -1,7 +1,6 @@
 import styled from "styled-components";
 import { color } from "../../../../style/color";
 import { typography } from "../../../../fonts/fonts";
-
 export const Line = styled.div`
   display: flex;
   flex-direction: column;
@@ -11,17 +10,30 @@ export const Line = styled.div`
   height: 526px;
   border-radius: 12px;
   position: relative;
+  margin-bottom: 390px;
 `;
 
 export const Profile = styled.div`
+  width: 140px;
+  height: 140px;
+  border-radius: 100px;
+  border: 0.5px solid ${color.GrayScale[1]};
+  position: relative;
   width: 150px;
   height: 120px;
   border-radius: 50%;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  border-radius: 50%;
   border: 1px solid black;
+  margin-bottom: 30px;
 `;
+
+/* export const Name = styled.p`
+  position: relative;
+  font: ${typography.Header2};
+`; */
 
 export const Id = styled.p`
   position: relative;
@@ -32,8 +44,8 @@ export const Id = styled.p`
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: calc(100% - 150px);
+  margin-bottom: 25px;
 `;
-
 export const ProfileChangeButton = styled.button`
   position: absolute;
   right: 35px;
@@ -45,18 +57,15 @@ export const ProfileChangeButton = styled.button`
   color: ${color.White};
   font: ${typography.Button3};
 `;
-
 export const InfoLine = styled.div`
   width: 1066px;
   height: 212px;
   border: 1px solid ${color.GrayScale[2]};
   position: relative;
   border-radius: 12px;
-  margin-top: 16px;
+  margin-top: 5px;
 `;
-
 export const Email = styled.p``;
-
 export const EmailChangeButton = styled.button`
   width: 69px;
   height: 34px;
@@ -67,7 +76,6 @@ export const EmailChangeButton = styled.button`
   color: ${color.White};
   margin-right: 36px;
 `;
-
 export const IdChangeButton = styled.button`
   width: 69px;
   height: 34px;
@@ -78,7 +86,6 @@ export const IdChangeButton = styled.button`
   color: ${color.White};
   margin-right: 36px;
 `;
-
 export const ChangeLine = styled.div`
   display: flex;
   justify-content: start;
@@ -92,6 +99,9 @@ export const ChangeLine = styled.div`
 `;
 
 export const ProfileContainer = styled.div`
+  /*  display: flex;
+  align-items: center;
+  gap: 24px; */
   display: flex;
   align-items: center;
   justify-content: start;
@@ -99,7 +109,6 @@ export const ProfileContainer = styled.div`
   width: 1066px;
   margin-top: 44px;
 `;
-
 export const PasswordChangeButton = styled.button`
   width: 134px;
   height: 34px;
@@ -108,7 +117,6 @@ export const PasswordChangeButton = styled.button`
   background-color: ${color.Main[4]};
   border: none;
 `;
-
 export const LogoutButton = styled.button`
   width: 134px;
   height: 34px;
@@ -117,7 +125,6 @@ export const LogoutButton = styled.button`
   background-color: ${color.Main[4]};
   border: none;
 `;
-
 export const KillButton = styled.button`
   width: 134px;
   height: 34px;
@@ -126,18 +133,15 @@ export const KillButton = styled.button`
   background-color: ${color.Main[4]};
   border: none;
 `;
-
 export const SmallId = styled.p`
   position: relative;
 `;
-
 export const TextWithButtonContainer = styled.div`
   position: relative;
   width: 100%;
   display: flex;
   align-items: center;
 `;
-
 export const InfoItem = styled.div`
   display: flex;
   align-items: center;
@@ -145,26 +149,21 @@ export const InfoItem = styled.div`
   width: 100%;
   margin-top: 16px;
 `;
-
 export const TextBlock = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
   transform: translateX(24px);
 `;
-
 export const ChangePassword = styled.p`
   margin-bottom: 3px;
 `;
-
 export const Logout = styled.p`
   margin-bottom: 3px;
 `;
-
 export const Kill = styled.p`
   margin-bottom: 3px;
 `;
-
 export const ChangeItem = styled.div`
   display: flex;
   flex-direction: column;

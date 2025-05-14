@@ -10,9 +10,10 @@ import {
   useMemo,
   useState,
 } from "react";
-import MyPage from "./components/Page/MyPage/myPage";
+import MyPageNoTeam from "./components/Page/MyPage/myPageNoTeam";
 import Profiles from "./components/Page/MyPage/Profiles/profile";
 import Profiles2 from "./components/Page/MyPage/Profiles/profile2";
+import MyPageTeam from "./components/Page/MyPage/myPageTeam";
 
 const mocDateSide = [
   {
@@ -185,7 +186,9 @@ export const AppRouter = () => {
               <Route path="/" element={<Main />} />
               <Route path="/profile" element={<Profiles />} />
               <Route path="/profile2" element={<Profiles2 />} />
-              <Route path="/users/mypage" element={<MyPage />} />
+              <Route path="/users/mypage" element={<MyPageNoTeam />} />
+
+              <Route path="/users/:userId/mypage" element={<MyPageTeam />} />
             </Routes>
           </Call.Provider>
         </DiscordContext.Provider>

@@ -1,4 +1,4 @@
-import * as S from "../Profiles/profileStyle";
+import * as S from "../Profiles/profileStyle2";
 import { typography } from "../../../../fonts/fonts";
 import { color } from "../../../../style/color";
 import { useState } from "react";
@@ -69,6 +69,7 @@ const Profiles2 = () => {
         <S.ProfileContainer>
           <S.Profile style={{ backgroundImage: `url(${profileImage})` }} />
           <S.TextWithButtonContainer>
+            <S.Name>{userName}</S.Name>
             <S.Id>{userId}</S.Id>
             <S.ProfileChangeButton onClick={() => setImageChangeModal(true)}>
               프로필 사진 변경
@@ -130,7 +131,7 @@ const Profiles2 = () => {
         </S.InfoLine>
 
         <S.ChangeLine>
-          <S.ChangeItem style={{ marginRight: "580px", marginLeft: "24px" }}>
+          <S.ChangeItem style={{ marginRight: "380px", marginLeft: "24px" }}>
             <S.ChangePassword style={typography.Body3Bold}>
               비밀번호 변경하기
             </S.ChangePassword>
@@ -140,13 +141,13 @@ const Profiles2 = () => {
               변경하기
             </S.PasswordChangeButton>
           </S.ChangeItem>
-          <S.ChangeItem style={{ marginRight: "24px" }}>
+          <S.ChangeItem style={{ marginRight: "44px", marginLeft: "30px" }}>
             <S.Logout style={typography.Body3Bold}>로그아웃</S.Logout>
             <S.LogoutButton onClick={() => setShowLogoutModal(true)}>
               로그아웃
             </S.LogoutButton>
           </S.ChangeItem>
-          <S.ChangeItem>
+          <S.ChangeItem style={{ marginRight: "10px" }}>
             <S.Kill style={typography.Body3Bold}>회원탈퇴</S.Kill>
             <S.KillButton onClick={() => setShowKillModal(true)}>
               회원탈퇴

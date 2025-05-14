@@ -7,7 +7,7 @@ export const Line = styled.div`
   flex-direction: column;
   align-items: center;
   border: 1px solid ${color.GrayScale[2]};
-  width: 1114px;
+  width: 956px;
   height: 526px;
   border-radius: 12px;
   position: relative;
@@ -21,11 +21,12 @@ export const Profile = styled.div`
   background-position: center;
   background-repeat: no-repeat;
   border: 1px solid black;
+  margin-left: 80px;
 `;
 
 export const Id = styled.p`
   position: relative;
-  font: ${typography.Header2};
+  font: ${typography.Body1};
   color: ${color.GrayScale[8]};
   margin-left: 6px;
   white-space: nowrap;
@@ -36,7 +37,7 @@ export const Id = styled.p`
 
 export const ProfileChangeButton = styled.button`
   position: absolute;
-  right: 35px;
+  right: 110px;
   width: 111px;
   height: 34px;
   border-radius: 12px;
@@ -47,7 +48,7 @@ export const ProfileChangeButton = styled.button`
 `;
 
 export const InfoLine = styled.div`
-  width: 1066px;
+  width: 908px;
   height: 212px;
   border: 1px solid ${color.GrayScale[2]};
   position: relative;
@@ -83,7 +84,7 @@ export const ChangeLine = styled.div`
   display: flex;
   justify-content: start;
   align-items: center;
-  width: 1066px;
+  width: 908px;
   height: 80px;
   border: 1px solid ${color.GrayScale[2]};
   position: relative;
@@ -136,6 +137,7 @@ export const TextWithButtonContainer = styled.div`
   width: 100%;
   display: flex;
   align-items: center;
+  flex-direction: start;
 `;
 
 export const InfoItem = styled.div`
@@ -155,6 +157,7 @@ export const TextBlock = styled.div`
 
 export const ChangePassword = styled.p`
   margin-bottom: 3px;
+  white-space: nowrap;
 `;
 
 export const Logout = styled.p`
@@ -170,4 +173,9 @@ export const ChangeItem = styled.div`
   flex-direction: column;
   align-items: flex-start;
   gap: 8px;
+`;
+
+export const Name = styled.p`
+  font: ${typography.Header2};
+  color: ${color.GrayScale[8]};
 `;
