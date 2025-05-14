@@ -157,7 +157,7 @@ export const AppRouter = () => {
             }}
           >
             <Routes>
-              <Route path="/" element={<Main />} />
+              <Route path="/mainPage" element={<Main />} />
             </Routes>
           </Call.Provider>
         </DiscordContext.Provider>
