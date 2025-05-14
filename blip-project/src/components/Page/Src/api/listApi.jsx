@@ -86,14 +86,28 @@ const listApi = async (forceRefresh = false) => {
     console.log("API 요청 시작 - URL:", listUrl);
     const response = await axios.get(listUrl, { headers });
     console.log("API 응답 성공:", response.status);
+    console.log(
+      "응답 데이터 구조:",
+      JSON.stringify(response.data).substring(0, 200)
+    );
 
-    // API 응답 데이터 정규화
-    const teams = response.data.map(team => ({
+    // API 응답 데이터를 배열로 정규화
+    const teamsData = Array.isArray(response.data)
+      ? response.data
+      : response.data?.teams || response.data?.data || [];
+
+    if (!Array.isArray(teamsData)) {
+      console.error("API 응답에서 팀 배열을 찾을 수 없습니다:", response.data);
+      // 캐시에서 가져오기 시도
+      return tryUsingCachedTeams(defaultTeam);
+    }
+
+    // 팀 데이터 정규화
+    const teams = teamsData.map((team) => ({
       id: `create-${team.team_id}`,
       team_id: team.team_id,
       backendId: team.team_id,
       _originalId: team.team_id,
-      _orginalId: team.team_id,
       content: team.team_name,
       team_name: team.team_name,
       name: team.team_name,
@@ -102,7 +116,7 @@ const listApi = async (forceRefresh = false) => {
       invite_link: team.invite_link || team.TeamUrl || "",
       createTeamUrl: team.invite_link || team.TeamUrl || "",
       isPlus: false,
-      meetings: team.meetings || []
+      meetings: team.meetings || [],
     }));
 
     console.log("정규화된 팀 데이터:", teams);
@@ -125,40 +139,44 @@ const listApi = async (forceRefresh = false) => {
 
       // 401 또는 403 에러 처리
       if (error.response.status === 401 || error.response.status === 403) {
-        console.error("인증이 만료되었거나 권한이 없습니다. 다시 로그인해주세요.");
+        console.error(
+          "인증이 만료되었거나 권한이 없습니다. 다시 로그인해주세요."
+        );
         // 토큰 제거
         localStorage.removeItem("accessToken");
         // 다른 관련 데이터도 제거
         localStorage.removeItem("userEmail");
         localStorage.removeItem("userName");
-        
+
         // 로그인 페이지로 리디렉션하기 위한 이벤트 발생
         window.dispatchEvent(new CustomEvent("auth:required"));
-        
+
         throw new Error("인증이 만료되었습니다. 다시 로그인해주세요.");
       }
-
     } else if (error.request) {
       console.error("서버 응답 없음:", error.request);
     } else {
       console.error("요청 오류:", error.message);
     }
 
-    // API 오류 시 캐시 데이터 사용
-    const cachedTeams = localStorage.getItem("teamsList");
-    if (cachedTeams) {
-      console.log("API 오류로 인해 캐시된 팀 목록 사용");
-      try {
-        const parsedTeams = JSON.parse(cachedTeams);
-        return ensureDefaultTeam(parsedTeams, defaultTeam);
-      } catch (parseError) {
-        console.error("캐시 데이터 파싱 오류:", parseError);
-      }
-    }
-
-    // 모든 시도 실패 시 기본 팀만 반환
-    return [defaultTeam];
+    return tryUsingCachedTeams(defaultTeam);
   }
+};
+
+// 캐시된 팀 데이터 시도
+const tryUsingCachedTeams = (defaultTeam) => {
+  const cachedTeams = localStorage.getItem("teamsList");
+  if (cachedTeams) {
+    console.log("API 오류로 인해 캐시된 팀 목록 사용");
+    try {
+      const parsedTeams = JSON.parse(cachedTeams);
+      return ensureDefaultTeam(parsedTeams, defaultTeam);
+    } catch (parseError) {
+      console.error("캐시 데이터 파싱 오류:", parseError);
+    }
+  }
+  // 모든 시도 실패 시 기본 팀만 반환
+  return [defaultTeam];
 };
 
 // 팀 목록에 '새 스페이스 만들기' 항목이 있는지 확인하고 없으면 추가하는 함수
