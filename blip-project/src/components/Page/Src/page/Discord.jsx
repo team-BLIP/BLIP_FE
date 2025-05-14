@@ -42,7 +42,9 @@ const accessToken =
 const Discord = () => {
   // 컨텍스트에서 필요한 값들 추출 (useContext는 렌더링마다 호출됨)
   const { itemId } = useContext(TeamDel) || { itemId: null };
-  const { targetId, createTeamId, itemBackendId } = useContext(FindId) || {
+  const { targetId, createTeamId, itemBackendId, TeamJoinId } = useContext(
+    FindId
+  ) || {
     targetId: null,
     createTeamId: null,
     itemBackendId: null,
@@ -70,6 +72,14 @@ const Discord = () => {
   const [randomCircleColor, setRandomCircleColor] = useState("#EF5DA8");
   const [localStream, setLocalStream] = useState(null);
   const isProcessingMikeChange = useRef(false);
+
+  // 새 팀인지 확인
+  const isNewTeam = () => {
+    return (
+      (typeof createTeamId === "string" && createTeamId.includes("create-")) ||
+      (typeof TeamJoinId === "string" && TeamJoinId.includes("Join-"))
+    );
+  };
 
   // 디버깅을 위한 추가 상태
   const [debugInfo, setDebugInfo] = useState({
@@ -1469,11 +1479,13 @@ const Discord = () => {
                   style={{ width: "50%" }}
                   alt="회의 상태"
                 />
-                <img
-                  src={isAlarmActive ? AlarmLight : DisAlarm}
-                  style={{ width: "50%" }}
-                  alt="알람"
-                />
+                {!isNewTeam() && (
+                  <img
+                    src={isAlarmActive ? AlarmLight : DisAlarm}
+                    style={{ width: "50%" }}
+                    alt="알람"
+                  />
+                )}
               </div>
               <div className="discord-foot-Src">
                 <div className="discord-foot-NoSrc">

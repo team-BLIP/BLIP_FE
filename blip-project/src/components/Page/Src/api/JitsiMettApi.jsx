@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { handleMeetingEnd } from "../api/MeetingEndApi";
+import { handleMeetingEnd } from "./MeetingEndApi";
 
 const JitsiMeetAPI = ({ meetingConfig }) => {
   const {

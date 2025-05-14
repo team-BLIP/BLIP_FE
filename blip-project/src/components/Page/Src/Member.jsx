@@ -29,7 +29,7 @@ const Member = () => {
     join,
   } = useAppState();
 
-  console.log("dasdadsaasd",{
+  console.log("dasdadsaasd", {
     setSetting,
     setting,
     isAlarm,
@@ -45,7 +45,8 @@ const Member = () => {
     join,
   });
 
-  const { targetId, setTargetId, createTeamId } = useContext(FindId);
+  const { targetId, setTargetId, createTeamId, TeamJoinId } =
+    useContext(FindId);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const openModal = () => setIsModalOpen(true);
@@ -71,7 +72,10 @@ const Member = () => {
   const isStartTeamJoinNo =
     !setting && !isAlarm && !isLetter && !discord && !basic && !join;
   const showSettingIcon =
-    !isStartTeamJoinNo && createTeamId && createTeamId.startsWith("create-");
+    !isStartTeamJoinNo &&
+    createTeamId &&
+    createTeamId.startsWith("create-") &&
+    (!TeamJoinId || !TeamJoinId.startsWith("Join-"));
 
   return (
     <>

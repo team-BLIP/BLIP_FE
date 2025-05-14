@@ -31,9 +31,11 @@ const Main = () => {
     createTeamUrl,
     itemBackendId,
     newTeamId,
+    TeamJoinId,
   } = location.state || {};
 
-  const { FullScreen, targetId, setTargetId, discord } = useContext(UseStateContext);
+  const { FullScreen, targetId, setTargetId, discord } =
+    useContext(UseStateContext);
 
   const [filteredItem, setFilteredItem] = useState(null);
   const [Owner, setOwner] = useState(null);
@@ -77,7 +79,7 @@ const Main = () => {
   // targetId 업데이트 로직 최적화
   useEffect(() => {
     const storedId = localStorage.getItem("currentTeamId");
-    
+
     // 저장된 ID가 있고, 현재 targetId와 다른 경우에만 업데이트
     if (storedId && storedId !== targetId) {
       setTargetId(storedId);
@@ -105,6 +107,7 @@ const Main = () => {
       targetId,
       itemBackendId,
       newTeamId,
+      TeamJoinId,
     }),
     [
       filteredItem,
@@ -116,6 +119,7 @@ const Main = () => {
       idMappings,
       addIdMappings,
       targetId,
+      TeamJoinId,
     ]
   );
 

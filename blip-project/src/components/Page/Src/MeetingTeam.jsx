@@ -1,5 +1,3 @@
-// MeetingTeam.jsx - 수정된 버전
-
 import React, { useState, useContext } from "react";
 import "../../CSS/MeetingTeam.css";
 import { color } from "../../../style/color";
@@ -9,7 +7,7 @@ import { Call } from "../../../contexts/compatibility";
 import { TeamDel, FindId } from "../Main/Main";
 import ModalMeeting from "../Modal/ModalMeeting";
 import MettingContent from "./page/MeetingContent";
-import handleMeetingEnd from "./api/MeetingEndApi";
+import { handleMeetingEnd } from "./api/MeetingEndApi";
 import MeetingLeaveApi from "./api/MeetingLeaveApi";
 import ModalMeetingJoin from "../Modal/ModalMeetingJoin";
 import PropTypes from "prop-types";
@@ -56,6 +54,7 @@ const useSafeFindIdContext = () => {
   return {
     createTeamId: context?.createTeamId || "",
     itemBackendId: context?.itemBackendId || "",
+    TeamJoinId: context?.temaJoinId || "",
   };
 };
 
@@ -97,7 +96,7 @@ function MeetingTeam({ showSettingIcon = true }) {
   const { discord, meetingEnd, setMeetingEnd } = useSafeUseStateContext();
   const { setFullScreen } = useSafeAppState();
   const { itemId, meetingId, setMeetingId } = useSafeTeamDelContext();
-  const { createTeamId, itemBackendId } = useSafeFindIdContext();
+  const { createTeamId, itemBackendId, TeamJoinId } = useSafeFindIdContext();
 
   // 로컬 상태
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -106,9 +105,11 @@ function MeetingTeam({ showSettingIcon = true }) {
 
   // 유효한 팀 ID 가져오기
   const getValidTeamId = () => {
-    const id = itemBackendId || createTeamId || itemId || 1;
-    // create- 접두사가 있으면 제거
+    const id = itemBackendId || createTeamId || TeamJoinId || itemId || 1;
     if (typeof id === "string" && id.includes("create-")) {
+      const match = id.match(/create-(\d+)/);
+      return match && match[1] ? match[1] : id;
+    } else if (typeof id === "string" && id.includes("Join-")) {
       const match = id.match(/create-(\d+)/);
       return match && match[1] ? match[1] : id;
     }
@@ -122,7 +123,10 @@ function MeetingTeam({ showSettingIcon = true }) {
 
   // 새 팀인지 확인
   const isNewTeam = () => {
-    return typeof createTeamId === "string" && createTeamId.includes("create-");
+    return (
+      (typeof createTeamId === "string" && createTeamId.includes("create-")) ||
+      (typeof TeamJoinId === "string" && TeamJoinId.includes("Join-"))
+    );
   };
 
   // 회의 종료 처리 함수
@@ -136,6 +140,7 @@ function MeetingTeam({ showSettingIcon = true }) {
         setMeetingId,
         createTeamId,
         itemBackendId,
+        TeamJoinId,
         null // recordingBlob은 사용하지 않음
       );
 
@@ -176,13 +181,11 @@ function MeetingTeam({ showSettingIcon = true }) {
     }
   };
 
-  // 버튼 스타일 가져오기 - 방어적 코딩 적용
+  // 버튼 스타일 가져오기
   const getButtonStyle = (isMeetingEnd) => {
-    // 안전한 색상 및 타이포그래피 접근
     const safeColor = color || initialColor;
     const safeTypography = typography || initialTypography;
 
-    // 방어적 코딩: 색상 값이 없을 경우 기본값 사용
     const mainColor = safeColor.Main?.[4] || initialColor.Main[4];
     const secondaryColor =
       safeColor.Secondary?.[4] || initialColor.Secondary[4];
@@ -206,16 +209,27 @@ function MeetingTeam({ showSettingIcon = true }) {
 
   // 버튼 렌더링
   const renderButton = () => {
-    const buttonText = isLoading
-      ? "처리중..."
-      : meetingEnd
-      ? "회의 시작하기"
-      : "회의 나가기";
     const buttonStyle = getButtonStyle(meetingEnd);
 
-    // 디스코드 활성화 상태
-    if (discord) {
-      const onClick = showSettingIcon ? handleEndMeeting : handleLeaveMeeting;
+    if (isNewTeam()) {
+      // create 상태
+      const buttonText = meetingEnd ? "회의 종료하기" : "회의 시작하기";
+      const onClick = meetingEnd ? handleEndMeeting : handleEndMeeting;
+
+      return (
+        <button
+          className="MeetingTButton"
+          onClick={onClick}
+          disabled={isLoading}
+          style={buttonStyle}
+        >
+          {buttonText}
+        </button>
+      );
+    } else {
+      // Join 상태
+      const buttonText = meetingEnd ? "회의 나가기" : "회의 참가하기";
+      const onClick = meetingEnd ? handleLeaveMeeting : openJoinModal;
 
       return (
         <button
@@ -228,64 +242,6 @@ function MeetingTeam({ showSettingIcon = true }) {
         </button>
       );
     }
-
-    // 새 팀 생성 상태
-    if (showSettingIcon && isNewTeam()) {
-      return (
-        <button
-          className="MeetingTButton"
-          onClick={openModal}
-          disabled={isLoading}
-          style={buttonStyle}
-        >
-          회의 시작하기
-        </button>
-      );
-    }
-
-    // 회의 참가 상태
-    if (!showSettingIcon) {
-      // 방어적 코딩 적용
-      const safeColor = color || initialColor;
-      const safeTypography = typography || initialTypography;
-      const mainColor = safeColor.Main?.[4] || initialColor.Main[4];
-      const whiteColor = safeColor.White || initialColor.White;
-
-      return (
-        <button
-          className="MeetingTButton"
-          onClick={openJoinModal}
-          disabled={isLoading}
-          style={{
-            ...safeTypography.Title1,
-            backgroundColor: mainColor,
-            color: whiteColor,
-            opacity: isLoading ? 0.7 : 1,
-            cursor: isLoading ? "not-allowed" : "pointer",
-          }}
-        >
-          회의 참가하기
-        </button>
-      );
-    }
-
-    // 기본 상태
-    // 방어적 코딩 적용
-    const safeColor = color || initialColor;
-    const safeTypography = typography || initialTypography;
-    const grayColor = safeColor.GrayScale?.[0] || initialColor.GrayScale[0];
-
-    return (
-      <button
-        className="MeetingTButton"
-        style={{
-          ...safeTypography.Title1,
-          "--gray-50": grayColor,
-        }}
-      >
-        회의 참가하기
-      </button>
-    );
   };
 
   // 방어적 코딩 적용 - CSS 변수도 안전하게 설정
