@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+
 import { splitVendorChunkPlugin } from "vite";
 
 // 선택적 플러그인 로드 시도
