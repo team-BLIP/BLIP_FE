@@ -7,249 +7,216 @@ import { TeamDel } from "../../Main/Main";
 import { FindId } from "../../Main/Main";
 import ModalDel from "../../Modal/ModalDel";
 import Camera from "../../../../svg/camera.svg";
-import Add from "../../../../svg/add.svg";
-import SettingApi from "../api/settingApi";
+import settingApi from "../api/settingApi";
 import { useAppState } from "../../../../contexts/AppContext";
 
 const OwnerTeam = () => {
-  const fileInputImg = useRef(null);
-  const [inputFont, setInputFont] = useState("");
+  // 상태 관리
+  const [teamName, setTeamName] = useState("");
+  const [previewImage, setPreviewImage] = useState(null);
+  const [teamId, setTeamId] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOpenModal, setIsOpenModal] = useState(false);
+
+  // 컨텍스트에서 데이터 가져오기
   const { itemContent, itemId, image, setImage } = useContext(TeamDel);
   const { teamImages, setTeamImages } = useContext(FindId);
-  const [previewImage, setPreviewImage] = useState(null);
-  const nav = useNavigate();
-  const [TeamTargetId, setTeamTargetId] = useState(null);
   const { setSetting: appSetSetting } = useAppState();
 
+  // 네비게이션 및 파일 입력 참조
+  const navigate = useNavigate();
+  const fileInputRef = useRef(null);
+
+  // 팀 ID 로드 및 설정
   useEffect(() => {
     try {
-      // JSON.parse 제거 - localStorage에는 문자열로 저장되어 있음
-      const localId = localStorage.getItem("currentTeamId");
-      setTeamTargetId(localId);
-      console.log("TeamTargetId", localId);
+      const storedTeamId = localStorage.getItem("currentTeamId");
+      if (storedTeamId) {
+        setTeamId(storedTeamId);
+        console.log("팀 ID 로드됨:", storedTeamId);
+
+        // 팀 정보 로드
+        loadTeamInfo(storedTeamId);
+      }
     } catch (error) {
-      console.log("localStorage 처리 오류:", error);
+      console.error("localStorage 접근 오류:", error);
     }
   }, []);
 
+  /**
+   * 팀 정보 로드 함수
+   * @param {string} id 팀 ID
+   */
+  const loadTeamInfo = (id) => {
+    try {
+      const teamsListStr = localStorage.getItem("teamsList");
+      if (!teamsListStr) return;
+
+      const teamsList = JSON.parse(teamsListStr);
+      const currentTeam = teamsList.find(
+        (team) =>
+          String(team.backendId) === String(id) ||
+          String(team.id) === String(id)
+      );
+
+      if (currentTeam) {
+        // 팀 이름 있으면 placeholder용으로 저장
+        const currentTeamName =
+          currentTeam.itemContent || currentTeam.content || `Team ${id}`;
+        console.log("현재 팀 이름:", currentTeamName);
+      }
+    } catch (error) {
+      console.error("팀 정보 로드 오류:", error);
+    }
+  };
+
+  // 모달 관리 함수
   const openModal = () => setIsOpenModal(true);
   const closeModal = () => setIsOpenModal(false);
 
-  const handleImage = () => {
-    fileInputImg.current.click();
-  };
+  // 이미지 입력 활성화
+  const handleImageClick = () => fileInputRef.current?.click();
 
-  const onChnageInput = (e) => {
-    setInputFont(e.target.value);
-  };
-
-  useEffect(() => {
-    try {
-      // TeamTargetId 불러오기
-      const localId = localStorage.getItem("currentTeamId");
-      setTeamTargetId(localId);
-      console.log("TeamTargetId", localId);
-
-      // 팀 이름 불러오기 (teamsList에서)
-      if (localId) {
-        const teamsListStr = localStorage.getItem("teamsList");
-        if (teamsListStr) {
-          try {
-            const teamsList = JSON.parse(teamsListStr);
-            // 현재 팀 찾기
-            const currentTeam = teamsList.find(
-              (team) =>
-                String(team.backendId) === String(localId) ||
-                String(team.id) === String(localId)
-            );
-
-            if (currentTeam) {
-              // placeholder에 표시할 현재 팀 이름 설정
-              const teamName =
-                currentTeam.itemContent ||
-                currentTeam.content ||
-                `Team ${localId}`;
-              console.log("현재 팀 이름:", teamName);
-
-              // 이름 입력란의 placeholder로 설정
-              // 이미 코드에 placeholder={itemContent}가 있으므로 수정하지 않아도 됨
-            }
-          } catch (parseError) {
-            console.error("팀 목록 파싱 오류:", parseError);
-          }
-        }
-      }
-    } catch (error) {
-      console.log("localStorage 처리 오류:", error);
-    }
-  }, []);
+  // 이름 입력 처리
+  const handleNameChange = (e) => setTeamName(e.target.value);
 
   // 이미지 업로드 처리
-  const ImgUpload = (e) => {
-    const file = e.target.files[0];
+  const handleImageUpload = (e) => {
+    const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!TeamTargetId) {
-      console.error(
-        "TeamTargetId가 설정되지 않아 이미지를 업로드할 수 없습니다."
-      );
-      return;
-    }
-
     const reader = new FileReader();
-    reader.readAsDataURL(file);
     reader.onload = () => {
-      const result = reader.result;
-
-      // 미리보기 이미지만 설정 (완료 버튼 클릭 전까지는 UI에만 표시)
-      setPreviewImage(result);
-
-      // 임시 이미지 데이터 저장 (API 호출 시 사용)
-      setImage(result);
+      const imageData = reader.result;
+      setPreviewImage(imageData);
+      setImage(imageData); // context 업데이트
     };
+    reader.readAsDataURL(file);
   };
 
-  // 로컬 스토리지의 teamsList에서 팀 이름 업데이트 함수
-  // OwnerTeam.jsx의 createImg 함수 수정
-  // OwnerTeam.jsx의 수정된 코드
-
-  // 로컬 스토리지 업데이트 함수
-  const updateLocalTeamName = async (teamId, newName) => {
+  /**
+   * 로컬 팀 이름 업데이트 함수
+   * @param {string} id 팀 ID
+   * @param {string} newName 새 팀 이름
+   * @returns {boolean} 성공 여부
+   */
+  const updateLocalTeamName = (id, newName) => {
     try {
-      console.log(
-        `로컬 스토리지 팀 이름 업데이트 시작: ID=${teamId}, 새 이름=${newName}`
-      );
+      console.log(`로컬 팀 이름 업데이트: ID=${id}, 새 이름=${newName}`);
 
-      // 1. teamsList 업데이트
-      try {
-        const teamsListStr = localStorage.getItem("teamsList");
-        if (teamsListStr) {
-          const teamsList = JSON.parse(teamsListStr);
+      const teamsListStr = localStorage.getItem("teamsList");
+      if (!teamsListStr) return false;
 
-          // 팀 목록 순회하며 해당 팀 찾아 이름 업데이트
-          let isUpdated = false;
-          const updatedTeams = teamsList.map((team) => {
-            if (
-              String(team.backendId) === String(teamId) ||
-              String(team.id) === String(teamId)
-            ) {
-              isUpdated = true;
-              return {
-                ...team,
-                itemContent: newName,
-                content: newName,
-              };
-            }
-            return team;
-          });
+      const teamsList = JSON.parse(teamsListStr);
+      let isUpdated = false;
 
-          // 변경된 경우에만 저장
-          if (isUpdated) {
-            localStorage.setItem("teamsList", JSON.stringify(updatedTeams));
-            console.log(`teamsList에 팀 이름이 '${newName}'으로 업데이트됨`);
-          }
+      const updatedTeams = teamsList.map((team) => {
+        if (
+          String(team.backendId) === String(id) ||
+          String(team.id) === String(id)
+        ) {
+          isUpdated = true;
+          return {
+            ...team,
+            itemContent: newName,
+            content: newName,
+          };
         }
-      } catch (e) {
-        console.error("teamsList 업데이트 실패:", e);
+        return team;
+      });
+
+      if (isUpdated) {
+        localStorage.setItem("teamsList", JSON.stringify(updatedTeams));
+        console.log(`팀 이름이 '${newName}'으로 업데이트됨`);
+        return true;
       }
 
-      return true;
+      return false;
     } catch (error) {
-      console.error("로컬 데이터 업데이트 실패:", error);
+      console.error("로컬 팀 이름 업데이트 실패:", error);
       return false;
     }
   };
 
-  const createImg = async () => {
-    if (!image && !inputFont) {
+  /**
+   * 설정 저장 함수
+   */
+  const saveSettings = async () => {
+    // 변경사항 확인
+    const hasChanges = Boolean(image || teamName);
+    if (!hasChanges) {
       alert("변경사항이 없습니다. 이미지를 업로드하거나 이름을 변경해주세요.");
       return;
     }
 
+    // 팀 ID 확인
+    if (!teamId) {
+      const storedTeamId = localStorage.getItem("currentTeamId");
+      if (storedTeamId) {
+        setTeamId(storedTeamId);
+        alert("팀 정보를 다시 불러왔습니다. 잠시 후 다시 시도해주세요.");
+      } else {
+        alert(
+          "팀 정보를 찾을 수 없습니다. 페이지를 새로고침 후 다시 시도해주세요."
+        );
+      }
+      return;
+    }
+
     try {
-      // TeamTargetId 확인
-      if (!TeamTargetId) {
-        console.error("TeamTargetId가 설정되지 않았습니다.");
+      setIsSubmitting(true);
+      console.log("설정 저장 시작 - 팀ID:", teamId);
 
-        // localStorage에서 직접 가져오기
-        const localId = localStorage.getItem("currentTeamId");
-        if (localId) {
-          console.log("localStorage에서 TeamTargetId를 가져옴:", localId);
-          setTeamTargetId(localId);
+      // API 호출 (비동기) - 개선된 API는 토큰이 없어도 로컬 저장 결과 반환
+      const apiResponse = await settingApi(teamId, teamName, image);
+      console.log("API 응답:", apiResponse);
 
-          alert("팀 정보를 다시 불러왔습니다. 잠시 후 다시 시도해주세요.");
-          return;
-        } else {
-          alert(
-            "팀 정보를 찾을 수 없습니다. 페이지를 새로고침 후 다시 시도해주세요."
-          );
-          return;
+      // 로컬 데이터 업데이트 (성공 여부와 무관하게 진행)
+      const localUpdates = [];
+
+      // 1. 이미지 업데이트
+      if (image) {
+        const newTeamImages = {
+          ...teamImages,
+          [teamId]: image,
+        };
+
+        // Context 업데이트
+        setTeamImages(newTeamImages);
+
+        // 로컬 스토리지 저장
+        localStorage.setItem("teamImages", JSON.stringify(newTeamImages));
+        localUpdates.push("이미지");
+      }
+
+      // 2. 팀 이름 업데이트
+      if (teamName && teamName.trim() !== "") {
+        const nameUpdated = updateLocalTeamName(teamId, teamName.trim());
+        if (nameUpdated) {
+          localUpdates.push("이름");
         }
       }
 
-      console.log("설정 변경 시작 - TeamID:", TeamTargetId);
-      console.log("이름 변경:", inputFont || "변경 없음");
-      console.log("이미지 변경:", image ? "있음" : "없음");
+      console.log(`로컬 업데이트 완료: ${localUpdates.join(", ")}`);
 
-      // 로컬 데이터 업데이트 및 API 호출 병렬 처리
-      try {
-        // API 호출
-        const apiPromise = SettingApi(TeamTargetId, inputFont, image);
+      // 메인 페이지로 이동 - 상태 전달로 새로고침 유도
+      navigate("/", {
+        state: {
+          itemId,
+          updatedTeamName: teamName || null,
+          updatedImage: image ? true : false,
+          forceRefresh: Date.now(), // 새로고침 트리거
+          localOnly: apiResponse.isLocalOnly || false,
+        },
+      });
 
-        // 로컬 데이터 업데이트 (API 결과 대기하지 않음)
-
-        // 1. 이미지 업데이트
-        if (image) {
-          const newTeamImages = {
-            ...teamImages,
-            [TeamTargetId]: image,
-          };
-
-          // Context 업데이트
-          setTeamImages(newTeamImages);
-
-          // 로컬 스토리지 저장
-          localStorage.setItem("teamImages", JSON.stringify(newTeamImages));
-          console.log("로컬 스토리지에 이미지 저장 완료");
-        }
-
-        // 2. 팀 이름 업데이트
-        if (inputFont && inputFont.trim() !== "") {
-          await updateLocalTeamName(TeamTargetId, inputFont.trim());
-        }
-
-        // API 응답 대기
-        const response = await apiPromise;
-        console.log("API 호출 성공:", response);
-
-        // 메인 페이지로 이동 - 업데이트된 정보를 state로 전달
-        nav("/", {
-          state: {
-            itemId,
-            updatedTeamName: inputFont || null,
-            updatedImage: image ? true : false,
-            forceRefresh: Date.now(), // 강제 새로고침 트리거
-          },
-        });
-        appSetSetting(false);
-      } catch (error) {
-        console.error("API 호출 실패:", error);
-
-        // API 실패해도 로컬 데이터는 이미 업데이트됨 - 메인 페이지로 이동
-        nav("/", {
-          state: {
-            itemId,
-            updatedTeamName: inputFont || null,
-            updatedImage: image ? true : false,
-            forceRefresh: Date.now(), // 강제 새로고침 트리거
-          },
-        });
-        appSetSetting(false);
-      }
+      // 설정 모드 종료
+      appSetSetting(false);
     } catch (error) {
       console.error("설정 저장 중 오류 발생:", error);
       alert("오류가 발생했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -259,6 +226,8 @@ const OwnerTeam = () => {
         <div style={{ ...typography.Header1, color: color.GrayScale[8] }}>
           설정
         </div>
+
+        {/* 팀 이미지 섹션 */}
         <div>
           <div style={{ ...typography.Header2, color: color.GrayScale[8] }}>
             팀 스페이스 이미지 수정
@@ -267,39 +236,44 @@ const OwnerTeam = () => {
             팀원들에게 보여질 이미지를 설정하세요.
           </p>
         </div>
+
         <div
           className="circle-main"
           style={{ "--gray-200": color.GrayScale[2] }}
         >
           {previewImage ? (
-            // 미리보기 이미지가 있는 경우
             <img
               className="circle-main-img"
               src={previewImage}
-              onClick={handleImage}
+              onClick={handleImageClick}
               alt="Team Space"
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
             />
-          ) : TeamTargetId === itemId ? (
-            // TeamTargetId와 itemId가 같고 미리보기가 없는 경우 Add 아이콘 표시
+          ) : teamId === itemId ? (
             <img
               className="circle-main-img"
               src={Camera}
-              onClick={handleImage}
+              onClick={handleImageClick}
               alt="Team Space"
             />
           ) : (
-            // 그 외의 경우 Camera 아이콘 표시
-            <img src={Camera} alt="Click to upload" onClick={handleImage} />
+            <img
+              src={Camera}
+              alt="Click to upload"
+              onClick={handleImageClick}
+            />
           )}
+
           <input
             type="file"
             accept="image/*"
-            ref={fileInputImg}
-            onChange={ImgUpload}
+            ref={fileInputRef}
+            onChange={handleImageUpload}
             style={{ display: "none" }}
           />
         </div>
+
+        {/* 팀 이름 섹션 */}
         <div>
           <div style={{ ...typography.Header2, color: color.GrayScale[8] }}>
             팀 스페이스 이름 수정
@@ -308,31 +282,45 @@ const OwnerTeam = () => {
             팀원들에게 보여질 팀스페이스 이름을 설정하세요.
           </p>
         </div>
+
         <div className="TeamName-input">
           <input
-            onChange={onChnageInput}
-            value={inputFont}
+            onChange={handleNameChange}
+            value={teamName}
             type="text"
             style={{ ...typography.Body2, "--gray-50": color.GrayScale[0] }}
             placeholder={itemContent}
           />
         </div>
       </div>
+
+      {/* 버튼 섹션 */}
       <div className="owner-button">
-        {image || inputFont ? (
-          <button
-            style={{ backgroundColor: color.Main[4] }}
-            onClick={createImg}
-          >
-            완료
-          </button>
-        ) : (
-          <button style={{ backgroundColor: color.Main[2] }}>완료</button>
-        )}
-        <button style={{ backgroundColor: color.Error[0] }} onClick={openModal}>
+        <button
+          style={{
+            backgroundColor: image || teamName ? color.Main[4] : color.Main[2],
+            opacity: isSubmitting ? 0.7 : 1,
+            cursor: isSubmitting
+              ? "wait"
+              : image || teamName
+              ? "pointer"
+              : "default",
+          }}
+          onClick={saveSettings}
+          disabled={isSubmitting || (!image && !teamName)}
+        >
+          {isSubmitting ? "처리 중..." : "완료"}
+        </button>
+
+        <button
+          style={{ backgroundColor: color.Error[0] }}
+          onClick={openModal}
+          disabled={isSubmitting}
+        >
           팀 스페이스 삭제
         </button>
       </div>
+
       {isOpenModal && <ModalDel onClose={closeModal} />}
     </div>
   );
