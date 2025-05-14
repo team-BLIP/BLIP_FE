@@ -67,7 +67,7 @@ export default defineConfig({
   ].filter(Boolean),
   server: {
     open: true,
-    port: 5173,
+    port: 8080,
     proxy: {
       "/jitsi-api": {
         target: "https://your-jitsi-server.com",
