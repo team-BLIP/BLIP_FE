@@ -16,14 +16,22 @@ const ModalJoin = ({ onClose, parentOnClose }) => {
   const [isValidURL, setIsValidURL] = useState(true);
   const { setOwner, setJoin, Owner } = useContext(TeamDel);
   const { targetId, setTargetId } = useContext(UseStateContext);
-  const { dispatch } = useSidebar();
-  const { content, TeamUrl } = useContext(FindId);
-  const [JoinUrl, setJoinUrl] = useState("");
-  const submitRef = useRef();
-  const nav = useNavigate();
-  const [inputFont, setInputFont] = useState("");
+  const { dispatch } = useSidebar() || {}; // null 체크 추가
+  const { content, TeamUrl } = useContext(FindId) || {}; // null 체크 추가
   const [isJoining, setIsJoining] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const submitRef = useRef();
+  const nav = useNavigate();
+
+  // 디버깅을 위한 컨텍스트 데이터 로깅
+  useEffect(() => {
+    console.log("ModalJoin 컨텍스트 상태:", {
+      dispatch: dispatch ? "있음" : "없음",
+      targetId,
+      content,
+      TeamUrl,
+    });
+  }, [dispatch, targetId, content, TeamUrl]);
 
   const onClickUrl = async () => {
     if (!isInput) {
@@ -31,43 +39,87 @@ const ModalJoin = ({ onClose, parentOnClose }) => {
       return;
     }
 
-    if (isValidURL) {
-      try {
-        const inviteCode = isInput.trim();
-        console.log("초대 코드", inviteCode);
-        console.log(isInput);
-        console.log("Dafsghg", isValidURL);
+    if (!isValidURL) {
+      setErrorMessage("유효한 초대 링크를 입력해주세요");
+      return;
+    }
 
-        const rusult = await JoinApi(
-          inviteCode,
-          targetId,
-          setTargetId,
-          content,
-          dispatch,
-          TeamUrl,
-          nav,
-          content
+    try {
+      setIsJoining(true);
+      setErrorMessage("");
+
+      const inviteCode = isInput.trim();
+      console.log("초대 코드:", inviteCode);
+
+      // 사용자에게 표시할 팀 이름 (content가 없으면 기본값 사용)
+      const teamDisplayName = content || "새 팀";
+
+      // 디스패치 객체 확인 로깅
+      if (!dispatch) {
+        console.warn(
+          "경고: dispatch 객체가 없습니다. useContext가 제대로 설정되었는지 확인하세요."
+        );
+      }
+
+      // JoinApi 호출 시 timestamp 추가하여 캐시/중복 방지
+      const result = await JoinApi(
+        inviteCode,
+        targetId,
+        setTargetId,
+        teamDisplayName,
+        dispatch, // dispatch가 undefined여도 JoinApi 내부에서 처리
+        TeamUrl,
+        nav
+      );
+
+      setIsJoining(false);
+
+      if (result && result.success) {
+        console.log("팀 참가 성공:", result);
+
+        // 팀 가입 이벤트 발생 (다른 컴포넌트에서 감지할 수 있도록)
+        window.dispatchEvent(
+          new CustomEvent("teamJoined", {
+            detail: {
+              team: result.data,
+              timestamp: Date.now(),
+            },
+          })
         );
 
-        if (rusult) {
-          console.log("팀 참가 성공", rusult);
-          nav("/mainPage", { state: { isInput } });
-          setJoin((prev) => !prev);
-          if (Owner) {
-            setOwner((prev) => !prev);
-          }
+        // 상태 업데이트
+        setJoin((prev) => !prev);
+        if (Owner) {
+          setOwner((prev) => !prev);
         }
+
+        // 모달 닫기
         onClose();
         if (parentOnClose) parentOnClose();
-      } catch (error) {
-        console.error("팀 참가 중 오류 발생:", error);
-        alert("유효하지 않은 초대 링크입니다. 다시 확인해주세요.");
+
+        // 메인 페이지로 이동 (forceRefresh로 화면 갱신 유도)
+        nav("/mainPage", {
+          state: {
+            targetId: result.data.team_id,
+            forceRefresh: true,
+            timestamp: Date.now(),
+          },
+        });
+      } else {
+        // 오류 메시지 설정
+        setErrorMessage(
+          result?.error?.message || "팀 참가에 실패했습니다. 다시 시도해주세요."
+        );
       }
+    } catch (error) {
+      setIsJoining(false);
+      console.error("팀 참가 중 오류 발생:", error);
+      setErrorMessage("유효하지 않은 초대 링크입니다. 다시 확인해주세요.");
     }
   };
 
   const onKeyDownUrl = (e) => {
-    if (e.keyCode === 13) {
+    if (e.key === "Enter") {
       onClickUrl();
     }
   };
@@ -76,7 +128,7 @@ const ModalJoin = ({ onClose, parentOnClose }) => {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.keyCode === 27) {
+      if (e.key === "Escape") {
         onClose();
         if (parentOnClose) parentOnClose();
       }
@@ -87,23 +139,7 @@ const ModalJoin = ({ onClose, parentOnClose }) => {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [onClose]);
-
-  useEffect(() => {
-    try {
-      const storedTeams = JSON.parse(localStorage.getItem("teams") || "[]");
-      if (storedTeams.length > 0) {
-        const latestTeam = storedTeams[storedTeams.length - 1];
-        if (latestTeam && latestTeam.JoinUrl) {
-          console.log("로컬 스토리지에서 JoinUrl 발견:", latestTeam.JoinUrl);
-          setJoinUrl(latestTeam.JoinUrl);
-          return;
-        }
-      }
-    } catch (error) {
-      console.error("로컬 스토리지 접근 오류:", error);
-    }
-  }, [location.state]);
+  }, [onClose, parentOnClose]);
 
   return (
     <div className="modal-overlay">
@@ -141,23 +177,29 @@ const ModalJoin = ({ onClose, parentOnClose }) => {
               borderColor: isValidURL ? "#F2F2F2" : "red",
             }}
           />
+          {errorMessage && (
+            <p style={{ color: "red", marginTop: "8px", fontSize: "12px" }}>
+              {errorMessage}
+            </p>
+          )}
         </div>
         <div className="modal-Join-button">
           <button
             className={
-              isInput && isValidURL
+              isInput && isValidURL && !isJoining
                 ? "modal-Join-button-400"
                 : "modal-Join-button-200"
             }
             style={{
               "--main-400": color.Main[4],
               "--main-200": color.Main[2],
-              cursor: isInput && isValidURL ? "pointer" : "not-allowed",
+              cursor:
+                isInput && isValidURL && !isJoining ? "pointer" : "not-allowed",
             }}
-            disabled={!isInput || !isValidURL}
+            disabled={!isInput || !isValidURL || isJoining}
             onClick={onClickUrl}
           >
-            시작하기
+            {isJoining ? "처리 중..." : "시작하기"}
           </button>
         </div>
       </div>

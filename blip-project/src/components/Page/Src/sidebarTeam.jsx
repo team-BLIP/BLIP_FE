@@ -356,34 +356,57 @@ const SidebarTeam = () => {
     }
   }, []);
 
+  // SidebarTeam.jsx 내에 수정이 필요한 부분
+
+  // 수정 1: loadAndNormalizeTeams 함수에서 데이터 병합 부분 변경
   const loadAndNormalizeTeams = useCallback(() => {
     try {
       console.log("팀 데이터 로드 및 정규화 시작");
 
       // 1. 단일 소스로 데이터 로드 (teamsList만 사용)
-      // teamsList가 이제 유일한 소스가 됨
-      let teamsListData = storageUtils.load("teamsList", []);
-      console.log("teamsList 데이터:", teamsListData);
-
-      // 하위 호환성을 위해 teams에서도 로드하지만 한 번만 실행 (초기 마이그레이션)
-      const teamsData = storageUtils.load("teams", []);
-      if (teamsData && teamsData.length > 0) {
-        console.log("teams 데이터 발견 - 마이그레이션 실행:", teamsData);
-
-        // teams의 데이터를 teamsList로 통합 (중복 처리 포함)
-        const allTeams = [...teamsListData, ...teamsData];
-        const uniqueTeams = removeDuplicates(allTeams);
-
-        // teamsList에만 저장하고 teams는 비움
-        storageUtils.save("teamsList", uniqueTeams);
-        localStorage.setItem("teams", "[]"); // teams 비우기
-
-        // 마이그레이션된 데이터 사용
-        teamsListData = uniqueTeams;
+      let teamsListData = [];
+      try {
+        const teamsListJson = localStorage.getItem("teamsList");
+        if (
+          teamsListJson &&
+          teamsListJson !== "[object Object]" &&
+          teamsListJson !== "[object Array]"
+        ) {
+          teamsListData = JSON.parse(teamsListJson);
+          if (!Array.isArray(teamsListData)) teamsListData = [];
+        }
+      } catch (e) {
+        console.error("teamsList 파싱 오류:", e);
+        teamsListData = [];
       }
 
+      console.log("teamsList 데이터 개수:", teamsListData.length);
+
+      // 하위 호환성을 위해 teams에서도 로드
+      let teamsData = [];
+      try {
+        const teamsJson = localStorage.getItem("teams");
+        if (
+          teamsJson &&
+          teamsJson !== "[object Object]" &&
+          teamsJson !== "[object Array]"
+        ) {
+          teamsData = JSON.parse(teamsJson);
+          if (!Array.isArray(teamsData)) teamsData = [];
+        }
+      } catch (e) {
+        console.error("teams 파싱 오류:", e);
+        teamsData = [];
+      }
+
+      console.log("teams 데이터 개수:", teamsData.length);
+
+      // 두 소스의 데이터 병합 (중요: 항상 병합)
+      const allTeams = [...teamsListData, ...teamsData];
+      console.log("병합된 총 팀 개수:", allTeams.length);
+
       // 2. ID 정규화 적용
-      const normalizedTeams = teamsListData
+      const normalizedTeams = allTeams
         .map((team) => {
           const normalized = normalizeTeamIds(team);
           return normalized;
@@ -391,12 +414,17 @@ const SidebarTeam = () => {
         .filter(Boolean);
 
       const uniqueTeams = removeDuplicates(normalizedTeams);
-      console.log("정규화 및 중복 제거 후 팀 목록:", uniqueTeams);
+      console.log("정규화 및 중복 제거 후 팀 목록 개수:", uniqueTeams.length);
 
       // 3. 기본 팀 추가 확인
       const finalTeams = uniqueTeams.some((t) => t.id === "default-team")
         ? uniqueTeams
         : [...uniqueTeams, createDefaultTeam()];
+
+      console.log("최종 팀 목록 개수:", finalTeams.length);
+
+      // 로컬 스토리지 동기화 (중요 - 항상 최신 상태 유지)
+      storageUtils.save("teamsList", uniqueTeams);
 
       return finalTeams;
     } catch (error) {
@@ -665,6 +693,145 @@ const SidebarTeam = () => {
       console.error("로컬 스토리지 이미지 로드 실패:", error);
     }
   }, []);
+
+  // SidebarTeam.jsx 내부에 추가할 팀 가입 이벤트 처리 코드
+
+  // 기존 useEffect 블록 중에 추가할 새로운 useEffect
+  useEffect(() => {
+    // 팀 가입 이벤트 처리 함수
+    const handleTeamJoined = (event) => {
+      const { team, allTeams, timestamp } = event.detail || {};
+
+      console.log("팀 가입 이벤트 감지:", {
+        team: team ? "있음" : "없음",
+        allTeams: allTeams ? `${allTeams.length}개` : "없음",
+        timestamp,
+      });
+
+      // 모든 데이터 다시 로드
+      const freshTeams = loadAndNormalizeTeams();
+      console.log("새로 로드한 팀 목록 개수:", freshTeams.length);
+
+      // 현재 상태와 비교하여 변경 필요 시에만 상태 업데이트
+      if (freshTeams.length !== localTodos.length) {
+        console.log("팀 목록 길이 변경 감지: 상태 업데이트");
+        setLocalTodos(freshTeams);
+      } else {
+        // ID 비교를 통해 더 정확히 확인
+        const currentIds = new Set(
+          localTodos
+            .map((t) => t.backendId || t._originalId || t.id)
+            .filter(Boolean)
+        );
+
+        const freshIds = new Set(
+          freshTeams
+            .map((t) => t.backendId || t._originalId || t.id)
+            .filter(Boolean)
+        );
+
+        // ID 세트 크기 비교 또는 개별 ID 확인
+        if (
+          currentIds.size !== freshIds.size ||
+          [...freshIds].some((id) => !currentIds.has(id))
+        ) {
+          console.log("팀 목록 내용 변경 감지: 상태 업데이트");
+          setLocalTodos(freshTeams);
+        }
+      }
+
+      // 새로 가입한 팀으로 이동 (가능한 경우)
+      if (team && team.backendId) {
+        setTargetId(team.backendId);
+        localStorage.setItem("currentTeamId", team.backendId);
+
+        // URL 업데이트
+        nav(`?teamId=${team.backendId}`, { replace: true });
+      }
+    };
+
+    // 이벤트 리스너 등록
+    window.addEventListener("teamJoined", handleTeamJoined);
+
+    // 클린업 함수
+    return () => {
+      window.removeEventListener("teamJoined", handleTeamJoined);
+    };
+  }, [loadAndNormalizeTeams, nav, setTargetId, localTodos]);
+
+  // 로컬 스토리지 업데이트를 감지하는 useEffect
+  useEffect(() => {
+    // 로컬 스토리지 변경 이벤트 처리 함수
+    const handleStorageChange = (e) => {
+      if (e.key === "teamsList" || e.key === "teams") {
+        console.log("로컬 스토리지 변경 감지:", e.key);
+
+        // 변경된 내용 확인 후 데이터 리로드
+        const freshTeams = loadAndNormalizeTeams();
+
+        // 데이터가 변경되었는지 확인 (간단한 길이 체크)
+        if (freshTeams.length !== localTodos.length) {
+          console.log(
+            "팀 목록 업데이트:",
+            freshTeams.length,
+            "기존:",
+            localTodos.length
+          );
+          setLocalTodos(freshTeams);
+        } else {
+          // 더 정확한 변경 감지를 위해 ID 비교
+          const freshIds = new Set(
+            freshTeams.map((t) => t.backendId || t.id).filter(Boolean)
+          );
+          const currentIds = new Set(
+            localTodos.map((t) => t.backendId || t.id).filter(Boolean)
+          );
+
+          const hasDifference =
+            [...freshIds].some((id) => !currentIds.has(id)) ||
+            [...currentIds].some((id) => !freshIds.has(id));
+
+          if (hasDifference) {
+            console.log("팀 ID 변경 감지, 목록 업데이트");
+            setLocalTodos(freshTeams);
+          }
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, [loadAndNormalizeTeams, localTodos]);
+
+  // 내비게이션 이벤트 처리 개선
+  useEffect(() => {
+    // 라우터 상태에서 forceRefresh 확인
+    if (location.state && location.state.forceRefresh) {
+      console.log("화면 강제 리프레시 요청 감지");
+
+      // 중복 처리 방지를 위한 타임스탬프 확인
+      const refreshTimestamp = location.state.timestamp || Date.now();
+      const lastRefresh = sessionStorage.getItem("lastForceRefresh");
+
+      if (!lastRefresh || Number(lastRefresh) < refreshTimestamp) {
+        // 최신 데이터 로드
+        const freshTeams = loadAndNormalizeTeams();
+        setLocalTodos(freshTeams);
+
+        // 타임스탬프 저장
+        sessionStorage.setItem("lastForceRefresh", refreshTimestamp);
+
+        // 특정 팀 ID가 지정된 경우 선택
+        if (location.state.targetId) {
+          setTargetId(location.state.targetId);
+          localStorage.setItem("currentTeamId", location.state.targetId);
+        }
+      }
+    }
+  }, [location.state, loadAndNormalizeTeams]);
 
   // 팀 삭제 이벤트 처리 함수 업데이트
   useEffect(() => {
