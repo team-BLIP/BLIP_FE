@@ -8,7 +8,7 @@ import { TeamDel } from "../Main/Main";
 import { FindId } from "../Main/Main";
 import MeetingStartApi from "../Src/api/MeetingStartApi";
 
-const ModalMeeting = ({ onClose }) => {
+const ModalMeeting = ({ onClose, setIsLoading, setIsInMeeting }) => {
   const [isCheckMike, setIsCheckMike] = useState(false);
   const [isCheckCamera, setIsCheckCamera] = useState(false);
   const [userEmail, setUserEmail] = useState("");
@@ -112,7 +112,8 @@ const ModalMeeting = ({ onClose }) => {
       });
 
       console.log("회의 시작 성공:", result);
-
+      setIsLoading(false);
+      setIsInMeeting(true);
       // 중요: room_url을 localStorage에 저장
       if (result && result.room_url) {
         localStorage.setItem("currentRoomUrl", result.room_url);
