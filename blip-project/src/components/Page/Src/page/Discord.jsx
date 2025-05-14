@@ -1479,7 +1479,9 @@ const Discord = () => {
                   style={{ width: "50%" }}
                   alt="회의 상태"
                 />
-                {!isNewTeam() && (
+                {isNewTeam() ? (
+                  ""
+                ) : (
                   <img
                     src={isAlarmActive ? AlarmLight : DisAlarm}
                     style={{ width: "50%" }}

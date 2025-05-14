@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useCallback } from "react";
 import "../../CSS/MeetingTeam.css";
 import { color } from "../../../style/color";
 import { typography } from "../../../fonts/fonts";
@@ -102,9 +102,28 @@ function MeetingTeam({ showSettingIcon = true }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isInMeeting, setIsInMeeting] = useState(false);
+
+  // 모달 제어 함수 - useCallback으로 메모이제이션
+  const openModal = useCallback(() => setIsModalOpen(true), []);
+  const closeModal = useCallback(() => setIsModalOpen(false), []);
+  const openJoinModal = useCallback(() => setIsJoinModalOpen(true), []);
+  const closeJoinModal = useCallback(() => setIsJoinModalOpen(false), []);
+
+  // 회의 시작 성공 처리
+  const handleMeetingStarted = useCallback(() => {
+    setIsInMeeting(true);
+    closeModal();
+  }, [closeModal]);
+
+  // 회의 참가 성공 처리
+  const handleMeetingJoined = useCallback(() => {
+    setIsInMeeting(true);
+    closeJoinModal();
+  }, [closeJoinModal]);
 
   // 유효한 팀 ID 가져오기
-  const getValidTeamId = () => {
+  const getValidTeamId = useCallback(() => {
     const id = itemBackendId || createTeamId || TeamJoinId || itemId || 1;
     if (typeof id === "string" && id.includes("create-")) {
       const match = id.match(/create-(\d+)/);
@@ -114,23 +133,23 @@ function MeetingTeam({ showSettingIcon = true }) {
       return match && match[1] ? match[1] : id;
     }
     return id;
-  };
+  }, [itemBackendId, createTeamId, TeamJoinId, itemId]);
 
   // 유효한 미팅 ID 가져오기
-  const getValidMeetingId = () => {
+  const getValidMeetingId = useCallback(() => {
     return meetingId || 1;
-  };
+  }, [meetingId]);
 
   // 새 팀인지 확인
-  const isNewTeam = () => {
+  const isNewTeam = useCallback(() => {
     return (
       (typeof createTeamId === "string" && createTeamId.includes("create-")) ||
       (typeof TeamJoinId === "string" && TeamJoinId.includes("Join-"))
     );
-  };
+  }, [createTeamId, TeamJoinId]);
 
   // 회의 종료 처리 함수
-  const handleEndMeeting = async () => {
+  const handleEndMeeting = useCallback(async () => {
     setIsLoading(true);
     try {
       const teamId = getValidTeamId();
@@ -145,6 +164,7 @@ function MeetingTeam({ showSettingIcon = true }) {
       );
 
       if (result && result.success) {
+        setIsInMeeting(false); // 회의가 종료되었으므로 상태 업데이트
         if (setMeetingEnd) setMeetingEnd(true);
         if (setFullScreen) setFullScreen(false);
       } else {
@@ -156,18 +176,27 @@ function MeetingTeam({ showSettingIcon = true }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [
+    getValidTeamId,
+    setMeetingId,
+    createTeamId,
+    itemBackendId,
+    TeamJoinId,
+    setMeetingEnd,
+    setFullScreen,
+  ]);
 
   // 회의 나가기 처리 함수
-  const handleLeaveMeeting = async () => {
+  const handleLeaveMeeting = useCallback(async () => {
     setIsLoading(true);
     try {
       const teamId = getValidTeamId();
-      const meetingId = getValidMeetingId();
+      const meetingIdValue = getValidMeetingId();
 
-      const result = await MeetingLeaveApi.leaveMeeting(teamId, meetingId);
+      const result = await MeetingLeaveApi.leaveMeeting(teamId, meetingIdValue);
 
       if (result && result.success) {
+        setIsInMeeting(false); // 회의에서 나갔으므로 상태 업데이트
         if (setMeetingEnd) setMeetingEnd(true);
         if (setFullScreen) setFullScreen(false);
       } else {
@@ -179,10 +208,15 @@ function MeetingTeam({ showSettingIcon = true }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [
+    getValidTeamId,
+    getValidMeetingId,
+    setMeetingEnd,
+    setFullScreen,
+  ]);
 
   // 버튼 스타일 가져오기
-  const getButtonStyle = (isMeetingEnd) => {
+  const getButtonStyle = useCallback((isMeetingEnd) => {
     const safeColor = color || initialColor;
     const safeTypography = typography || initialTypography;
 
@@ -198,54 +232,65 @@ function MeetingTeam({ showSettingIcon = true }) {
       opacity: isLoading ? 0.7 : 1,
       cursor: isLoading ? "not-allowed" : "pointer",
     };
-  };
-
-  // 모달 제어 함수
-  const toggleModal = (setter) => () => setter((prev) => !prev);
-  const openModal = toggleModal(setIsModalOpen);
-  const closeModal = toggleModal(setIsModalOpen);
-  const openJoinModal = toggleModal(setIsJoinModalOpen);
-  const closeJoinModal = toggleModal(setIsJoinModalOpen);
+  }, [isLoading]);
 
   // 버튼 렌더링
   const renderButton = () => {
     const buttonStyle = getButtonStyle(meetingEnd);
 
     if (isNewTeam()) {
-      // create 상태
-      const buttonText = meetingEnd ? "회의 종료하기" : "회의 시작하기";
-      const onClick = meetingEnd ? handleEndMeeting : handleEndMeeting;
+      // create 상태 - 회의 생성자
+      let buttonText, handleClick;
+      
+      if (isInMeeting) {
+        // 회의 진행 중이면 종료 버튼 표시
+        buttonText = "회의 종료하기";
+        handleClick = handleEndMeeting;
+      } else {
+        // 회의 진행 중이 아니면 시작 버튼 표시
+        buttonText = "회의 시작하기";
+        handleClick = openModal;
+      }
 
       return (
         <button
           className="MeetingTButton"
-          onClick={onClick}
+          onClick={handleClick}
           disabled={isLoading}
           style={buttonStyle}
         >
-          {buttonText}
+          {isLoading ? "처리 중..." : buttonText}
         </button>
       );
     } else {
-      // Join 상태
-      const buttonText = meetingEnd ? "회의 나가기" : "회의 참가하기";
-      const onClick = meetingEnd ? handleLeaveMeeting : openJoinModal;
+      // Join 상태 - 회의 참가자
+      let buttonText, handleClick;
+      
+      if (isInMeeting) {
+        // 회의에 참가 중이면 나가기 버튼 표시
+        buttonText = "회의 나가기";
+        handleClick = handleLeaveMeeting;
+      } else {
+        // 회의에 참가 중이 아니면 참가 버튼 표시
+        buttonText = "회의 참가하기";
+        handleClick = openJoinModal;
+      }
 
       return (
         <button
           className="MeetingTButton"
-          onClick={onClick}
+          onClick={handleClick}
           disabled={isLoading}
           style={buttonStyle}
         >
-          {buttonText}
+          {isLoading ? "처리 중..." : buttonText}
         </button>
       );
     }
   };
 
   // 방어적 코딩 적용 - CSS 변수도 안전하게 설정
-  const getContainerStyle = () => {
+  const getContainerStyle = useCallback(() => {
     const safeColor = color || initialColor;
     const grayScale0 = safeColor.GrayScale?.[0] || initialColor.GrayScale[0];
     const grayScale4 = safeColor.GrayScale?.[4] || initialColor.GrayScale[4];
@@ -256,12 +301,12 @@ function MeetingTeam({ showSettingIcon = true }) {
       "--gray-400": grayScale4,
       "--black": blackColor,
     };
-  };
+  }, []);
 
-  const getTitleStyle = () => {
+  const getTitleStyle = useCallback(() => {
     const safeTypography = typography || initialTypography;
     return safeTypography.Body2 || initialTypography.Body2;
-  };
+  }, []);
 
   return (
     <>
@@ -273,11 +318,19 @@ function MeetingTeam({ showSettingIcon = true }) {
       </div>
       <div className="MeetingTeams">
         {renderButton()}
-        {isModalOpen && <ModalMeeting onClose={closeModal} />}
+        {isModalOpen && (
+          <ModalMeeting
+            onClose={closeModal}
+            setIsLoading={setIsLoading}
+            onMeetingStart={handleMeetingStarted} // 회의 시작 성공 시 호출될 콜백
+            setIsInMeeting={setIsInMeeting}
+          />
+        )}
         {isJoinModalOpen && (
           <ModalMeetingJoin
             onClose={closeJoinModal}
             meetingId={getValidMeetingId()}
+            onMeetingJoin={handleMeetingJoined} // 회의 참가 성공 시 호출될 콜백
           />
         )}
       </div>
@@ -289,4 +342,4 @@ MeetingTeam.propTypes = {
   showSettingIcon: PropTypes.bool,
 };
 
-export default MeetingTeam;
+export default MeetingTeam; 

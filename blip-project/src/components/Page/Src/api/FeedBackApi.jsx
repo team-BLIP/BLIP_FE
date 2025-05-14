@@ -8,7 +8,6 @@ const FeedBackApi = async (teamId) => {
     let apiUrl = import.meta.env.VITE_API_URL_BASE;
     if (!apiUrl) {
       console.warn("환경 변수에 API URL이 설정되지 않았습니다. 기본값 사용");
-      apiUrl = "http://3.38.233.219:8080/"; // 기본값 설정
     }
 
     // URL 슬래시 처리
