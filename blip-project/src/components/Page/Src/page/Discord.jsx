@@ -215,6 +215,7 @@ const Discord = () => {
   }, []);
 
   // 회의 종료 처리 함수를 먼저 정의
+  // handleMeetingEnd 함수 (Discord 컴포넌트 내에서)
   const handleMeetingEnd = useCallback(async () => {
     try {
       const teamId = getValidTeamId();
@@ -222,156 +223,162 @@ const Discord = () => {
 
       let recordingBlob = null;
 
-      // 녹음 중지 및 데이터 저장
+      // 녹음 중지 및 데이터 획득
       if (recordingServiceRef.current && (isRecording || isRecordingPaused)) {
         try {
-          // 녹음 중지 시도
           recordingBlob = await recordingServiceRef.current.stopRecording(
             teamId
           );
           console.log(`녹음 중지 완료: ${recordingBlob?.size || 0} 바이트`);
-
-          // 녹음이 없는 경우 기존 녹음 확인
-          if (!recordingBlob || recordingBlob.size === 0) {
-            // 기존 저장된 녹음 검색
-            recordingBlob =
-              recordingServiceRef.current.getLatestRecording(teamId);
-            console.log(`기존 녹음 찾음: ${recordingBlob?.size || 0} 바이트`);
-          }
         } catch (error) {
           console.error("녹음 중지 오류:", error);
         }
-      } else {
-        console.warn("녹음 상태가 아닙니다. 기존 녹음 파일 찾기 시도...");
+      }
 
-        // RecordingService에서 최근 녹음 찾기
+      // 녹음 데이터가 없으면 찾기 시도
+      if (!recordingBlob || recordingBlob.size === 0) {
+        console.log("유효한 녹음 파일 찾기 시도");
+
+        // RecordingService에서 찾기
         if (recordingServiceRef.current) {
           recordingBlob =
             recordingServiceRef.current.getLatestRecording(teamId);
           console.log(`기존 녹음 찾음: ${recordingBlob?.size || 0} 바이트`);
         }
-      }
 
-      // 녹음 데이터 처리
-      if (recordingBlob && recordingBlob.size > 0) {
-        // 컨텍스트 저장 시도
-        if (typeof setRecordedChunks === "function") {
-          try {
-            setRecordedChunks((prev) => [...(prev || []), recordingBlob]);
-            console.log("녹음 데이터 컨텍스트에 저장 성공");
-          } catch (error) {
-            console.error("녹음 데이터 컨텍스트 저장 실패:", error);
+        // window.latestRecordings에서 찾기
+        if (!recordingBlob || recordingBlob.size === 0) {
+          if (window.latestRecordings?.[teamId]?.blob) {
+            recordingBlob = window.latestRecordings[teamId].blob;
+            console.log(
+              `window.latestRecordings에서 녹음 찾음: ${
+                recordingBlob?.size || 0
+              } 바이트`
+            );
           }
         }
 
-        // 로컬 스토리지에도 저장
-        saveToLocalStorage(teamId, recordingBlob);
+        // 여전히 녹음 데이터가 없으면 오류
+        if (!recordingBlob || recordingBlob.size === 0) {
+          console.error("녹음 파일을 찾을 수 없어 회의를 종료할 수 없습니다.");
+          alert(
+            "녹음 파일이 없어 회의를 종료할 수 없습니다. 마이크를 켜고 녹음을 시작해주세요."
+          );
+          return;
+        }
+      }
 
-        // 서버에 업로드 시도
-        try {
-          const uploadResult = await uploadRecordingFile(recordingBlob, teamId);
-          if (uploadResult.success) {
-            console.log("녹음 파일 업로드 성공:", uploadResult);
-          } else {
-            console.error("녹음 파일 업로드 실패:", uploadResult.error);
-            alert("녹음 파일 업로드에 실패했습니다. 다시 시도해주세요.");
-            return; // 업로드 실패 시 종료 처리 중단
+      console.log(`사용할 녹음 파일: ${recordingBlob.size} 바이트`);
+
+      // 서버에 업로드 시도
+      try {
+        const uploadResult = await uploadRecordingFile(recordingBlob, teamId);
+
+        if (uploadResult.success) {
+          console.log("녹음 파일 업로드 성공:", uploadResult);
+
+          // 성공 시 상태 정리
+          if (localStream) {
+            localStream.getTracks().forEach((track) => {
+              console.log(`미디어 트랙 중지: ${track.kind}`);
+              track.stop();
+            });
           }
-        } catch (uploadError) {
-          console.error("녹음 파일 업로드 중 오류:", uploadError);
+
+          // 상태 초기화
+          setLocalStream(null);
+          setIsCamera(false);
+          setIsMike(false);
+          setIsRecording(false);
+          setIsRecordingPaused(false);
+          setMeetingEnd(true);
+          setDiscord(false);
+
+          console.log("회의 종료 처리 완료");
+        } else {
+          console.error("녹음 파일 업로드 실패:", uploadResult.error);
           alert("녹음 파일 업로드에 실패했습니다. 다시 시도해주세요.");
-          return; // 업로드 실패 시 종료 처리 중단
+          return;
         }
-      } else {
-        console.error("녹음 파일을 찾을 수 없어 회의를 종료할 수 없습니다.");
-        alert(
-          "녹음 파일이 없어 회의를 종료할 수 없습니다. 마이크를 켜고 녹음을 시작해주세요."
-        );
-        return; // 녹음이 없으면 종료 처리 중단
+      } catch (uploadError) {
+        console.error("녹음 파일 업로드 중 오류:", uploadError);
+        alert("녹음 파일 업로드에 실패했습니다. 다시 시도해주세요.");
+        return;
       }
-
-      // 모든 트랙 중지
-      if (localStream) {
-        localStream.getTracks().forEach((track) => {
-          console.log(`미디어 트랙 중지: ${track.kind}`);
-          track.stop();
-        });
-      }
-
-      // 상태 초기화
-      setLocalStream(null);
-      setIsCamera(false);
-      setIsMike(false);
-      setIsRecording(false);
-      setIsRecordingPaused(false);
-      setMeetingEnd(true);
-      setDiscord(false);
-
-      console.log("회의 종료 처리 완료");
     } catch (error) {
       console.error("회의 종료 처리 오류:", error);
+      alert("회의 종료 중 오류가 발생했습니다. 다시 시도해주세요.");
     }
   }, [
     getValidTeamId,
     isRecording,
     isRecordingPaused,
     localStream,
-    setRecordedChunks,
     setIsCamera,
     setIsMike,
     setMeetingEnd,
     setDiscord,
-    saveToLocalStorage,
   ]);
 
   // 모달에서 종료 버튼 클릭 시 처리
+  // onModalStopConfirm 함수 (Discord 컴포넌트 내에서)
+  // onModalStopConfirm 함수 (Discord 컴포넌트 내에서)
   const onModalStopConfirm = useCallback(async () => {
-    // 녹음 파일 유무 확인
-    const teamId = getValidTeamId();
-    let hasRecording = false;
+    try {
+      // 녹음 파일 유무 확인
+      const teamId = getValidTeamId();
+      let hasRecording = false;
+      let recordingBlob = null;
 
-    // 녹음 서비스에서 녹음 이력 확인
-    if (recordingServiceRef.current) {
-      if (isRecording || isRecordingPaused) {
-        hasRecording = true;
-      } else {
-        const recording =
-          recordingServiceRef.current.getLatestRecording(teamId);
-        hasRecording = recording && recording.size > 0;
+      // 현재 녹음 중인 경우
+      if (recordingServiceRef.current) {
+        if (isRecording || isRecordingPaused) {
+          hasRecording = true;
+        } else {
+          // 기존 녹음 확인
+          recordingBlob =
+            recordingServiceRef.current.getLatestRecording(teamId);
+          hasRecording = recordingBlob && recordingBlob.size > 0;
 
-        if (!hasRecording) {
-          hasRecording =
-            recordingServiceRef.current.hasRecordingHistory(teamId);
+          if (!hasRecording) {
+            hasRecording =
+              recordingServiceRef.current.hasRecordingHistory(teamId);
+          }
         }
       }
-    }
 
-    // 로컬 스토리지에서 녹음 정보 확인
-    if (!hasRecording) {
-      const infoKeys = Object.keys(localStorage).filter(
-        (key) => key.startsWith(`recording_${teamId}_`) && key.endsWith("_info")
-      );
-      hasRecording = infoKeys.length > 0;
-    }
+      // window.latestRecordings에서 확인
+      if (!hasRecording && window.latestRecordings?.[teamId]?.blob) {
+        recordingBlob = window.latestRecordings[teamId].blob;
+        hasRecording = recordingBlob && recordingBlob.size > 0;
+      }
 
-    if (!hasRecording) {
-      alert(
-        "녹음 파일이 없어 회의를 종료할 수 없습니다. 마이크를 켜고 녹음을 시작해주세요."
-      );
+      // 로컬 스토리지에서 확인
+      if (!hasRecording) {
+        const infoKeys = Object.keys(localStorage).filter(
+          (key) =>
+            key.startsWith(`recording_${teamId}_`) && key.endsWith("_info")
+        );
+        hasRecording = infoKeys.length > 0;
+      }
+
+      if (!hasRecording) {
+        alert(
+          "녹음 파일이 없어 회의를 종료할 수 없습니다. 마이크를 켜고 녹음을 시작해주세요."
+        );
+        setIsModalOpen(false);
+        return;
+      }
+
+      // 정상 종료 처리
+      await handleMeetingEnd();
       setIsModalOpen(false);
-      return;
+    } catch (error) {
+      console.error("모달 종료 처리 오류:", error);
+      alert("회의 종료 중 오류가 발생했습니다. 다시 시도해주세요.");
+      setIsModalOpen(false);
     }
-
-    // 정상 종료 처리
-    handleMeetingEnd();
-    setIsModalOpen(false);
-  }, [
-    handleMeetingEnd,
-    getValidTeamId,
-    isRecording,
-    isRecordingPaused,
-    setIsModalOpen,
-  ]);
+  }, [handleMeetingEnd, getValidTeamId, isRecording, isRecordingPaused]);
 
   // X 버튼 클릭 핸들러
   const onClickEnd = useCallback(() => {
@@ -1480,13 +1487,13 @@ const Discord = () => {
                   alt="회의 상태"
                 />
                 {isNewTeam() ? (
-                  ""
-                ) : (
                   <img
                     src={isAlarmActive ? AlarmLight : DisAlarm}
                     style={{ width: "50%" }}
                     alt="알람"
                   />
+                ) : (
+                  ""
                 )}
               </div>
               <div className="discord-foot-Src">
