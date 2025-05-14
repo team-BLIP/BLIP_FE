@@ -33,6 +33,11 @@ export const Container = styled.div`
   justify-content: center;
   align-items: center;
   height: 100vh;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
 `;
 
 export const LogoContainer = styled.div`
@@ -58,4 +63,14 @@ export const Texts = styled.span`
 
 export const LoginButton = styled(Button)`
   margin-top: 100px;
+`;
+
+export const BackgroundImage = styled.img`
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 120%;
+  width: 75%;
+  object-fit: cover;
+  z-index: 0;
 `;
