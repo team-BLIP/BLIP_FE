@@ -224,7 +224,7 @@ const OwnerTeam = () => {
         console.log("API 호출 성공:", response);
 
         // 메인 페이지로 이동 - 업데이트된 정보를 state로 전달
-        nav("/", {
+        nav("/mainPage", {
           state: {
             itemId,
             updatedTeamName: inputFont || null,
@@ -237,7 +237,7 @@ const OwnerTeam = () => {
         console.error("API 호출 실패:", error);
 
         // API 실패해도 로컬 데이터는 이미 업데이트됨 - 메인 페이지로 이동
-        nav("/", {
+        nav("/mainPage", {
           state: {
             itemId,
             updatedTeamName: inputFont || null,

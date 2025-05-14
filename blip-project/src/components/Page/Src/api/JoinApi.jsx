@@ -10,9 +10,9 @@ const JoinApi = async (
   nav
 ) => {
   const apiUrl = import.meta.env.VITE_API_URL_URL_CREATE_JOIN;
-  const accessToken = import.meta.env.VITE_API_URL_URL_KEY;
+  const accessToken = localStorage.getItem("accessToken");
 
-    const data = {
+  const data = {
     invite_link: JoinUrl,
   };
   console.log("JoinUrl", JoinUrl);

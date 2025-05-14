@@ -19,11 +19,7 @@ const FeedBackApi = async (teamId) => {
     console.log("요청 URL:", feedbackUrl);
 
     // 인증 토큰 가져오기 - 여러 소스 확인
-    let accessToken =
-      localStorage.getItem("accessToken") ||
-      localStorage.getItem("token") ||
-      sessionStorage.getItem("accessToken") ||
-      sessionStorage.getItem("token");
+    let accessToken = localStorage.getItem("accessToken");
 
     // 환경 변수에서도 확인 (VITE_API_URL_URL_KEY는 이름이 이상합니다. 실제로는 다른 환경 변수일 수 있음)
     if (!accessToken) {

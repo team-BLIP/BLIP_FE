@@ -74,7 +74,7 @@ const MeetingStartApi = async ({
 
   // API URL과 토큰 가져오기
   const apiUrl = import.meta.env.VITE_API_URL_URL_MEETING_START;
-  const accessToken = import.meta.env.VITE_API_URL_URL_KEY;
+  const accessToken = localStorage.getItem("accessToken");
 
   // createTeamId로부터 팀 ID 추출
   const cleanedTeamId = getBackendId(createTeamId);

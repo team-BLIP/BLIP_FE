@@ -10,9 +10,7 @@ import {
   memo,
 } from "react";
 import PropTypes from "prop-types";
-import { UseStateContext } from "../../../contexts/AppContext";
-import { TeamDel } from "../Main/Main";
-import { FindId } from "../Main/Main";
+import { UseStateContext, FindId, TeamDel } from "../Main/Main";
 import { useNavigate, useLocation } from "react-router-dom";
 import listApi from "./api/listApi";
 import Add from "../../../svg/add.svg";
@@ -157,6 +155,11 @@ const TeamItemPropTypes = {
 // 팀 항목 컴포넌트 (성능 최적화를 위한 메모이제이션)
 // memo로 감싸서 불필요한 리렌더링 방지
 // 이미지가 없는 경우에도 텍스트를 가운데 정렬하는 TeamItem 컴포넌트
+// TeamItem 컴포넌트 개선
+// SidebarTeam.jsx 내부에 있는 TeamItem 컴포넌트 수정
+
+// 팀 항목 컴포넌트 (성능 최적화를 위한 메모이제이션)
+// 개선된 TeamItem 컴포넌트 (선택 효과 제거 + 클릭 이벤트 유지)
 const TeamItem = memo(
   ({ item, isSelected, image, discord, onClick, teamImage }) => {
     // 기본 추가 버튼인 경우
@@ -164,10 +167,26 @@ const TeamItem = memo(
       return (
         <div
           className="content-item-plus"
-          onClick={discord ? undefined : () => onClick(item)}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            // 클릭 이벤트 유지
+            if (!discord) onClick(item);
+          }}
           style={{
-            ...typography.Header2,
+            // 인라인 스타일 직접 지정하여 color, typography 의존성 제거
             backgroundColor: "transparent",
+            cursor: discord ? "default" : "pointer",
+            fontSize: "16px",
+            fontWeight: 600,
+            width: "90%",
+            aspectRatio: "1 / 1",
+            borderRadius: "12px",
+            marginBottom: "20%",
+            border: "2px dashed #A5D6A7",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
           <span
@@ -175,49 +194,61 @@ const TeamItem = memo(
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              width: "100%",
+              height: "100%",
             }}
           >
             <img
               src={Add}
               alt="추가"
-              style={{ width: "100%", height: "100%" }}
+              style={{ width: "24px", height: "24px" }}
             />
           </span>
         </div>
       );
     }
 
-    // 일반 팀 항목
+    // 팀 이름 안전하게 가져오기
     const teamDisplayName =
       typeof item.itemContent === "string" && item.itemContent !== "ADD_BUTTON"
         ? item.itemContent
         : typeof item.content === "string"
         ? item.content
+        : typeof item.team_name === "string"
+        ? item.team_name
         : "팀 이름";
 
-    // 이미지 URL 결정 (teamImage prop 사용)
+    // 이미지 URL 결정
     const hasTeamImage = teamImage && typeof teamImage === "string";
 
     if (hasTeamImage) {
-      // 이미지가 있는 경우 이미지로 꽉 채우고 초록색 테두리 제거
+      // 이미지가 있는 경우 - 선택 스타일 효과 제거, 클릭 이벤트 유지
       return (
         <div
-          className={isSelected && image ? "content-item-image" : ""}
-          onClick={discord ? undefined : () => onClick(item)}
+          className="content-item-image" // 항상 기본 클래스 사용 (선택 효과 없음)
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            // 클릭 이벤트 유지
+            if (!discord) onClick(item);
+          }}
           style={{
-            ...typography.Header2,
-            backgroundColor: item.isPlus ? "transparent" : color.White,
-            padding: 0, // 패딩 제거
-            overflow: "hidden", // 넘치는 부분 숨김
-            position: "relative", // 상대 위치 설정]
-            width: "90%", // 너비 설정
-            aspectRatio: "1 / 1", // 가로 세로 비율 유지
-            borderRadius: "12px", // 모서리 둥글게
-            marginBottom: "20%", // 하단 여백
-            boxShadow: "none", // 초록색 테두리(그림자) 제거
+            // 직접 스타일 지정
+            fontSize: "16px",
+            fontWeight: 600,
+            backgroundColor: "white",
+            padding: 0,
+            overflow: "hidden",
+            position: "relative",
+            width: "90%",
+            aspectRatio: "1 / 1",
+            borderRadius: "12px",
+            marginBottom: "20%",
+            boxShadow: "none", // 선택 표시 없음
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            cursor: discord ? "default" : "pointer",
           }}
         >
           <img
@@ -226,35 +257,47 @@ const TeamItem = memo(
             style={{
               width: "100%",
               height: "100%",
-              objectFit: "cover", // 이미지 비율 유지하면서 영역 꽉 채움
-              borderRadius: "inherit", // 부모 요소와 동일한 모서리 둥글기 적용
+              objectFit: "cover",
+              borderRadius: "inherit",
             }}
           />
         </div>
       );
     } else {
-      // 이미지가 없는 경우 - 텍스트 가운데 정렬
+      // 이미지가 없는 경우 - 선택 스타일 효과 제거, 클릭 이벤트 유지
       return (
         <div
-          className="content-item"
-          onClick={discord ? undefined : () => onClick(item)}
+          className="content-item" // 항상 기본 클래스 사용 (선택 효과 없음)
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            // 클릭 이벤트 유지
+            if (!discord) onClick(item);
+          }}
           style={{
-            ...typography.Header2,
-            backgroundColor: item.isPlus ? "transparent" : color.GrayScale[1],
-            // 전체 컨테이너를 flex로 구성하여 중앙 정렬 용이하게
+            // 직접 스타일 지정
+            fontSize: "16px",
+            fontWeight: 600,
+            backgroundColor: "#f5f5f5",
             display: "flex",
             alignItems: "center",
-            justifyContent: "center", // 컨텐츠 가운데 정렬
+            justifyContent: "center",
+            border: "none", // 선택 표시 없음
+            cursor: discord ? "default" : "pointer",
+            width: "90%",
+            aspectRatio: "1 / 1",
+            borderRadius: "12px",
+            marginBottom: "20%",
           }}
         >
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              justifyContent: "center", // 내부 컨텐츠 가운데 정렬
+              justifyContent: "center",
               width: "100%",
               padding: "0 8px",
-              textAlign: "center", // 텍스트 가운데 정렬
+              textAlign: "center",
             }}
           >
             <span
@@ -262,8 +305,9 @@ const TeamItem = memo(
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
-                maxWidth: "100%", // 너비 제한
-                textAlign: "center", // 텍스트 가운데 정렬
+                maxWidth: "100%",
+                textAlign: "center",
+                color: "inherit", // 선택 시 색상 변경 없음
               }}
             >
               {teamDisplayName}
@@ -726,88 +770,134 @@ const SidebarTeam = () => {
   }, [loadAndNormalizeTeams]);
 
   // 팀 클릭 이벤트 핸들러 (메모이제이션)
+  // 개선된 onClickEffect 함수
+  // SidebarTeam.jsx 내부에 있는 onClickEffect 함수 수정
   const onClickEffect = useCallback(
     async (item) => {
       if (!item) return;
 
+      // 기본 추가 버튼인 경우 별도 처리
+      if (item.isDefaultAddButton || item.itemContent === "ADD_BUTTON") {
+        console.log("팀 추가 버튼 클릭");
+        if (basic !== undefined) setBasic((prev) => !prev);
+        if (join !== undefined) setJoin((prev) => !prev);
+        nav("/mainPage", {
+          state: {
+            createTeamId,
+            content,
+            action: "createTeam", // 액션 명시
+          },
+        });
+        return;
+      }
+
       // ID 정규화 적용
       const normalizedItem = normalizeTeamIds(item);
 
-      // 기존 처리 로직
+      // ID 확인 및 설정
       const itemId = (
         normalizedItem._originalId ||
         normalizedItem.id ||
         ""
       ).toString();
-      const itemContent =
-        typeof normalizedItem.content === "string"
-          ? normalizedItem.content
-          : typeof normalizedItem.itemContent === "string" &&
-            normalizedItem.itemContent !== "ADD_BUTTON"
-          ? normalizedItem.itemContent
-          : "";
-      const itemUrl = normalizedItem.TeamUrl || "";
-      const itemBackendId = normalizedItem.backendId;
+
+      // 백엔드 ID 설정 - 문자열로 통일
+      const backendId = String(
+        normalizedItem.backendId ||
+          normalizedItem._originalId ||
+          normalizedItem.team_id ||
+          ""
+      );
 
       // 'create-' 접두어 제거된 백엔드 ID
-      const cleanBackendId =
-        typeof itemBackendId === "string" && itemBackendId.startsWith("create-")
-          ? itemBackendId.replace("create-", "")
-          : itemBackendId;
+      const cleanBackendId = backendId.startsWith("create-")
+        ? backendId.replace("create-", "")
+        : backendId;
+
+      // 팀 이름 가져오기
+      const teamName =
+        typeof normalizedItem.itemContent === "string" &&
+        normalizedItem.itemContent !== "ADD_BUTTON"
+          ? normalizedItem.itemContent
+          : typeof normalizedItem.content === "string"
+          ? normalizedItem.content
+          : typeof normalizedItem.team_name === "string"
+          ? normalizedItem.team_name
+          : "팀 이름";
+
+      // 팀 URL 가져오기
+      const teamUrl =
+        normalizedItem.TeamUrl ||
+        normalizedItem.invite_link ||
+        normalizedItem.createTeamUrl ||
+        "";
 
       // 디버깅 로그
       console.log("팀 클릭:", {
         원본ID: itemId,
         백엔드ID: cleanBackendId,
-        content: itemContent,
+        content: teamName,
+        url: teamUrl,
       });
 
       // 현재 선택한 팀 ID 저장
       setTargetId(cleanBackendId);
       localStorage.setItem("currentTeamId", cleanBackendId);
 
-      // URL 파라미터 업데이트
-      nav(`?teamId=${cleanBackendId}`, { replace: true });
+      // URL 파라미터 업데이트 (중복 navicate 방지)
+      const currentParams = new URLSearchParams(location.search);
+      const currentTeamId = currentParams.get("teamId");
 
-      if (normalizedItem.isPlus || normalizedItem.isDefaultAddButton) {
-        if (basic) {
-          setBasic((prev) => !prev);
-        }
-        if (join) {
-          setJoin((prev) => !prev);
-        }
-        nav("/", { state: { createTeamId, content, itemId } });
-      } else {
-        const currentTeamId = `create-${cleanBackendId}`;
-
-        if (currentTeamId.startsWith("create-")) {
-          if (Owner) setOwner((prev) => !prev);
-          if (!basic) setBasic((prev) => !prev);
-          if (join) setJoin((prev) => !prev);
-        } else {
-          if (!join) setJoin(false);
-          if (!basic) setBasic(false);
-          if (Owner) setOwner(false);
-        }
-
-        nav("/", {
-          state: {
-            createTeamId: currentTeamId,
-            content: itemContent,
-            targetId: cleanBackendId,
-            createTeamUrl: itemUrl,
-            itemId,
-            itemBackendId: cleanBackendId,
-          },
-        });
+      if (currentTeamId !== cleanBackendId) {
+        nav(`?teamId=${cleanBackendId}`, { replace: true });
       }
 
+      // 상태 설정 및 페이지 이동
+      const currentTeamIdWithPrefix = `create-${cleanBackendId}`;
+
+      // 상태 업데이트
+      if (Owner !== undefined) setOwner(false);
+      if (basic !== undefined) setBasic(false);
+      if (join !== undefined) setJoin(false);
+
+      // 팀이 있는 경우에만 Owner 상태 업데이트
+      if (
+        currentTeamIdWithPrefix.startsWith("create-") &&
+        Owner !== undefined
+      ) {
+        setOwner(true);
+      }
+
+      // URL 상태와 함께 이동
+      console.log("페이지 이동 시도:", "/mainPage", {
+        createTeamId: currentTeamIdWithPrefix,
+        content: teamName,
+        targetId: cleanBackendId,
+        createTeamUrl: teamUrl,
+        itemId,
+        itemBackendId: cleanBackendId,
+      });
+
+      // 명시적인 페이지 이동 (force refresh 추가)
+      nav("/mainPage", {
+        state: {
+          createTeamId: currentTeamIdWithPrefix,
+          content: teamName,
+          targetId: cleanBackendId,
+          createTeamUrl: teamUrl,
+          itemId,
+          itemBackendId: cleanBackendId,
+          forceRefresh: true,
+        },
+        replace: true,
+      });
+
       // 상태 리셋
-      if (isLetter) setIsLetter(false);
-      if (setting) setSetting(false);
-      if (isAlarm) setIsAlarm(false);
-      if (isKeyword) setIsKeyword(false);
-      if (isFeedback) setIsFeedback(false);
+      if (isLetter !== undefined) setIsLetter(false);
+      if (setting !== undefined) setSetting(false);
+      if (isAlarm !== undefined) setIsAlarm(false);
+      if (isKeyword !== undefined) setIsKeyword(false);
+      if (isFeedback !== undefined) setIsFeedback(false);
     },
     [
       createTeamId,
@@ -829,6 +919,7 @@ const SidebarTeam = () => {
       setIsFeedback,
       isKeyword,
       setIsKeyword,
+      location.search,
     ]
   );
 

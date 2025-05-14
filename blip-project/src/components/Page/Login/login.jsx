@@ -69,9 +69,11 @@ const Login = () => {
     try {
       console.log("로그인 요청 시작:", email);
 
+      const BaseUrl = import.meta.env.VITE_API_URL_BASE;
+      const LoginUrl = `${BaseUrl}users/login`;
       const data = { email, password };
 
-      const response = await instance.post("/users/login", data, {
+      const response = await instance.post(LoginUrl, data, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -83,7 +85,7 @@ const Login = () => {
       if (accessToken) {
         localStorage.setItem("accessToken", accessToken);
         console.log("accessToken 저장 완료:", accessToken);
-        navigate("/");
+        navigate("/mainPage");
       } else {
         setErrorMessage("로그인에 실패했습니다. 다시 시도해주세요.");
         console.error("accessToken 없음, 응답 확인 필요:", response.data);

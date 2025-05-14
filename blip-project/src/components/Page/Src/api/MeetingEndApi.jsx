@@ -6,8 +6,7 @@ import axios from "axios";
  */
 class MeetingEndApi {
   constructor() {
-    this.baseUrl =
-      import.meta.env.VITE_API_URL_BASE || "http://3.38.233.219:8080";
+    this.baseUrl = import.meta.env.VITE_API_URL_BASE;
     this.cachedRecordings = new Map();
     this.pendingUploads = new Map();
 
@@ -78,7 +77,6 @@ class MeetingEndApi {
         }
 
         // sessionStorage의 Blob URL에서 검색
-        // sessionStorage의 Blob URL에서 찾기 - 안전하게 처리
         for (const infoKey of infoKeys) {
           try {
             const recordingKey = infoKey.replace("_info", "");
@@ -340,7 +338,7 @@ class MeetingEndApi {
       const apiUrl = `${baseUrl}/files/presigned-url`;
 
       // 토큰 가져오기
-      const accessToken = import.meta.env.VITE_API_URL_URL_KEY;
+      const accessToken = localStorage.getItem("accessToken");
 
       // 요청 설정
       const params = { fileName };

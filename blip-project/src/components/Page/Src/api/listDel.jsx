@@ -9,7 +9,7 @@ const listDel = async (idToDelete, onSuccessOrItemId = null) => {
   }
 
   const apiUrl = import.meta.env.VITE_API_URL_BASE.trim() || "";
-  const accessToken = import.meta.env.VITE_API_URL_URL_KEY?.trim() || "";
+  const accessToken = localStorage.getItem("accessToken");
 
   // 토큰 디버깅 (보안을 위해 일부만 출력)
   console.log(

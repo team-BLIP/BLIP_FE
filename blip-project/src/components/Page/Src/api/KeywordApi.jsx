@@ -13,8 +13,7 @@ const KeywordApi = async (targetId, meetingId = null) => {
   const keywordUrl = `${apiUrl}teams/${effectiveTeamId}`;
 
   // 로컬 스토리지에서 토큰 가져오기
-  const accessToken =
-    localStorage.getItem("accessToken") || import.meta.env.VITE_API_URL_URL_KEY;
+  const accessToken = localStorage.getItem("accessToken");
   if (!accessToken) {
     console.error("인증 토큰이 없습니다.");
     throw new Error("인증 토큰이 없습니다. 로그인이 필요합니다.");

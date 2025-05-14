@@ -32,7 +32,7 @@ const DiscordApi = {
     return new Promise((resolve) => {
       try {
         // WebSocket 서버 URL
-        const wsUrl = "ws://3.35.180.21:8080/ws";
+        const wsUrl = `${import.meta.env.VITE_API_URL_BASE}ws`;
         DiscordApi.webSocket = new WebSocket(wsUrl);
 
         // 연결 타임아웃 설정 (5초)
